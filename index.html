@@ -311,9 +311,7 @@
       const num = Number(amount) || 0;
       const sign = num < 0 ? '-' : '';
       return sign + '₺' + Math.abs(Math.round(num)).toLocaleString('tr-TR');
-    } 
-    
-    
+    }
 
     class SariGaleriGame {
       constructor() {
@@ -1006,7 +1004,7 @@
         } catch (e) {}
       }
     }
-      class GalleryCanvas {
+    class GalleryCanvas {
       constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
@@ -1405,7 +1403,8 @@
         return html;
       }
     }
-     const game = new SariGaleriGame();
+
+    const game = new SariGaleriGame();
     const galleryCanvas = new GalleryCanvas('galleryCanvas');
     const ui = new UIManager();
 
@@ -1433,4 +1432,4 @@
   </script>
 </body>
 </html>
-     
+
