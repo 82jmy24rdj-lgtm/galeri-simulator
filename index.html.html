@@ -316,3 +316,1169 @@
     class SariGaleriGame {
       constructor() {
         this.BANKRUPTCY_LIMIT
+    const sound = new SoundEngine();
+
+    const TURKEY_CARS = [
+      { id: 'anadolu_sahin_slx', name: 'Anadolu Şahin 1.6 SLX', marketHint: 'Klasik Yerli Sedan', body: 'sedan', segment: 'Klasik', basePrice: 235000, hp: 84, engine: '1.6 SLX', fuel: 'Benzin & LPG', gear: '5 İleri Manuel', baseKm: 225000, colors: ['#f8fafc', '#dc2626', '#1e293b'] },
+      { id: 'egeya_13_urban', name: 'Egeya 1.3 Multijet Urban', marketHint: 'Popüler C-Sedan', body: 'sedan', segment: 'C-Sedan', basePrice: 685000, hp: 95, engine: '1.3 Multijet', fuel: 'Dizel', gear: '6 İleri Manuel', baseKm: 86000, colors: ['#f8fafc', '#475569', '#1e293b'] },
+      { id: 'golfen_14_rline', name: 'Golfen 1.4 TSI R-Line', marketHint: 'Popüler C-Hatchback', body: 'hatch', segment: 'C-Hatchback', basePrice: 1085000, hp: 150, engine: '1.4 TSI', fuel: 'Benzin', gear: '7 İleri DSG', baseKm: 77000, colors: ['#0f172a', '#f8fafc', '#1d4ed8'] },
+      { id: 'corollan_16_dream', name: 'Corollan 1.6 Dream', marketHint: 'Aile Sedanı', body: 'sedan', segment: 'C-Sedan', basePrice: 1025000, hp: 132, engine: '1.6 Valvematic', fuel: 'Benzin & LPG', gear: 'Otomatik', baseKm: 66000, colors: ['#f8fafc', '#475569', '#0f172a'] },
+      { id: 'boga_duster_4x4', name: 'Boğa Duster 1.3 TCe 4x4', marketHint: 'SUV', body: 'suv', segment: 'SUV', basePrice: 1120000, hp: 150, engine: '1.3 TCe 4x4', fuel: 'Benzin', gear: 'EDC Otomatik', baseKm: 49000, colors: ['#065f46', '#d97706', '#0f172a'] },
+      { id: 'bavyera_320i_msport', name: 'Bavyera 320i M-Sport', marketHint: 'Spor Sedan', body: 'sedan', segment: 'Spor Sedan', basePrice: 1780000, hp: 170, engine: '1.6 TwinPower', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 78000, colors: ['#1d4ed8', '#0f172a', '#f8fafc'] },
+      { id: 'yildiz_c200d_amg', name: 'Yıldız C200d AMG', marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2140000, hp: 160, engine: '1.6 Turbo Dizel', fuel: 'Dizel', gear: '9G-Tronic', baseKm: 61000, colors: ['#0f172a', '#cbd5e1', '#f8fafc'] },
+      { id: 'halkali_a6_quattro', name: 'Halkalı A6 2.0 TDI Quattro', marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2680000, hp: 204, engine: '2.0 TDI Quattro', fuel: 'Dizel', gear: '7 İleri S-Tronic', baseKm: 55000, colors: ['#1e293b', '#94a3b8', '#0f172a'] },
+      { id: 'vadi_rover_vogue', name: 'Vadi Rover 3.0 TDV6 Vogue', marketHint: 'Lüks SUV', body: 'suv', segment: 'Lüks SUV', basePrice: 4480000, hp: 258, engine: '3.0 V6 Turbo', fuel: 'Dizel', gear: '8 İleri 4x4', baseKm: 44000, colors: ['#0f172a', '#f8fafc', '#065f46'] },
+      { id: 'yildiz_s580_maybach', name: 'Yıldız S580 Long Lüks', marketHint: 'Ultra Lüks Makam', body: 'sedan', segment: 'Ultra Lüks', basePrice: 6800000, hp: 503, engine: '4.0 V8 Biturbo Mild Hybrid', fuel: 'Benzin', gear: '9G-Tronic 4MATIC', baseKm: 24000, colors: ['#0f172a', '#94a3b8', '#7f1d1d'] },
+      { id: 'bogaz_911_carrera_s', name: 'Boğaz 911 Carrera S', marketHint: 'Lüks Spor Coupe', body: 'sedan', segment: 'Lüks Spor', basePrice: 5400000, hp: 450, engine: '3.0 Boxer 6 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri PDK', baseKm: 19000, colors: ['#dc2626', '#facc15', '#f8fafc'] },
+      { id: 'elmas_urus_performante', name: 'Elmas Urus Performante', marketHint: 'Lüks Süper SUV', body: 'suv', segment: 'Lüks Süper SUV', basePrice: 7900000, hp: 666, engine: '4.0 V8 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 15000, colors: ['#facc15', '#dc2626', '#0f172a'] }
+    ];
+
+    const CAR_PARTS = [
+      { key: 'hood', label: 'Motor Kaputu', weight: 0.09 },
+      { key: 'roof', label: 'Tavan', weight: 0.12 },
+      { key: 'frontBumper', label: 'Ön Tampon', weight: 0.035 },
+      { key: 'rearBumper', label: 'Arka Tampon', weight: 0.03 },
+      { key: 'leftFrontDoor', label: 'Sol Ön Kapı', weight: 0.055 },
+      { key: 'rightFrontDoor', label: 'Sağ Ön Kapı', weight: 0.055 },
+      { key: 'leftRearDoor', label: 'Sol Arka Kapı', weight: 0.045 },
+      { key: 'rightRearDoor', label: 'Sağ Arka Kapı', weight: 0.045 },
+      { key: 'leftFender', label: 'Sol Ön Çamurluk', weight: 0.045 },
+      { key: 'rightFender', label: 'Sağ Ön Çamurluk', weight: 0.045 }
+    ];
+
+    const SELLER_PERSONAS = [
+      { type: 'Doktordan', badge: 'Hatasız / Boyasız', titles: ['DOKTORDAN HATASIZ BOYASIZ GARAJ ARABASI', 'İLK SAHİBİNDEN BAKIMLI TEMİZ'], notes: 'Titizlikle kullanıldı, ekspertize açıktır.', priceMult: [1.01, 1.07], condRange: [86, 97], defectChance: 0.15 },
+      { type: 'Memurdan', badge: 'Temiz Bakımlı', titles: ['MEMURDAN TEMİZ AİLE ARACI', 'BAKIMLARI YENİ MASRAFSIZ'], notes: 'Aile aracı olarak kullanıldı.', priceMult: [0.94, 1.02], condRange: [76, 88], defectChance: 0.25 },
+      { type: 'Acil Satılık', badge: '🔥 Fırsat İlan', titles: ['ACİL NAKİTTEN SATILIK UYGUN FİYAT', 'BUGÜNE ÖZEL FIRSAT ARAÇ'], notes: 'Acil nakit ihtiyacı nedeniyle satılık.', priceMult: [0.80, 0.90], condRange: [68, 84], defectChance: 0.35 },
+      { type: 'Hasarlı Fırsat', badge: 'Hasarlı / Boyalı', titles: ['KAPORTA İŞLEMLİ FIRSAT ARAÇ', 'UYGUN FİYATLI YATIRIMLIK ARAÇ'], notes: 'Bazı parçalarında boya/değişen bulunabilir.', priceMult: [0.72, 0.85], condRange: [55, 72], defectChance: 0.5 }
+    ];
+
+    const NPC_BUYERS = ['Ahmet Yılmaz', 'Mehmet Usta', 'Zeynep Kaya', 'Burak Demir', 'Selin Arslan', 'Murat Şahin', 'Emre Öztürk', 'Elif Yıldız'];
+    const RIVAL_GALLERIES = ['Kardeşler Oto', 'Yalova Motors', 'Prestij Galeri', 'Anadolu Auto', 'Bosphorus Motors'];
+    const CARE_COSTS = { wash: 1500, polish: 6500, tires: 18000, rims: 32000 };
+
+    function formatTL(amount) {
+      const num = Number(amount) || 0;
+      const sign = num < 0 ? '-' : '';
+      return sign + '₺' + Math.abs(Math.round(num)).toLocaleString('tr-TR');
+    }
+
+    class SariGaleriGame {
+      constructor() {
+        this.BANKRUPTCY_LIMIT = -150000;
+        this.defaultState = {
+          playerId: 'GLR-' + Math.floor(100000 + Math.random() * 900000),
+          galleryName: 'Benim Galerim',
+          hasNamedGallery: false,
+          city: 'Yalova',
+          district: 'Merkez',
+          galleryTierId: 1,
+          money: 0,
+          day: 1,
+          prestige: 50,
+          creditScore: 1200,
+          tradedToday: false,
+          isBankrupt: false,
+          partner: null,
+          partnerRequestSentTo: null,
+          ownedCars: [],
+          sariListings: [],
+          offers: [],
+          loans: [],
+          auction: null
+        };
+        this.state = JSON.parse(JSON.stringify(this.defaultState));
+        this.roadCars = [];
+        this.npcWalkers = [];
+        this.particles = [];
+        this.offerTimer = 0;
+
+        this.load();
+        if (this.state.sariListings.length === 0) this.generateSariListings();
+        if (!this.state.auction) this.generateNewAuction();
+        this.checkBankruptcy();
+      }
+
+      getCurrentTier() { return GALLERY_TIERS.find(t => t.id === this.state.galleryTierId) || GALLERY_TIERS[0]; }
+
+      getMarketPhase() {
+        const cycle = (this.state.day - 1) % 9;
+        if (cycle < 3) return { name: 'Aktiflik Dönemi', key: 'active', demandMult: 1.35, priceMult: 1.06 };
+        if (cycle < 6) return { name: 'Normal Piyasa', key: 'normal', demandMult: 1.0, priceMult: 1.0 };
+        return { name: 'Durgunluk Dönemi', key: 'slow', demandMult: 0.65, priceMult: 0.94 };
+      }
+
+      getMaxLoanLimit() {
+        const score = Math.max(300, this.state.creditScore || 1200);
+        return Math.max(100000, Math.round((score * 1250) / 10000) * 10000);
+      }
+
+      adjustCreditScore(delta, reason = '') {
+        this.state.creditScore = Math.max(300, Math.min(2000, (this.state.creditScore || 1200) + delta));
+        if (reason) {
+          const sign = delta >= 0 ? `+${delta}` : `${delta}`;
+          ui.toast(`🏦 Kredi Puanı (${sign}): ${reason} (${this.state.creditScore})`, delta >= 0 ? 'success' : 'error');
+        }
+      }
+
+      adjustPrestige(delta, reason = '') {
+        this.state.prestige = Math.max(0, (this.state.prestige || 50) + delta);
+        this.state.creditScore = Math.max(300, Math.min(2000, (this.state.creditScore || 1200) + Math.round(delta * 2)));
+        if (reason) {
+          const sign = delta >= 0 ? `+${delta}` : `${delta}`;
+          ui.toast(`★ Prestij (${sign}): ${reason}`, delta >= 0 ? 'success' : 'error');
+        }
+      }
+
+      generatePartsStatus(forceClean = false) {
+        const parts = {};
+        CAR_PARTS.forEach(p => {
+          if (forceClean) { parts[p.key] = 'temiz'; return; }
+          const r = Math.random();
+          if (r < 0.08) parts[p.key] = 'degisen';
+          else if (r < 0.18) parts[p.key] = 'boya';
+          else if (r < 0.28) parts[p.key] = 'lokal_boya';
+          else parts[p.key] = 'temiz';
+        });
+        return { parts, summaryText: this.buildPartsSummaryText(parts) };
+      }
+
+      buildPartsSummaryText(parts) {
+        const p = parts || {};
+        const boyali = [], lokal = [], degisen = [];
+        CAR_PARTS.forEach(item => {
+          const st = p[item.key] || 'temiz';
+          if (st === 'degisen') degisen.push(item.label);
+          else if (st === 'boya') boyali.push(item.label);
+          else if (st === 'lokal_boya') lokal.push(item.label);
+        });
+        const chunks = [];
+        if (degisen.length) chunks.push(`Değişen: ${degisen.join(', ')}`);
+        if (boyali.length) chunks.push(`Boya: ${boyali.join(', ')}`);
+        if (lokal.length) chunks.push(`Lokal Boya: ${lokal.join(', ')}`);
+        return chunks.length ? chunks.join(' | ') : 'Boya veya değişen yok';
+      }
+
+      getPartsPenaltyFactor(car) {
+        if (!car || !car.parts) return 1.0;
+        let penalty = 0;
+        CAR_PARTS.forEach(item => {
+          const st = car.parts[item.key] || 'temiz';
+          if (st === 'degisen') penalty += item.weight * 1.15;
+          else if (st === 'boya') penalty += item.weight * 0.70;
+          else if (st === 'lokal_boya') penalty += item.weight * 0.30;
+        });
+        return Math.max(0.45, 1 - penalty);
+      }
+
+      getCarMarketValue(car) {
+        if (!car) return 100000;
+        const phase = this.getMarketPhase();
+        const cond = Math.max(15, Math.min(100, Number(car.condition) || 70));
+        const condMult = 0.52 + (cond / 100) * 0.52;
+        const partsFactor = this.getPartsPenaltyFactor(car);
+        const tireFactor = car.tireCondition === 'Yeni' ? 1.03 : (car.tireCondition === 'Kötü' ? 0.94 : 1.0);
+        const rimFactor = car.rimCondition === 'Özel Jant' ? 1.04 : (car.rimCondition === 'Çizik/Hasarlı' ? 0.95 : 1.0);
+        const careBonus = Number(car.careValueBonus) || 0;
+        return Math.max(30000, Math.round((car.basePrice * condMult * partsFactor * tireFactor * rimFactor * phase.priceMult + careBonus) / 500) * 500);
+      }
+
+      buildCarFromTemplate(tpl, overrides = {}) {
+        const safeTpl = tpl || TURKEY_CARS[0];
+        const year = overrides.year ?? Math.floor(2002 + Math.random() * 23);
+        const ageFactor = Math.max(0.42, 1 - Math.max(0, 2026 - year) * 0.022);
+        const adjustedBasePrice = Math.round((safeTpl.basePrice * ageFactor) / 1000) * 1000;
+        const city = overrides.city || ALL_CITIES[Math.floor(Math.random() * ALL_CITIES.length)];
+        const cityObj = TURKEY_LOCATIONS[city] || TURKEY_LOCATIONS['Yalova'];
+        const district = overrides.district || cityObj.districts[Math.floor(Math.random() * cityObj.districts.length)];
+        const partsData = overrides.parts ? { parts: overrides.parts, summaryText: this.buildPartsSummaryText(overrides.parts) } : this.generatePartsStatus(!!overrides.forceCleanParts);
+
+        return {
+          uid: 'car_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+          adNo: Math.floor(1150000000 + Math.random() * 84000000),
+          name: overrides.name || safeTpl.name,
+          year,
+          city,
+          district,
+          body: overrides.body || safeTpl.body,
+          segment: overrides.segment || safeTpl.segment,
+          basePrice: adjustedBasePrice,
+          hp: overrides.hp || safeTpl.hp,
+          engine: overrides.engine || safeTpl.engine,
+          fuel: overrides.fuel || safeTpl.fuel,
+          gear: overrides.gear || safeTpl.gear,
+          km: overrides.km ?? Math.round(safeTpl.baseKm * (0.7 + Math.random() * 0.55)),
+          color: overrides.color || safeTpl.colors[Math.floor(Math.random() * safeTpl.colors.length)],
+          rimColor: overrides.rimColor || '#cbd5e1',
+          condition: overrides.condition ?? Math.floor(65 + Math.random() * 30),
+          isDirty: overrides.isDirty ?? (Math.random() < 0.45),
+          polished: overrides.polished ?? false,
+          careValueBonus: overrides.careValueBonus ?? 0,
+          tireCondition: overrides.tireCondition || (Math.random() < 0.25 ? 'Kötü' : 'İyi'),
+          rimCondition: overrides.rimCondition || (Math.random() < 0.25 ? 'Çizik/Hasarlı' : 'Standart'),
+          parts: partsData.parts,
+          partsSummary: partsData.summaryText,
+          hiddenDefectsSelected: overrides.hiddenDefectsSelected || [],
+          sellerType: overrides.sellerType || 'Galeriden',
+          sellerBadge: overrides.sellerBadge || 'Temiz',
+          adTitle: overrides.adTitle || `${year} ${safeTpl.name.toUpperCase()}`,
+          adDesc: overrides.adDesc || `${year} model ${safeTpl.name}. ${partsData.summaryText}.`,
+          boughtFor: overrides.boughtFor || adjustedBasePrice,
+          listedOnSari: overrides.listedOnSari ?? false,
+          askPrice: overrides.askPrice || 0,
+          inspected: overrides.inspected ?? false,
+          hasHiddenDefect: overrides.hasHiddenDefect ?? false,
+          hiddenDefectInfo: overrides.hiddenDefectInfo || null,
+          haggleState: {
+            attempts: 0, maxAttempts: 3, patience: 100, mood: 'İlgili',
+            agreedPrice: null, sellerCounterPrice: null, closed: false,
+            lastMessage: 'Satıcı pazarlığa açık. İlan fiyatını aşmayan makul bir teklif sunabilirsin.'
+          }
+        };
+      }
+
+      setGalleryName(name) {
+        this.state.galleryName = (name || '').trim().slice(0, 26) || 'Benim Galerim';
+        this.state.hasNamedGallery = true;
+        this.save();
+        ui.renderAll();
+      }
+
+      setGalleryLocation(city, district) {
+        if (!TURKEY_LOCATIONS[city]) return;
+        const distList = TURKEY_LOCATIONS[city].districts;
+        this.state.city = city;
+        this.state.district = distList.includes(district) ? district : distList[0];
+        this.save();
+        ui.renderAll();
+        ui.toast(`📍 Galeri konumu ${this.state.city} / ${this.state.district} yapıldı.`, 'info');
+      }
+
+      save(notify = false) {
+        try {
+          localStorage.setItem('oto_galeri_v5_save', JSON.stringify(this.state));
+          if (notify) ui.toast('💾 Oyun kaydedildi!', 'success');
+        } catch (e) {}
+      }
+
+      load() {
+        try {
+          const raw = localStorage.getItem('oto_galeri_v5_save');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              this.state = {
+                ...this.defaultState,
+                ...parsed,
+                ownedCars: Array.isArray(parsed.ownedCars) ? parsed.ownedCars : [],
+                sariListings: Array.isArray(parsed.sariListings) ? parsed.sariListings : [],
+                offers: Array.isArray(parsed.offers) ? parsed.offers : [],
+                loans: Array.isArray(parsed.loans) ? parsed.loans : []
+              };
+            }
+          }
+        } catch (e) {}
+      }
+
+      resetSave() {
+        try { localStorage.removeItem('oto_galeri_v5_save'); } catch (e) {}
+        this.state = JSON.parse(JSON.stringify(this.defaultState));
+        this.roadCars = [];
+        this.generateSariListings();
+        this.generateNewAuction();
+        document.getElementById('resetModal').classList.add('hidden');
+        document.getElementById('bankruptcyModal').classList.add('hidden');
+        ui.renderAll();
+        ui.openGalleryNameModal(true);
+      }
+
+      checkBankruptcy() {
+        if (this.state.money < this.BANKRUPTCY_LIMIT && !this.state.isBankrupt) {
+          this.state.isBankrupt = true;
+          sound.error();
+          this.save();
+          ui.showBankruptcyScreen();
+        }
+      }
+
+      generateSariListings() {
+        const list = [];
+        for (let i = 0; i < 9; i++) {
+          const tpl = TURKEY_CARS[Math.floor(Math.random() * TURKEY_CARS.length)];
+          const persona = SELLER_PERSONAS[Math.floor(Math.random() * SELLER_PERSONAS.length)];
+          const cond = Math.floor(persona.condRange[0] + Math.random() * (persona.condRange[1] - persona.condRange[0]));
+          const hasHiddenDefect = Math.random() < persona.defectChance;
+          const car = this.buildCarFromTemplate(tpl, {
+            condition: cond,
+            sellerType: persona.type,
+            sellerBadge: persona.badge,
+            adTitle: persona.titles[Math.floor(Math.random() * persona.titles.length)],
+            hasHiddenDefect,
+            hiddenDefectInfo: hasHiddenDefect ? { report: 'Şanzıman / turbo / alt takım gizli kusuru tespit edildi', condPenalty: 18 } : null
+          });
+          const mVal = this.getCarMarketValue(car);
+          const mult = persona.priceMult[0] + Math.random() * (persona.priceMult[1] - persona.priceMult[0]);
+          car.askPrice = Math.max(45000, Math.round((mVal * mult) / 500) * 500);
+          car.adDesc = `${car.year} model, ${car.city}/${car.district}. ${car.partsSummary}. ${persona.notes}`;
+          list.push(car);
+        }
+        this.state.sariListings = list;
+      }
+
+      submitBuyerHaggle(uid, rawOffer) {
+        if (this.state.isBankrupt) return;
+        const car = this.state.sariListings.find(c => c.uid === uid);
+        if (!car) return;
+        const hs = car.haggleState;
+        if (hs.closed) { sound.error(); ui.toast('Satıcı pazarlığı kapattı.', 'error'); return; }
+
+        let offer = Math.round(Number(rawOffer) || 0);
+        if (offer > car.askPrice) { offer = car.askPrice; ui.toast('Teklif ilan fiyatıyla sınırlandırıldı.', 'info'); }
+        if (offer < 25000) { sound.error(); ui.toast('Geçerli bir teklif gir!', 'error'); return; }
+
+        const mVal = this.getCarMarketValue(car);
+        const floor = Math.min(car.askPrice, Math.max(mVal * 0.84, car.askPrice * 0.78));
+        hs.attempts += 1;
+
+        if (offer >= floor) {
+          hs.agreedPrice = Math.min(car.askPrice, offer);
+          hs.sellerCounterPrice = null;
+          hs.mood = 'Anlaşıldı';
+          hs.lastMessage = `"${formatTL(hs.agreedPrice)} tamam, anlaştık!"`;
+          sound.cash();
+        } else if (hs.attempts < hs.maxAttempts) {
+          const counter = Math.min(car.askPrice, Math.max(floor, Math.round(((offer + floor) * 0.52) / 500) * 500));
+          hs.sellerCounterPrice = counter;
+          hs.patience = Math.max(20, hs.patience - 30);
+          hs.mood = 'Pazarlıkta';
+          hs.lastMessage = `"${formatTL(offer)} az geldi. En son ${formatTL(counter)} olur."`;
+          sound.bid();
+        } else {
+          hs.closed = true;
+          hs.sellerCounterPrice = null;
+          hs.patience = 0;
+          hs.mood = 'Kapandı';
+          hs.lastMessage = `"Bu fiyata inemiyorum, pazarlık kapandı."`;
+          sound.error();
+        }
+        this.save();
+        ui.openListingDetail(uid);
+      }
+
+      acceptSellerCounter(uid) {
+        const car = this.state.sariListings.find(c => c.uid === uid);
+        if (!car || !car.haggleState || !car.haggleState.sellerCounterPrice) return;
+        car.haggleState.agreedPrice = Math.min(car.askPrice, car.haggleState.sellerCounterPrice);
+        car.haggleState.sellerCounterPrice = null;
+        car.haggleState.mood = 'Anlaşıldı';
+        sound.cash();
+        this.save();
+        ui.openListingDetail(uid);
+      }
+
+      performInspection(uid) {
+        if (this.state.isBankrupt) return;
+        const car = this.state.sariListings.find(c => c.uid === uid);
+        if (!car || car.inspected) return;
+        this.state.money -= 2500;
+        car.inspected = true;
+        if (car.hasHiddenDefect && car.hiddenDefectInfo) {
+          car.condition = Math.max(20, car.condition - car.hiddenDefectInfo.condPenalty);
+          sound.error();
+          ui.toast(`🔍 Ekspertiz: ${car.name} aracında gizli kusur, lastik/jant ve parça detayları açığa çıktı!`, 'error');
+        } else {
+          sound.scan();
+          ui.toast(`🔍 Ekspertiz: Lastik (${car.tireCondition}), Jant (${car.rimCondition}) ve parçalar incelendi.`, 'success');
+        }
+        this.checkBankruptcy();
+        this.save();
+        ui.renderAll();
+        ui.openListingDetail(uid);
+      }
+
+      buyFromSariSite(uid, useAgreedPrice = false) {
+        if (this.state.isBankrupt) return;
+        if (this.state.tradedToday) { sound.error(); ui.toast('Günde en fazla 1 kez araba alınabilir veya satılabilir!', 'error'); return; }
+        const tier = this.getCurrentTier();
+        if (this.state.ownedCars.length >= tier.capacity) { sound.error(); ui.toast(`Galeri kapasiten (${tier.capacity} araç) dolu!`, 'error'); return; }
+
+        const idx = this.state.sariListings.findIndex(c => c.uid === uid);
+        if (idx === -1) return;
+        const car = this.state.sariListings[idx];
+        const agreed = car.haggleState && car.haggleState.agreedPrice;
+        const baseBuy = (useAgreedPrice && agreed) ? Math.min(car.askPrice, agreed) : car.askPrice;
+        const travelFee = calcTravelCost(this.state.city, car.city);
+        const totalCost = baseBuy + travelFee;
+
+        if (this.state.money < totalCost) { sound.error(); ui.toast(`Yetersiz kasa! Araç + yol: ${formatTL(totalCost)}`, 'error'); return; }
+
+        if (!car.inspected && car.hasHiddenDefect && car.hiddenDefectInfo) {
+          car.inspected = true;
+          car.condition = Math.max(20, car.condition - car.hiddenDefectInfo.condPenalty);
+          ui.toast(`⚠️ Gizli kusur: ${car.hiddenDefectInfo.report}`, 'error');
+        }
+
+        this.state.money -= totalCost;
+        this.state.sariListings.splice(idx, 1);
+        car.boughtFor = totalCost;
+        car.listedOnSari = false;
+        this.state.ownedCars.push(car);
+        this.state.tradedToday = true;
+
+        sound.engine();
+        document.getElementById('listingDetailModal').classList.add('hidden');
+        ui.toast(`${car.name} (+${formatTL(travelFee)} yol) alındı! Gün otomatik ilerliyor...`, 'success');
+        this.save();
+        this.advanceDay(true);
+      }
+
+      applyCareOption(uid, type) {
+        if (this.state.isBankrupt) return;
+        const car = this.state.ownedCars.find(c => c.uid === uid);
+        if (!car) return;
+        const cost = CARE_COSTS[type];
+        if (!cost) return;
+        if (this.state.money < cost) { sound.error(); ui.toast(`Bu işlem için ${formatTL(cost)} gerekiyor.`, 'error'); return; }
+
+        const careBonusAdd = (type === 'wash' || type === 'polish') ? Math.round(cost * 1.5) : 0;
+        this.state.money -= cost;
+        car.careValueBonus = (Number(car.careValueBonus) || 0) + careBonusAdd;
+
+        if (type === 'wash') {
+          car.isDirty = false;
+          car.condition = Math.min(100, car.condition + 2);
+          sound.wash();
+          ui.toast(`🧼 Yıkama yapıldı! Piyasa değerine +${formatTL(careBonusAdd)} eklendi.`, 'success');
+        } else if (type === 'polish') {
+          car.isDirty = false;
+          car.polished = true;
+          car.condition = Math.min(100, car.condition + 6);
+          sound.wash();
+          ui.toast(`💎 Pasta-cila yapıldı! Piyasa değerine +${formatTL(careBonusAdd)} eklendi.`, 'success');
+        } else if (type === 'tires') {
+          car.tireCondition = 'Yeni';
+          car.condition = Math.min(100, car.condition + 4);
+          sound.wrench();
+          ui.toast(`🛞 Lastikler yenilendi!`, 'success');
+        } else if (type === 'rims') {
+          car.rimCondition = 'Özel Jant';
+          car.rimColor = '#facc15';
+          car.condition = Math.min(100, car.condition + 4);
+          sound.wrench();
+          ui.toast(`⚙️ Yeni jant takımı takıldı!`, 'success');
+        }
+        this.checkBankruptcy();
+        this.save();
+        ui.renderAll();
+      }
+
+      publishCarAd(uid, title, desc, askPrice, hiddenDefects = []) {
+        if (this.state.isBankrupt) return;
+        const car = this.state.ownedCars.find(c => c.uid === uid);
+        if (!car) return;
+        car.listedOnSari = true;
+        car.sellerType = this.state.galleryName || 'Benim Galerim';
+        car.adTitle = (title || `${car.year} ${car.name}`).trim();
+        car.adDesc = (desc || `${car.year} model ${car.name}.`).trim();
+        car.askPrice = Math.max(30000, Number(askPrice) || this.getCarMarketValue(car));
+        car.hiddenDefectsSelected = hiddenDefects;
+        document.getElementById('postAdModal').classList.add('hidden');
+        sound.cash();
+        ui.toast(`${car.name} Sarı Site'de satışa çıkarıldı!`, 'success');
+        this.save();
+        ui.renderAll();
+      }
+
+      spawnBuyerOffer() {
+        if (this.state.isBankrupt) return;
+        const listedCars = this.state.ownedCars.filter(c => c.listedOnSari);
+        if (listedCars.length === 0 || this.state.offers.length >= 4) return;
+        const phase = this.getMarketPhase();
+        const car = listedCars[Math.floor(Math.random() * listedCars.length)];
+        if (this.state.offers.some(o => o.carUid === car.uid)) return;
+
+        const marketVal = this.getCarMarketValue(car);
+        const askPrice = car.askPrice || marketVal;
+        const ratio = askPrice / Math.max(1, marketVal);
+
+        let chance = 0.75 * phase.demandMult;
+        if (ratio > 1.25) chance *= 0.25;
+        else if (ratio > 1.08) chance *= 0.55;
+        else if (ratio < 0.92) chance *= 1.45;
+        if (Math.random() > Math.min(0.95, chance)) return;
+
+        const rawOffer = marketVal * (0.90 + Math.random() * 0.14) * phase.priceMult;
+        const offeredAmount = Math.min(askPrice, Math.max(25000, Math.round(rawOffer / 500) * 500));
+        const buyerName = NPC_BUYERS[Math.floor(Math.random() * NPC_BUYERS.length)];
+
+        this.state.offers.push({
+          id: 'off_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          carUid: car.uid, carName: car.name, buyerName, offeredAmount, askPrice, marketVal, haggled: false
+        });
+        ui.toast(`🟡 Yeni Teklif: ${buyerName}, ${car.name} için ${formatTL(offeredAmount)} önerdi!`, 'info');
+        ui.updateHUD();
+        if (ui.activeTab === 'offers') ui.renderTabContent();
+      }
+
+      acceptOffer(offerId) {
+        if (this.state.isBankrupt) return;
+        if (this.state.tradedToday) { sound.error(); ui.toast('Günde en fazla 1 kez araba alınabilir veya satılabilir!', 'error'); return; }
+        const idx = this.state.offers.findIndex(o => o.id === offerId);
+        if (idx === -1) return;
+        const offer = this.state.offers[idx];
+        const carIdx = this.state.ownedCars.findIndex(c => c.uid === offer.carUid);
+        this.state.offers.splice(idx, 1);
+        if (carIdx === -1) { ui.renderAll(); return; }
+
+        const car = this.state.ownedCars[carIdx];
+        if (car.hiddenDefectsSelected && car.hiddenDefectsSelected.length > 0 && Math.random() < 0.5) {
+          const lostPrestige = Math.max(1, Math.round(this.state.prestige * 0.5));
+          this.state.prestige = Math.max(0, this.state.prestige - lostPrestige);
+          this.adjustCreditScore(-80, 'Gizli kusur fark edildi');
+          ui.toast(`⚠️ Gizli kusur fark edildi! Prestijin %50 düştü (-${lostPrestige}).`, 'error');
+        } else {
+          this.adjustPrestige(3, 'Başarılı satış');
+        }
+
+        const gross = offer.offeredAmount;
+        const tax = Math.round(gross * 0.05);
+        const net = gross - tax;
+        this.state.money += net;
+        this.state.ownedCars.splice(carIdx, 1);
+        this.state.tradedToday = true;
+
+        sound.cash();
+        ui.toast(`Satış tamamlandı! Net: +${formatTL(net)} (%5 Vergi: -${formatTL(tax)}). Gün ilerliyor...`, 'success');
+        this.save();
+        this.advanceDay(true);
+      }
+
+      haggleOffer(offerId) {
+        const offer = this.state.offers.find(o => o.id === offerId);
+        if (!offer || offer.haggled) return;
+        offer.haggled = true;
+        if (Math.random() < 0.65) {
+          offer.offeredAmount = Math.min(offer.askPrice, Math.round((offer.offeredAmount * 1.05) / 500) * 500);
+          sound.wash();
+          ui.toast(`Alıcı teklifi ${formatTL(offer.offeredAmount)} yaptı!`, 'success');
+        } else {
+          this.state.offers = this.state.offers.filter(o => o.id !== offerId);
+          sound.error();
+          ui.toast(`${offer.buyerName} vazgeçti.`, 'error');
+        }
+        this.save();
+        ui.renderAll();
+      }
+
+      rejectOffer(offerId) {
+        this.state.offers = this.state.offers.filter(o => o.id !== offerId);
+        this.save();
+        ui.renderAll();
+      }
+
+      generateNewAuction() {
+        const tpl = TURKEY_CARS[Math.floor(Math.random() * TURKEY_CARS.length)];
+        const car = this.buildCarFromTemplate(tpl, { condition: Math.floor(75 + Math.random() * 20), isDirty: false });
+        const marketVal = this.getCarMarketValue(car);
+        this.state.auction = {
+          car, marketVal,
+          currentBid: Math.round((marketVal * 0.65) / 1000) * 1000,
+          highestBidder: 'Açılış', isPlayerHighest: false, timeLeft: 25, ended: false
+        };
+      }
+
+      placeAuctionBid(inc) {
+        if (this.state.isBankrupt) return;
+        if (this.state.tradedToday) { sound.error(); ui.toast('Günde 1 kez işlem yapabilirsin!', 'error'); return; }
+        const auc = this.state.auction;
+        if (!auc || auc.ended) return;
+        const tier = this.getCurrentTier();
+        if (this.state.ownedCars.length >= tier.capacity) { sound.error(); ui.toast('Galeri kapasiten dolu!', 'error'); return; }
+        const nextBid = auc.currentBid + inc;
+        if (this.state.money < nextBid) { sound.error(); ui.toast('Kasa yetersiz!', 'error'); return; }
+        auc.currentBid = nextBid;
+        auc.highestBidder = this.state.galleryName || 'Sen';
+        auc.isPlayerHighest = true;
+        if (auc.timeLeft < 7) auc.timeLeft = 7;
+        sound.bid();
+        ui.renderTabContent();
+      }
+
+      finishAuction() {
+        const auc = this.state.auction;
+        if (!auc || auc.ended) return;
+        auc.ended = true;
+        if (auc.isPlayerHighest && this.state.money >= auc.currentBid && !this.state.tradedToday) {
+          const travelFee = calcTravelCost(this.state.city, auc.car.city);
+          this.state.money -= (auc.currentBid + travelFee);
+          auc.car.boughtFor = auc.currentBid + travelFee;
+          this.state.ownedCars.push(auc.car);
+          this.state.tradedToday = true;
+          sound.cash();
+          ui.toast(`🔨 İhale alındı! (+${formatTL(travelFee)} yol). Gün ilerliyor...`, 'success');
+          this.save();
+          this.advanceDay(true);
+          return;
+        }
+        this.save();
+        ui.renderAll();
+      }
+
+      takeLoan(amount, days, interestRate, bankName) {
+        if (this.state.isBankrupt) return;
+        const maxLimit = this.getMaxLoanLimit();
+        const activeTotal = this.state.loans.reduce((s, l) => s + l.remainingDebt, 0);
+        if (activeTotal + amount > maxLimit) { sound.error(); ui.toast(`Maksimum kredi limitin ${formatTL(maxLimit)}!`, 'error'); return; }
+        if (this.state.loans.length >= 2) { sound.error(); ui.toast('En fazla 2 aktif kredin olabilir!', 'error'); return; }
+        const totalPayback = Math.round(amount * (1 + interestRate));
+        const dailyInstallment = Math.round(totalPayback / days);
+        this.state.money += amount;
+        this.state.loans.push({ id: 'loan_' + Date.now(), bankName, remainingDebt: totalPayback, dailyInstallment, daysLeft: days });
+        sound.cash();
+        ui.toast(`${bankName}: ${formatTL(amount)} kredi verildi!`, 'success');
+        this.save();
+        ui.renderAll();
+      }
+
+      payOffLoan(loanId) {
+        const idx = this.state.loans.findIndex(l => l.id === loanId);
+        if (idx === -1) return;
+        const loan = this.state.loans[idx];
+        if (this.state.money < loan.remainingDebt) { sound.error(); ui.toast('Yeterli bakiye yok.', 'error'); return; }
+        this.state.money -= loan.remainingDebt;
+        this.state.loans.splice(idx, 1);
+        this.adjustCreditScore(75, 'Kredi borcu ödendi');
+        sound.cash();
+        this.save();
+        ui.renderAll();
+      }
+
+      buyGalleryTier(tierId) {
+        if (this.state.isBankrupt) return;
+        const current = this.getCurrentTier();
+        const target = GALLERY_TIERS.find(t => t.id === tierId);
+        if (!target || target.id <= current.id) return;
+        if (this.state.money < target.upgradeCost) { sound.error(); ui.toast(`${formatTL(target.upgradeCost)} gerekiyor.`, 'error'); return; }
+        this.state.money -= target.upgradeCost;
+        this.state.galleryTierId = target.id;
+        this.adjustPrestige(6, `${target.name} alındı`);
+        sound.cash();
+        ui.toast(`🏢 ${target.name} aktif! (${target.capacity} araç, 30 gün kira ${formatTL(target.rent30)})`, 'success');
+        this.save();
+        ui.renderAll();
+      }
+
+      sendPartnerRequest(targetId) {
+        const cleanId = (targetId || '').trim().toUpperCase();
+        if (!cleanId || cleanId === this.state.playerId) { sound.error(); ui.toast('Geçerli bir ID gir!', 'error'); return; }
+        this.state.partnerRequestSentTo = cleanId;
+        this.state.partner = { id: cleanId, name: `Ortak (${cleanId})` };
+        this.state.money += 50000;
+        sound.cash();
+        ui.toast(`🤝 ${cleanId} ile ortaklık kuruldu! +₺50.000 ortak kasa eklendi.`, 'success');
+        this.save();
+        ui.renderAll();
+      }
+
+      advanceDay(fromTrade = false) {
+        if (this.state.isBankrupt) return;
+        this.state.day += 1;
+        this.state.tradedToday = false;
+        this.generateSariListings();
+        this.generateNewAuction();
+
+        this.state.loans.forEach(loan => {
+          const pay = Math.min(loan.remainingDebt, loan.dailyInstallment);
+          if (this.state.money < pay) this.adjustCreditScore(-60, 'Taksit ödenemedi, kasa eksiye düştü');
+          else this.adjustCreditScore(15, 'Taksit ödendi');
+          this.state.money -= pay;
+          loan.remainingDebt -= pay;
+          loan.daysLeft = Math.max(0, loan.daysLeft - 1);
+        });
+        this.state.loans = this.state.loans.filter(l => l.remainingDebt > 0);
+
+        const tier = this.getCurrentTier();
+        if ((this.state.day - 1) % 30 === 0 && this.state.day > 1) {
+          this.state.money -= tier.rent30;
+          if (this.state.money < 0) this.adjustCreditScore(-50, '30 günlük kira kasayı eksiye düşürdü');
+          ui.toast(`🏠 30 günlük galeri kirası: -${formatTL(tier.rent30)}`, 'error');
+        } else if (!fromTrade) {
+          ui.toast(`Gün ${this.state.day} başladı! (${this.getMarketPhase().name})`, 'info');
+        }
+
+        this.checkBankruptcy();
+        this.save();
+        ui.renderAll();
+      }
+
+      update(dt) {
+        try {
+          if (this.state.isBankrupt) return;
+          this.offerTimer += dt;
+          if (this.offerTimer >= 6.0) { this.offerTimer = 0; this.spawnBuyerOffer(); }
+
+          const auc = this.state.auction;
+          if (auc && !auc.ended) {
+            auc.timeLeft -= dt;
+            if (!auc.isPlayerHighest && Math.random() < dt * 0.35 && auc.currentBid < auc.marketVal * 0.85) {
+              auc.currentBid += 5000;
+              auc.highestBidder = RIVAL_GALLERIES[Math.floor(Math.random() * RIVAL_GALLERIES.length)];
+            } else if (auc.isPlayerHighest && Math.random() < dt * 0.4 && auc.currentBid < auc.marketVal * 0.88) {
+              auc.currentBid += 5000;
+              auc.highestBidder = RIVAL_GALLERIES[Math.floor(Math.random() * RIVAL_GALLERIES.length)];
+              auc.isPlayerHighest = false;
+              if (ui.activeTab === 'auction') ui.renderTabContent();
+            }
+            if (auc.timeLeft <= 0) { auc.timeLeft = 0; this.finishAuction(); }
+            else if (ui.activeTab === 'auction') {
+              const tEl = document.getElementById('auctionTimerText');
+              const bEl = document.getElementById('auctionCurrentBid');
+              const wEl = document.getElementById('auctionBidderName');
+              if (tEl) tEl.textContent = `${Math.ceil(auc.timeLeft)} sn`;
+              if (bEl) bEl.textContent = formatTL(auc.currentBid);
+              if (wEl) wEl.textContent = auc.highestBidder;
+            }
+          }
+
+          const tier = this.getCurrentTier();
+          const maxTraffic = Math.min(12, tier.trafficDensity + 1);
+          if (Math.random() < dt * (0.4 + tier.trafficDensity * 0.18) && this.roadCars.length < maxTraffic) {
+            const dir = Math.random() < 0.5 ? 1 : -1;
+            this.roadCars.push({
+              x: dir === 1 ? -80 : 1400, dir, speed: (140 + Math.random() * 110) * dir,
+              color: ['#facc15', '#ef4444', '#3b82f6', '#f8fafc', '#10b981'][Math.floor(Math.random() * 5)]
+            });
+          }
+          this.roadCars.forEach(rc => { rc.x += rc.speed * dt; });
+          this.roadCars = this.roadCars.filter(rc => rc.x > -140 && rc.x < 1550);
+        } catch (e) {}
+      }
+    }
+      class GalleryCanvas {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+        this.w = 0; this.h = 0;
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+      drawRoundedRectPath(ctx, x, y, w, h, r) {
+        if (typeof ctx.roundRect === 'function') { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
+        ctx.beginPath(); ctx.rect(x, y, w, h);
+      }
+      resize() {
+        try {
+          if (!this.canvas || !this.ctx || !this.canvas.parentElement) return;
+          const rect = this.canvas.parentElement.getBoundingClientRect();
+          const width = Math.max(280, Math.floor(rect.width || 640));
+          const height = Math.max(180, Math.floor(rect.height || 280));
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          this.canvas.width = width * dpr; this.canvas.height = height * dpr;
+          this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          this.w = width; this.h = height;
+        } catch (e) {}
+      }
+      drawCar(ctx, x, y, w, h, car, right = true) {
+        ctx.save(); ctx.translate(x, y); if (!right) ctx.scale(-1, 1);
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.beginPath(); ctx.ellipse(0, h * 0.42, w * 0.5, h * 0.14, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = car.color || '#f8fafc';
+        this.drawRoundedRectPath(ctx, -w * 0.48, -h * 0.16, w * 0.96, h * 0.44, 6); ctx.fill();
+        ctx.fillStyle = '#1e293b';
+        this.drawRoundedRectPath(ctx, -w * 0.3, -h * 0.36, w * 0.58, h * 0.21, 4); ctx.fill();
+        if (car.isDirty) {
+          ctx.fillStyle = 'rgba(120, 83, 47, 0.7)';
+          ctx.beginPath(); ctx.arc(-w * 0.15, h * 0.14, 4, 0, Math.PI * 2); ctx.arc(w * 0.15, h * 0.14, 4, 0, Math.PI * 2); ctx.fill();
+        }
+        const wheelR = h * 0.18;
+        [-w * 0.28, w * 0.28].forEach(wx => {
+          ctx.fillStyle = '#090d16'; ctx.beginPath(); ctx.arc(wx, h * 0.3, wheelR, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = car.rimColor || '#cbd5e1'; ctx.beginPath(); ctx.arc(wx, h * 0.3, wheelR * 0.52, 0, Math.PI * 2); ctx.fill();
+        });
+        ctx.restore();
+      }
+      render() {
+        try {
+          if (!this.ctx || !this.w || !this.h) return;
+          const ctx = this.ctx, W = this.w, H = this.h;
+          const tier = game.getCurrentTier();
+
+          ctx.fillStyle = '#0b1220'; ctx.fillRect(0, 0, W, H);
+          const lotLeft = 16, lotRight = W - 16, lotTop = H * 0.2, lotBottom = H * 0.72;
+          ctx.fillStyle = tier.id <= 2 ? '#1c1917' : '#161f30';
+          this.drawRoundedRectPath(ctx, lotLeft, lotTop, lotRight - lotLeft, lotBottom - lotTop, 14); ctx.fill();
+          ctx.strokeStyle = tier.id >= 5 ? '#facc15' : '#475569'; ctx.lineWidth = 2; ctx.stroke();
+
+          const signText = `${(game.state.galleryName || 'GALERİ').toLocaleUpperCase('tr-TR')} • ${tier.streetType.toLocaleUpperCase('tr-TR')}`;
+          ctx.font = '900 11px Inter, sans-serif';
+          const signW = Math.min(lotRight - lotLeft - 24, Math.max(160, ctx.measureText(signText).width + 26));
+          ctx.fillStyle = '#facc15';
+          this.drawRoundedRectPath(ctx, lotLeft + 12, lotTop - 13, signW, 23, 7); ctx.fill();
+          ctx.fillStyle = '#0f172a'; ctx.fillText(signText, lotLeft + 22, lotTop + 2, signW - 18);
+
+          const slots = Math.min(10, tier.capacity);
+          const slotW = (lotRight - lotLeft - 24) / slots;
+          for (let i = 0; i < slots; i++) {
+            const sx = lotLeft + 12 + i * slotW, sy = lotTop + 18, sh = lotBottom - lotTop - 26;
+            ctx.strokeStyle = 'rgba(250, 204, 21, 0.22)'; ctx.setLineDash([4, 4]);
+            ctx.strokeRect(sx + 2, sy, Math.max(8, slotW - 4), sh); ctx.setLineDash([]);
+            const car = game.state.ownedCars[i];
+            if (car) {
+              this.drawCar(ctx, sx + slotW / 2, sy + sh * 0.56, Math.min(72, slotW * 0.82), 34, car, true);
+              ctx.fillStyle = '#f8fafc'; ctx.font = '700 9px Inter, sans-serif'; ctx.textAlign = 'center';
+              ctx.fillText(car.name.slice(0, 11), sx + slotW / 2, sy + sh - 6); ctx.textAlign = 'left';
+            }
+          }
+
+          const roadTop = lotBottom + 6, roadH = Math.max(20, H - roadTop - 4);
+          ctx.fillStyle = '#111827'; ctx.fillRect(0, roadTop, W, roadH);
+          ctx.strokeStyle = '#64748b'; ctx.setLineDash([12, 12]);
+          ctx.beginPath(); ctx.moveTo(0, roadTop + roadH / 2); ctx.lineTo(W, roadTop + roadH / 2); ctx.stroke(); ctx.setLineDash([]);
+          game.roadCars.forEach(rc => { this.drawCar(ctx, rc.x, roadTop + roadH * 0.52, 48, 22, { body: 'sedan', color: rc.color }, rc.dir === 1); });
+        } catch (e) {}
+      }
+    }
+
+    class UIManager {
+      constructor() { this.activeTab = 'sarisite'; this.filterText = ''; }
+      setTab(tab) {
+        this.activeTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.classList.add('text-slate-300'); });
+        const el = document.getElementById('tab-' + tab);
+        if (el) { el.classList.add('active'); el.classList.remove('text-slate-300'); }
+        this.renderTabContent();
+      }
+      toast(msg, type = 'info') {
+        try {
+          const box = document.getElementById('toastContainer');
+          if (!box) return;
+          const el = document.createElement('div');
+          const styles = {
+            success: 'bg-emerald-950/95 border-emerald-500 text-emerald-200',
+            error: 'bg-rose-950/95 border-rose-500 text-rose-200',
+            info: 'bg-slate-900/95 border-yellow-400 text-yellow-100'
+          };
+          el.className = `border px-3 py-2 rounded-xl text-xs font-semibold shadow-xl ${styles[type] || styles.info}`;
+          el.textContent = msg;
+          box.appendChild(el);
+          setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3200);
+        } catch (e) {}
+      }
+      showBankruptcyScreen() {
+        const s = game.state;
+        document.getElementById('bankruptDays').textContent = s.day;
+        document.getElementById('bankruptPrestige').textContent = s.prestige;
+        document.getElementById('bankruptMoney').textContent = formatTL(s.money);
+        document.getElementById('bankruptcyModal').classList.remove('hidden');
+      }
+      openGalleryNameModal(isOnboarding = false) {
+        const modal = document.getElementById('galleryNameModal');
+        const input = document.getElementById('galleryNameInput');
+        const cancelBtn = document.getElementById('galleryModalCancelBtn');
+        const saveBtn = document.getElementById('galleryModalSaveBtn');
+        input.value = isOnboarding ? '' : (game.state.galleryName || '');
+        if (isOnboarding) cancelBtn.classList.add('hidden'); else cancelBtn.classList.remove('hidden');
+        saveBtn.textContent = isOnboarding ? '🚀 Kariyere Başla' : '💾 İsmi Kaydet';
+        modal.classList.remove('hidden');
+      }
+      submitGalleryName() {
+        const input = document.getElementById('galleryNameInput');
+        const val = (input.value || '').trim();
+        if (!val) { sound.error(); this.toast('Lütfen bir galeri adı gir!', 'error'); return; }
+        game.setGalleryName(val);
+        document.getElementById('galleryNameModal').classList.add('hidden');
+        sound.cash();
+      }
+      updateHUD() {
+        const s = game.state, tier = game.getCurrentTier(), phase = game.getMarketPhase();
+        document.getElementById('hudGalleryName').textContent = s.galleryName || 'Benim Galerim';
+        document.getElementById('dayText').textContent = `Gün ${s.day}`;
+        document.getElementById('prestigeText').textContent = `★ Prestij: ${s.prestige}`;
+        document.getElementById('creditScoreText').textContent = `Kredi Puanı: ${s.creditScore}`;
+        document.getElementById('marketPhaseText').textContent = phase.name;
+        document.getElementById('hudSubInfo').textContent = `Konum: ${s.city} / ${s.district} • Kira: 30 Günde ${formatTL(tier.rent30)} • Satış Vergisi: %5`;
+
+        const moneyEl = document.getElementById('moneyText');
+        moneyEl.textContent = formatTL(s.money);
+        moneyEl.className = s.money < 0 ? 'font-black text-sm sm:text-base text-rose-400' : 'font-black text-sm sm:text-base text-emerald-400';
+
+        const warnPill = document.getElementById('bankruptcyWarningPill');
+        if (s.money < 0) warnPill.classList.remove('hidden'); else warnPill.classList.add('hidden');
+
+        const totalDebt = s.loans.reduce((sum, l) => sum + l.remainingDebt, 0);
+        const debtPill = document.getElementById('debtPill');
+        if (totalDebt > 0) { debtPill.classList.remove('hidden'); document.getElementById('debtText').textContent = formatTL(totalDebt); }
+        else debtPill.classList.add('hidden');
+
+        document.getElementById('slotCounter').textContent = `${s.ownedCars.length} / ${tier.capacity}`;
+        document.getElementById('galleryTierBadge').textContent = `📍 ${tier.name} (${tier.id}/10)`;
+        document.getElementById('dailyTradeBadge').textContent = `Günlük İşlem Hakkı: ${s.tradedToday ? '0/1' : '1/1'}`;
+        document.getElementById('garageCountBadge').textContent = s.ownedCars.length;
+
+        const offBadge = document.getElementById('offerCountBadge');
+        offBadge.textContent = s.offers.length;
+        if (s.offers.length > 0) offBadge.classList.remove('hidden'); else offBadge.classList.add('hidden');
+      }
+      renderAll() { this.updateHUD(); this.renderTabContent(); }
+      renderTabContent() {
+        const box = document.getElementById('tabContent');
+        if (!box) return;
+        if (this.activeTab === 'sarisite') box.innerHTML = this.renderSariSiteTab();
+        else if (this.activeTab === 'garage') box.innerHTML = this.renderGarageTab();
+        else if (this.activeTab === 'offers') box.innerHTML = this.renderOffersTab();
+        else if (this.activeTab === 'auction') box.innerHTML = this.renderAuctionTab();
+        else if (this.activeTab === 'bank') box.innerHTML = this.renderBankTab();
+        else if (this.activeTab === 'galleries') box.innerHTML = this.renderGalleriesTab();
+      }
+      renderSariSiteTab() {
+        const q = (this.filterText || '').toLowerCase();
+        const filtered = game.state.sariListings.filter(c => c.name.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || c.district.toLowerCase().includes(q) || String(c.year).includes(q));
+        let html = `
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div><h2 class="text-base sm:text-lg font-black text-yellow-400">🟡 Sarı Site — Türkiye İlanları</h2><p class="text-xs text-slate-400">Üretim yılı, şehir/ilçe, boya/lokal boya/değişen ve yol masrafı (₺1.000 - ₺20.000).</p></div>
+            <input type="text" value="${this.filterText}" oninput="ui.filterText=this.value; ui.renderTabContent();" placeholder="Model, yıl, il veya ilçe ara..." class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none" />
+          </div>
+          <div class="space-y-2.5">
+        `;
+        filtered.forEach(car => {
+          const mVal = game.getCarMarketValue(car);
+          const travelCost = calcTravelCost(game.state.city, car.city);
+          html += `
+            <div onclick="ui.openListingDetail('${car.uid}')" class="cursor-pointer bg-slate-950 hover:bg-slate-900/90 border border-slate-800 hover:border-yellow-400/70 rounded-2xl p-3.5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-yellow-400/15 text-yellow-300 border border-yellow-400/30">${car.year} Model</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30">📍 ${car.city} / ${car.district}</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300">🚚 Yol: ${formatTL(travelCost)}</span>
+                </div>
+                <h3 class="font-extrabold text-sm text-white">${car.adTitle}</h3>
+                <div class="text-xs text-slate-300 font-semibold mt-0.5">${car.name} • ${(car.km || 0).toLocaleString('tr-TR')} KM • Kondisyon: %${car.condition}</div>
+                <div class="text-[11px] text-amber-300/90 mt-0.5">${car.partsSummary}</div>
+              </div>
+              <div class="text-left sm:text-right shrink-0">
+                <span class="block font-black text-base text-yellow-400">${formatTL(car.askPrice)}</span>
+                <span class="text-[11px] text-slate-400">Tahmini Piyasa: ${formatTL(mVal)}</span>
+              </div>
+            </div>
+          `;
+        });
+        return html + `</div>`;
+      }
+      openListingDetail(uid) {
+        const car = game.state.sariListings.find(c => c.uid === uid);
+        if (!car) return;
+        const hs = car.haggleState, mVal = game.getCarMarketValue(car), travelFee = calcTravelCost(game.state.city, car.city);
+        const effectivePrice = hs.agreedPrice || car.askPrice, totalEffective = effectivePrice + travelFee;
+
+        document.getElementById('listingDetailBody').innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+            <div><span class="text-[11px] font-bold text-yellow-400">${car.year} Model • ${car.city} / ${car.district}</span><h3 class="text-base font-black text-white">${car.adTitle}</h3></div>
+            <button type="button" onclick="document.getElementById('listingDetailModal').classList.add('hidden')" class="bg-slate-800 text-slate-300 w-8 h-8 rounded-xl font-bold">✕</button>
+          </div>
+          <div class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-xl text-xs mb-3 border border-slate-800">
+            <div><span class="text-slate-400 block">Araç & Yıl</span><b class="text-white">${car.name} (${car.year})</b></div>
+            <div><span class="text-slate-400 block">Konum</span><b class="text-sky-300">${car.city} / ${car.district}</b></div>
+            <div><span class="text-slate-400 block">Kondisyon</span><b class="text-emerald-400">%${car.condition}</b></div>
+            <div><span class="text-slate-400 block">Yol Masrafı</span><b class="text-amber-300">${formatTL(travelFee)}</b></div>
+            <div class="col-span-2 pt-1 border-t border-slate-800"><span class="text-slate-400 block">Boya / Lokal Boya / Değişen:</span><b class="text-amber-300">${car.partsSummary}</b></div>
+            ${car.inspected ? `<div class="col-span-2 pt-1 border-t border-slate-800 text-sky-300">Ekspertiz: Lastik <b>${car.tireCondition}</b> • Jant <b>${car.rimCondition}</b></div>` : ''}
+          </div>
+          ${!car.inspected ? `<div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 mb-3 flex items-center justify-between gap-2"><div class="text-xs"><b class="text-sky-300 block">🔍 Ekspertiz (₺2.500)</b><span class="text-slate-400">Lastik, jant ve gizli kusurları öğren.</span></div><button type="button" onclick="game.performInspection('${car.uid}')" class="px-3 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold">Ekspertiz (₺2.500)</button></div>` : ''}
+          <div class="bg-slate-950 border border-yellow-500/40 rounded-2xl p-3.5 mb-3 space-y-2">
+            <div class="flex justify-between text-xs"><b class="text-yellow-400">🤝 Pazarlık (Max: ${formatTL(car.askPrice)})</b><span class="text-slate-400">${hs.attempts}/${hs.maxAttempts} Hak</span></div>
+            <p class="text-xs text-slate-200 italic">${hs.lastMessage}</p>
+            ${hs.agreedPrice ? `<div class="flex items-center justify-between bg-emerald-950/50 border border-emerald-500/40 p-2.5 rounded-xl"><span class="text-sm font-black text-emerald-400">Anlaşılan: ${formatTL(hs.agreedPrice)}</span><button type="button" onclick="game.buyFromSariSite('${car.uid}', true)" class="px-3.5 py-2 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black">Al (${formatTL(totalEffective)})</button></div>` : !hs.closed ? `
+              <div class="flex gap-2">
+                <input id="haggleOfferInput" type="number" max="${car.askPrice}" step="500" value="${Math.round((car.askPrice * 0.92) / 500) * 500}" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-yellow-400 outline-none" />
+                <button type="button" onclick="game.submitBuyerHaggle('${car.uid}', document.getElementById('haggleOfferInput').value)" class="px-3.5 py-2 rounded-xl bg-yellow-400 text-slate-950 text-xs font-black">Teklif Ver</button>
+              </div>
+              ${hs.sellerCounterPrice ? `<button type="button" onclick="game.acceptSellerCounter('${car.uid}')" class="w-full py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-black">Karşı Teklifi Kabul Et (${formatTL(hs.sellerCounterPrice)})</button>` : ''}
+            ` : ''}
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <div><span class="text-[11px] text-slate-400 block">Piyasa: ${formatTL(mVal)} • Araç + Yol: ${formatTL(car.askPrice + travelFee)}</span><span class="text-lg font-black text-yellow-400">${formatTL(car.askPrice)}</span></div>
+            <button type="button" onclick="game.buyFromSariSite('${car.uid}', false)" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black">Satın Al (${formatTL(car.askPrice + travelFee)})</button>
+          </div>
+        `;
+        document.getElementById('listingDetailModal').classList.remove('hidden');
+      }
+      renderGarageTab() {
+        const cars = game.state.ownedCars, tier = game.getCurrentTier();
+        let html = `<div class="mb-4"><h2 class="text-base sm:text-lg font-extrabold text-white">${game.state.galleryName} — Araçlar (${cars.length}/${tier.capacity})</h2><p class="text-xs text-slate-400">Yıkama ve pasta-cila ücretinin <b>1.5 katını</b> piyasa değerine ekler. Lastik ve jant seçeneklerini de kullanabilirsin.</p></div>`;
+        if (cars.length === 0) return html + `<div class="text-center py-12 text-slate-400 text-sm">Galerinde araç yok. Sarı Site veya İhale sekmesinden araç alabilirsin.</div>`;
+        html += `<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">`;
+        cars.forEach(car => {
+          const val = game.getCarMarketValue(car);
+          html += `
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between gap-3">
+              <div>
+                <div class="flex items-center justify-between mb-1"><h3 class="font-extrabold text-sm text-white">${car.year} ${car.name}</h3><span class="text-[11px] px-2 py-0.5 rounded-full ${car.listedOnSari ? 'bg-yellow-400 text-slate-950 font-black' : 'bg-slate-800 text-slate-300'}">${car.listedOnSari ? 'İlanda' : 'Galeride'}</span></div>
+                <div class="text-[11px] text-slate-400 mb-2">Kondisyon: <b class="text-emerald-400">%${car.condition}</b> • Lastik: <b>${car.tireCondition}</b> • Jant: <b>${car.rimCondition}</b></div>
+                <div class="text-[11px] text-amber-300/90 mb-3">${car.partsSummary}</div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" onclick="game.applyCareOption('${car.uid}', 'wash')" class="py-2 px-2 rounded-xl text-xs font-bold bg-sky-950/60 hover:bg-sky-900 border border-sky-500/40 text-sky-200">🧼 Araba Yıkama (${formatTL(CARE_COSTS.wash)})</button>
+                  <button type="button" onclick="game.applyCareOption('${car.uid}', 'polish')" class="py-2 px-2 rounded-xl text-xs font-bold bg-amber-950/60 hover:bg-amber-900 border border-amber-500/40 text-amber-200">💎 Pasta Cila (${formatTL(CARE_COSTS.polish)})</button>
+                  <button type="button" onclick="game.applyCareOption('${car.uid}', 'tires')" class="py-2 px-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200">🛞 Lastik Değiştirme (${formatTL(CARE_COSTS.tires)})</button>
+                  <button type="button" onclick="game.applyCareOption('${car.uid}', 'rims')" class="py-2 px-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200">⚙️ Jant Takımı (${formatTL(CARE_COSTS.rims)})</button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between pt-2.5 border-t border-slate-800">
+                <div><span class="text-[11px] text-slate-400 block">Tahmini Piyasa</span><span class="font-black text-sm text-emerald-400">${formatTL(val)}</span></div>
+                <button type="button" onclick="ui.openPostAdModal('${car.uid}')" class="px-3.5 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-extrabold text-xs">🟡 İlan Ver / Düzenle</button>
+              </div>
+            </div>
+          `;
+        });
+        return html + `</div>`;
+      }
+      openPostAdModal(uid) {
+        const car = game.state.ownedCars.find(c => c.uid === uid);
+        if (!car) return;
+        const val = game.getCarMarketValue(car);
+        const defectOptions = ['Motor Kusuru', 'Şanzıman Kusuru', 'Ağır Hasar Kaydı', 'Kaporta Macun'];
+        document.getElementById('postAdBody').innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+            <h3 class="text-base font-black text-white">🟡 ${car.name} — İlan Ayarları</h3>
+            <button type="button" onclick="document.getElementById('postAdModal').classList.add('hidden')" class="bg-slate-800 text-slate-300 w-8 h-8 rounded-xl font-bold">✕</button>
+          </div>
+          <div class="space-y-3 text-xs">
+            <div><label class="block font-bold text-slate-300 mb-1">İlan Başlığı</label><input id="adTitleInput" type="text" maxlength="55" value="${car.adTitle}" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none" /></div>
+            <div><label class="block font-bold text-slate-300 mb-1">Açıklama</label><textarea id="adDescInput" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none">${car.adDesc}</textarea></div>
+            <div><label class="block font-bold text-slate-300 mb-1">Satış Fiyatı (Piyasa: <span class="text-emerald-400">${formatTL(val)}</span> • %5 Vergi)</label><input id="adPriceInput" type="number" step="500" value="${car.askPrice || val}" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm font-black text-yellow-400 outline-none" /></div>
+            <div class="bg-slate-950 border border-rose-500/30 rounded-xl p-3">
+              <span class="font-bold text-rose-300 block mb-1.5">Gizlenecek Kusurlar (%50 yakalanma ve %50 prestij kaybı riski!)</span>
+              <div class="flex flex-wrap gap-2">${defectOptions.map(d => `<label class="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 cursor-pointer"><input type="checkbox" class="hiddenDefectCb" value="${d}" ${(car.hiddenDefectsSelected || []).includes(d) ? 'checked' : ''} /><span>${d}</span></label>`).join('')}</div>
+            </div>
+            <button type="button" onclick="const sel = Array.from(document.querySelectorAll('.hiddenDefectCb:checked')).map(cb => cb.value); game.publishCarAd('${car.uid}', document.getElementById('adTitleInput').value, document.getElementById('adDescInput').value, document.getElementById('adPriceInput').value, sel);" class="w-full py-3 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm">🚀 İlanı Yayınla</button>
+          </div>
+        `;
+        document.getElementById('postAdModal').classList.remove('hidden');
+      }
+      renderOffersTab() {
+        const offers = game.state.offers;
+        let html = `<div class="flex items-center justify-between mb-4"><div><h2 class="text-base sm:text-lg font-extrabold text-white">Müşteri Teklifleri</h2><p class="text-xs text-slate-400">Teklifler ilan fiyatını geçmez; satışta %5 vergi kesilir.</p></div><button type="button" onclick="game.spawnBuyerOffer()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl">📣 Alıcı Çağır</button></div>`;
+        if (offers.length === 0) return html + `<div class="text-center py-12 text-slate-400 text-sm">Şu an teklif yok. Galerim sekmesinden araçlarını ilana koy.</div>`;
+        html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">`;
+        offers.forEach(off => {
+          const tax = Math.round(off.offeredAmount * 0.05);
+          html += `
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
+              <div class="flex justify-between text-xs"><b class="text-yellow-400">👤 ${off.buyerName}</b><span class="text-slate-400">İlanın: ${formatTL(off.askPrice)}</span></div>
+              <h3 class="font-extrabold text-base text-white">${off.carName}</h3>
+              <div class="bg-slate-900 p-3 rounded-xl flex justify-between items-center"><div><span class="text-[11px] text-slate-400 block">Teklif</span><b class="text-lg font-black text-emerald-400">${formatTL(off.offeredAmount)}</b></div><div class="text-right text-xs text-slate-400">Net Ele Geçen:<br><b class="text-white">${formatTL(off.offeredAmount - tax)}</b></div></div>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="game.acceptOffer('${off.id}')" class="py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold">✅ Sat</button>
+                <button type="button" onclick="game.haggleOffer('${off.id}')" ${off.haggled ? 'disabled' : ''} class="py-2 rounded-xl text-xs font-bold ${off.haggled ? 'bg-slate-800 text-slate-500' : 'bg-amber-600 text-white'}">🤝 Pazarlık</button>
+                <button type="button" onclick="game.rejectOffer('${off.id}')" class="py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold">❌ Red</button>
+              </div>
+            </div>
+          `;
+        });
+        return html + `</div>`;
+      }
+      renderAuctionTab() {
+        const auc = game.state.auction;
+        if (!auc) return '';
+        return `
+          <div class="max-w-xl mx-auto bg-slate-950 border border-yellow-500/40 rounded-2xl p-5 space-y-4">
+            <div class="flex justify-between items-start"><div><span class="text-xs font-bold text-yellow-400">${auc.car.year} • ${auc.car.city}/${auc.car.district}</span><h3 class="text-lg font-black text-white">${auc.car.name}</h3><p class="text-xs text-slate-400">Piyasa: ${formatTL(auc.marketVal)} • ${auc.car.partsSummary}</p></div><span id="auctionTimerText" class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl text-sm font-black text-rose-400">${Math.ceil(auc.timeLeft)} sn</span></div>
+            <div class="bg-slate-900 p-3.5 rounded-xl flex justify-between items-center"><div><span class="text-xs text-slate-400 block">Güncel Pey</span><span id="auctionCurrentBid" class="text-2xl font-black text-yellow-400">${formatTL(auc.currentBid)}</span></div><div class="text-right"><span class="text-xs text-slate-400 block">Teklif Sahibi</span><span id="auctionBidderName" class="text-sm font-bold text-emerald-400">${auc.highestBidder}</span></div></div>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" onclick="game.placeAuctionBid(5000)" class="py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-extrabold">+₺5.000</button>
+              <button type="button" onclick="game.placeAuctionBid(15000)" class="py-2.5 rounded-xl bg-blue-600 text-white text-xs font-extrabold">+₺15.000</button>
+              <button type="button" onclick="game.placeAuctionBid(35000)" class="py-2.5 rounded-xl bg-purple-600 text-white text-xs font-extrabold">+₺35.000</button>
+            </div>
+          </div>
+        `;
+      }
+      renderBankTab() {
+        const s = game.state, maxLimit = game.getMaxLoanLimit();
+        const packages = [
+          { bank: 'Esnaf Kefalet', amount: 150000, days: 5, rate: 0.12 },
+          { bank: 'Ticaret Finans', amount: 400000, days: 8, rate: 0.16 },
+          { bank: 'Yatırım Bankası', amount: 900000, days: 12, rate: 0.20 }
+        ];
+        let html = `<div class="mb-4"><h2 class="text-base sm:text-lg font-extrabold text-white">🏦 Banka & Kredi Puanı (${s.creditScore} Puan)</h2><p class="text-xs text-slate-400">Kredi puanın arttıkça limitin yükselir. Maksimum limit: <b class="text-yellow-400">${formatTL(maxLimit)}</b>. Taksit ödenemezse kasa eksiye düşer.</p></div><div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">`;
+        html += packages.map(p => {
+          const total = Math.round(p.amount * (1 + p.rate)), daily = Math.round(total / p.days);
+          return `<div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2.5"><div class="text-xs font-bold text-blue-400">${p.bank}</div><div class="text-xl font-black text-white">${formatTL(p.amount)}</div><div class="text-xs text-slate-400">${p.days} Gün • Günlük Taksit: <b class="text-rose-400">${formatTL(daily)}</b></div><button type="button" onclick="game.takeLoan(${p.amount}, ${p.days}, ${p.rate}, '${p.bank}')" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold">Kredi Çek</button></div>`;
+        }).join('') + `</div>`;
+        if (s.loans.length > 0) {
+          html += `<div class="space-y-2">${s.loans.map(l => `<div class="bg-slate-950 border border-rose-500/30 rounded-xl p-3 flex items-center justify-between text-xs"><span><b>${l.bankName}</b> • Kalan: <b class="text-rose-400">${formatTL(l.remainingDebt)}</b> • Taksit: <b>${formatTL(l.dailyInstallment)}</b></span><button type="button" onclick="game.payOffLoan('${l.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold">Kapat</button></div>`).join('')}</div>`;
+        }
+        return html;
+      }
+      renderGalleriesTab() {
+        const s = game.state, currentTier = game.getCurrentTier();
+        const districts = (TURKEY_LOCATIONS[s.city] || TURKEY_LOCATIONS['Yalova']).districts;
+        const leaderboard = [
+          { name: `${s.galleryName} (Sen)`, id: s.playerId, money: s.money, isPlayer: true },
+          { name: 'Yalova Motors', id: 'GLR-401920', money: 1450000, isPlayer: false },
+          { name: 'Kardeşler Oto', id: 'GLR-882104', money: 680000, isPlayer: false },
+          { name: 'Prestij Galeri', id: 'GLR-129384', money: 290000, isPlayer: false },
+          { name: 'Ara Sokak Oto', id: 'GLR-554312', money: 45000, isPlayer: false }
+        ].sort((a, b) => b.money - a.money);
+
+        let html = `
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5 pb-5 border-b border-slate-800">
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2.5 text-xs">
+              <h3 class="font-black text-sm text-sky-300">📍 Galeri Konumu (Şehir & İlçe)</h3>
+              <div class="grid grid-cols-2 gap-2">
+                <select onchange="game.setGalleryLocation(this.value, game.state.district)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none">${ALL_CITIES.map(c => `<option value="${c}" ${s.city === c ? 'selected' : ''}>${c}</option>`).join('')}</select>
+                <select onchange="game.setGalleryLocation(game.state.city, this.value)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none">${districts.map(d => `<option value="${d}" ${s.district === d ? 'selected' : ''}>${d}</option>`).join('')}</select>
+              </div>
+              <div class="text-slate-400">Aktif Konum: <b class="text-white">${s.city} / ${s.district}</b></div>
+            </div>
+            <div class="bg-slate-950 border border-yellow-500/30 rounded-2xl p-4 space-y-2.5 text-xs">
+              <div class="flex items-center justify-between"><h3 class="font-black text-sm text-yellow-400">🤝 Ortaklık & Kasa Sıralaması</h3><span class="bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-lg font-mono font-bold text-emerald-400">ID: ${s.playerId}</span></div>
+              ${s.partner ? `<div class="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-2 text-emerald-200 font-bold">✅ Ortak Aktif: ${s.partner.name}</div>` : `<div class="flex gap-2"><input id="partnerIdInput" type="text" placeholder="Ortak ID gir (Örn: GLR-401920)" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none" /><button type="button" onclick="game.sendPartnerRequest(document.getElementById('partnerIdInput').value)" class="px-3 py-2 rounded-xl bg-yellow-400 text-slate-950 font-black">Ortaklık İsteği</button></div>`}
+              <div class="space-y-1 pt-1">${leaderboard.map((item, idx) => `<div class="flex justify-between px-2.5 py-1.5 rounded-lg ${item.isPlayer ? 'bg-yellow-400/15 border border-yellow-400/40 text-yellow-200 font-bold' : 'bg-slate-900 text-slate-300'}"><span>#${idx + 1} ${item.name} <span class="text-[10px] opacity-70">(${item.id})</span></span><span>${formatTL(item.money)}</span></div>`).join('')}</div>
+            </div>
+          </div>
+          <h3 class="text-base font-black text-white mb-3">🏢 10 Kademeli Galeri Listesi (Mevcut: ${currentTier.id}/10)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        `;
+        html += GALLERY_TIERS.map(t => {
+          const owned = t.id <= currentTier.id, isNext = t.id === currentTier.id + 1;
+          return `
+            <div class="bg-slate-950 border ${owned ? 'border-emerald-500/40' : isNext ? 'border-yellow-400/60' : 'border-slate-800'} rounded-2xl p-3.5 flex flex-col justify-between gap-2 text-xs">
+              <div><div class="flex justify-between items-center"><b class="text-sm text-white">${t.id}. ${t.name}</b><span class="px-2 py-0.5 rounded bg-slate-900 text-yellow-300 font-bold">${t.capacity} Araç</span></div><p class="text-slate-400 mt-1">${t.desc}</p></div>
+              <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                <span class="text-slate-300">30 Gün Kira: <b class="text-rose-400">${formatTL(t.rent30)}</b></span>
+                ${owned ? `<span class="text-emerald-400 font-extrabold">✅ Aktif / Alındı</span>` : `<button type="button" onclick="game.buyGalleryTier(${t.id})" ${!isNext ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl font-black ${isNext ? 'bg-yellow-400 hover:bg-yellow-300 text-slate-950' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}">${isNext ? `Satın Al (${formatTL(t.upgradeCost)})` : `Önce ${t.id - 1}. Galeriyi Al`}</button>`}
+              </div>
+            </div>
+          `;
+        }).join('') + `</div>`;
+        return html;
+      }
+    }
+     const game = new SariGaleriGame();
+    const galleryCanvas = new GalleryCanvas('galleryCanvas');
+    const ui = new UIManager();
+
+    let lastTimestamp = 0;
+    function gameLoop(timestamp) {
+      try {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const dt = Math.min(0.1, Math.max(0, (timestamp - lastTimestamp) / 1000));
+        lastTimestamp = timestamp;
+        game.update(dt);
+        galleryCanvas.render();
+      } catch (e) {}
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.onload = function () {
+      try {
+        galleryCanvas.resize();
+        ui.renderAll();
+        if (game.state.isBankrupt) ui.showBankruptcyScreen();
+        else if (!game.state.hasNamedGallery) ui.openGalleryNameModal(true);
+      } catch (e) {}
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
+     
