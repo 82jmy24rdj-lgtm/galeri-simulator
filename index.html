@@ -311,11 +311,9 @@
       const num = Number(amount) || 0;
       const sign = num < 0 ? '-' : '';
       return sign + '₺' + Math.abs(Math.round(num)).toLocaleString('tr-TR');
-    }
-
+    } 
     
     const sound = new SoundEngine();
-
     const TURKEY_CARS = [
       { id: 'anadolu_sahin_slx', name: 'Anadolu Şahin 1.6 SLX', marketHint: 'Klasik Yerli Sedan', body: 'sedan', segment: 'Klasik', basePrice: 235000, hp: 84, engine: '1.6 SLX', fuel: 'Benzin & LPG', gear: '5 İleri Manuel', baseKm: 225000, colors: ['#f8fafc', '#dc2626', '#1e293b'] },
       { id: 'egeya_13_urban', name: 'Egeya 1.3 Multijet Urban', marketHint: 'Popüler C-Sedan', body: 'sedan', segment: 'C-Sedan', basePrice: 685000, hp: 95, engine: '1.3 Multijet', fuel: 'Dizel', gear: '6 İleri Manuel', baseKm: 86000, colors: ['#f8fafc', '#475569', '#1e293b'] },
