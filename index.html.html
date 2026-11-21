@@ -223,230 +223,96 @@
       { id: 8, name: 'İşlek Cadde 13 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 13, rent30: 600000, upgradeCost: 3100000, trafficDensity: 9, desc: 'İşlek caddede 13 araç kapasiteli galeri. 30 günde ₺600.000 kira.' },
       { id: 9, name: 'İşlek Cadde 16 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 16, rent30: 800000, upgradeCost: 4800000, trafficDensity: 10, desc: 'İşlek caddede 16 araç kapasiteli galeri. 30 günde ₺800.000 kira.' },
       { id: 10, name: 'İşlek Cadde 20 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 20, rent30: 1000000, upgradeCost: 7500000, trafficDensity: 12, desc: 'İşlek caddede 20 araç kapasiteli galeri. 30 günde ₺1.000.000 kira.' }
-    ];<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2D Oto Galeri Simülatörü v5</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0b0f17;
-      color: #f1f5f9;
-      user-select: none;
-      overflow-x: hidden;
+    ];
+    class SoundEngine {
+      constructor() { this.ctx = null; this.muted = false; }
+      init() {
+        try {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (e) {}
+      }
+      toggleMute() {
+        this.muted = !this.muted;
+        const btn = document.getElementById('muteBtn');
+        if (btn) btn.textContent = this.muted ? '🔇' : '🔊';
+      }
+      playTone(freq, type, duration, vol = 0.14, delay = 0) {
+        if (this.muted) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + delay);
+          osc.stop(this.ctx.currentTime + delay + duration);
+        } catch (e) {}
+      }
+      cash() { this.playTone(980, 'sine', 0.12, 0.15, 0); this.playTone(1320, 'sine', 0.25, 0.18, 0.09); }
+      wash() { this.playTone(540, 'triangle', 0.15, 0.12, 0); this.playTone(820, 'sine', 0.22, 0.12, 0.1); }
+      wrench() { this.playTone(210, 'sawtooth', 0.1, 0.12, 0); this.playTone(360, 'square', 0.14, 0.12, 0.11); }
+      engine() { this.playTone(90, 'sawtooth', 0.22, 0.15, 0); this.playTone(145, 'sawtooth', 0.3, 0.16, 0.14); }
+      bid() { this.playTone(660, 'triangle', 0.12, 0.14, 0); }
+      scan() { this.playTone(720, 'sine', 0.09, 0.13, 0); this.playTone(1040, 'triangle', 0.16, 0.14, 0.08); }
+      error() { this.playTone(155, 'sawtooth', 0.22, 0.15, 0); }
     }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #111827; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
-    canvas { display: block; width: 100%; height: 100%; }
-    .sari-banner {
-      background: linear-gradient(90deg, #facc15 0%, #eab308 100%);
-      color: #0f172a;
-    }
-    .tab-btn.active {
-      background: #facc15;
-      color: #0f172a;
-      box-shadow: 0 4px 14px rgba(250, 204, 21, 0.35);
-    }
-    @keyframes pulseLive {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.25); opacity: 0.7; }
-    }
-    .live-dot { animation: pulseLive 1.4s infinite; }
-    @keyframes dangerBlink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.55; }
-    }
-    .danger-blink { animation: dangerBlink 1.1s infinite; }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col">
+    const sound = new SoundEngine();
 
-  <header class="sari-banner px-3 sm:px-5 py-2.5 sticky top-0 z-30 shadow-lg border-b border-yellow-600/40">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2.5">
-        <button type="button" onclick="ui.openGalleryNameModal(false)" class="bg-slate-950 hover:bg-slate-900 active:scale-95 transition text-yellow-400 font-black px-3 py-1.5 rounded-xl text-sm sm:text-base tracking-tight shadow flex items-center gap-1.5 border border-yellow-400/20">
-          <span>🏢</span>
-          <span id="hudGalleryName" class="text-white truncate max-w-[140px] sm:max-w-[200px]">Benim Galerim</span>
-          <span class="text-xs text-yellow-400">✏️</span>
-        </button>
-        <div>
-          <div class="flex flex-wrap items-center gap-1.5">
-            <span id="dayText" class="font-extrabold text-xs sm:text-sm text-slate-950">Gün 1</span>
-            <span class="text-slate-900/50">•</span>
-            <span id="prestigeText" class="font-bold text-xs text-slate-900">★ Prestij: 50</span>
-            <span class="text-slate-900/50">•</span>
-            <span id="creditScoreText" class="font-extrabold text-xs text-slate-950">Kredi Puanı: 1200</span>
-            <span class="text-slate-900/50">•</span>
-            <span id="marketPhaseText" class="font-extrabold text-xs px-1.5 py-0.5 rounded bg-slate-950 text-yellow-400">Normal Piyasa</span>
-          </div>
-          <div id="hudSubInfo" class="text-[11px] font-semibold text-slate-900/85">
-            Konum: Yalova / Merkez • Kira: 30 Günde ₺20.000 • Satış Vergisi: %5
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <div id="moneyBox" class="bg-slate-950 text-white px-3 py-1.5 rounded-xl flex items-center gap-2 shadow">
-          <span class="text-[11px] text-slate-400">Kasa:</span>
-          <span id="moneyText" class="font-black text-sm sm:text-base text-emerald-400">₺0</span>
-        </div>
-
-        <div id="bankruptcyWarningPill" class="hidden bg-rose-600 text-white border border-rose-300 px-2.5 py-1.5 rounded-xl text-xs font-black shadow danger-blink">
-          ⚠️ HACİZ RİSKİ! (-₺150.000'de İflas)
-        </div>
-
-        <div id="debtPill" class="hidden bg-rose-950 text-rose-200 border border-rose-500/40 px-2.5 py-1.5 rounded-xl text-xs font-bold">
-          Borç: <span id="debtText">₺0</span>
-        </div>
-
-        <button type="button" onclick="game.advanceDay(false)" class="bg-slate-950 hover:bg-slate-800 active:scale-95 transition text-yellow-400 text-xs sm:text-sm font-extrabold px-3 py-2 rounded-xl shadow flex items-center gap-1.5">
-          <span>⏭ Yeni Gün</span>
-        </button>
-
-        <button type="button" onclick="game.save(true)" class="bg-slate-950 hover:bg-slate-800 text-emerald-400 px-2.5 py-2 rounded-xl text-xs font-bold" title="Oyunu Kaydet">💾</button>
-        <button type="button" id="muteBtn" onclick="sound.toggleMute()" class="bg-slate-950/90 hover:bg-slate-800 text-white p-2 rounded-xl text-xs">🔊</button>
-        <button type="button" onclick="document.getElementById('resetModal').classList.remove('hidden')" class="bg-slate-950/90 hover:bg-rose-900 text-white p-2 rounded-xl text-xs">↺</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="flex-1 max-w-7xl w-full mx-auto p-2.5 sm:p-4 flex flex-col gap-3">
-    <section class="relative w-full h-60 sm:h-72 md:h-[300px] bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
-      <canvas id="galleryCanvas"></canvas>
-
-      <div class="absolute top-3 left-3 flex flex-wrap gap-2 pointer-events-none">
-        <div class="bg-slate-950/90 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-200">
-          🅿️ Galeri: <span id="slotCounter" class="text-yellow-400">0 / 2</span>
-        </div>
-        <div id="galleryTierBadge" class="bg-slate-950/90 border border-yellow-500/30 px-2.5 py-1 rounded-lg text-xs font-bold text-yellow-300">
-          📍 Ara Sokak Eski Galeri (1/10)
-        </div>
-        <div id="dailyTradeBadge" class="bg-slate-950/90 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-300">
-          Günlük İşlem Hakkı: 1/1
-        </div>
-      </div>
-
-      <div id="toastContainer" class="absolute bottom-3 right-3 flex flex-col gap-1.5 max-w-xs sm:max-w-sm pointer-events-none z-20"></div>
-    </section>
-
-    <nav class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
-      <button type="button" onclick="ui.setTab('sarisite')" id="tab-sarisite" class="tab-btn active py-2 px-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5"><span>🟡 Sarı Site</span></button>
-      <button type="button" onclick="ui.setTab('garage')" id="tab-garage" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🚘 Galerim</span><span id="garageCountBadge" class="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded-full text-[11px]">0</span></button>
-      <button type="button" onclick="ui.setTab('offers')" id="tab-offers" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🤝 Teklifler</span><span id="offerCountBadge" class="hidden bg-emerald-500 text-slate-950 font-black px-1.5 py-0.5 rounded-full text-[11px]">0</span></button>
-      <button type="button" onclick="ui.setTab('auction')" id="tab-auction" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🔨 İhale</span></button>
-      <button type="button" onclick="ui.setTab('bank')" id="tab-bank" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🏦 Banka</span></button>
-      <button type="button" onclick="ui.setTab('galleries')" id="tab-galleries" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🏢 Galeriler & Ortak</span></button>
-    </nav>
-
-    <section id="tabContent" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-5 min-h-[360px]"></section>
-  </main>
-
-  <div id="listingDetailModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-3">
-    <div id="listingDetailBody" class="bg-slate-900 border border-yellow-500/40 rounded-2xl max-w-xl w-full p-4 sm:p-5 shadow-2xl max-h-[90vh] overflow-y-auto"></div>
-  </div>
-
-  <div id="postAdModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-3">
-    <div id="postAdBody" class="bg-slate-900 border border-yellow-500/40 rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl max-h-[90vh] overflow-y-auto"></div>
-  </div>
-
-  <div id="resetModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
-      <h3 class="text-lg font-bold text-white mb-2">Kariyeri Sıfırla?</h3>
-      <p class="text-sm text-slate-300 mb-5">Mevcut kasan, araçların, kredilerin ve galerilerin sıfırlanacak; ₺0 başlangıç kasasıyla yeniden başlayacaksın.</p>
-      <div class="flex justify-end gap-2">
-        <button type="button" onclick="document.getElementById('resetModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-semibold text-slate-200">Vazgeç</button>
-        <button type="button" onclick="game.resetSave()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-sm font-bold text-white">Evet, Sıfırla</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="galleryNameModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-yellow-500/50 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4">
-      <div>
-        <span id="galleryModalBadge" class="text-[11px] font-black uppercase tracking-wider text-yellow-400">Yeni Kariyer Başlangıcı</span>
-        <h3 id="galleryModalTitle" class="text-lg sm:text-xl font-black text-white mt-0.5">Galerine Bir İsim Ver</h3>
-        <p class="text-xs text-slate-300 mt-1">Girdiğin galeri adı tabelanda, ilanlarda ve ortaklık/sıralama ekranında görünür.</p>
-      </div>
-      <div>
-        <label class="block text-xs font-bold text-slate-300 mb-1.5">Galeri Adı</label>
-        <input id="galleryNameInput" type="text" maxlength="26" placeholder="Örn: Yalova Motors, Kardeşler Oto..."
-          onkeydown="if(event.key==='Enter') ui.submitGalleryName()"
-          class="w-full bg-slate-950 border border-slate-700 focus:border-yellow-400 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white outline-none" />
-      </div>
-      <div class="flex justify-end gap-2 pt-1">
-        <button type="button" id="galleryModalCancelBtn" onclick="document.getElementById('galleryNameModal').classList.add('hidden')" class="hidden px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200">Vazgeç</button>
-        <button type="button" id="galleryModalSaveBtn" onclick="ui.submitGalleryName()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg">🚀 Kariyere Başla</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="bankruptcyModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-950 border-2 border-rose-600 rounded-3xl max-w-md w-full p-6 shadow-2xl text-center space-y-4">
-      <div class="w-16 h-16 mx-auto rounded-2xl bg-rose-600/20 border border-rose-500 flex items-center justify-center text-3xl">🚨</div>
-      <div>
-        <span class="text-xs font-black uppercase tracking-wider text-rose-400">Banka Haciz Kararı</span>
-        <h2 class="text-2xl font-black text-white mt-1">İFLAS ETTİN!</h2>
-        <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">Kasa bakiyen <b class="text-rose-400">-₺150.000</b> haciz sınırının altına düştüğü için bankalar galerine el koydu.</p>
-      </div>
-      <div class="grid grid-cols-3 gap-2 bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs">
-        <div><span class="text-slate-400 block">Gün</span><b id="bankruptDays" class="text-base font-black text-yellow-400">1</b></div>
-        <div><span class="text-slate-400 block">Prestij</span><b id="bankruptPrestige" class="text-base font-black text-emerald-400">50</b></div>
-        <div><span class="text-slate-400 block">Kasa</span><b id="bankruptMoney" class="text-sm font-black text-rose-400">-₺150.000</b></div>
-      </div>
-      <button type="button" onclick="game.resetSave()" class="w-full py-3.5 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm shadow-lg">🔄 Yeni Kariyer Başlat (₺0 Kasa)</button>
-    </div>
-  </div>
-
-  <script>
-    const TURKEY_LOCATIONS = {
-      'Yalova': { lat: 40.6500, lon: 29.2667, districts: ['Merkez', 'Çiftlikköy', 'Çınarcık', 'Altınova', 'Termal', 'Armutlu'] },
-      'İstanbul': { lat: 41.0082, lon: 28.9784, districts: ['Kadıköy', 'Beşiktaş', 'Ümraniye', 'Ataşehir', 'Bakırköy', 'Kartal'] },
-      'Ankara': { lat: 39.9334, lon: 32.8597, districts: ['Çankaya', 'Yenimahalle', 'Keçiören', 'Mamak', 'Etimesgut'] },
-      'İzmir': { lat: 38.4237, lon: 27.1428, districts: ['Konak', 'Karşıyaka', 'Bornova', 'Buca', 'Gaziemir'] },
-      'Bursa': { lat: 40.1885, lon: 29.0610, districts: ['Osmangazi', 'Nilüfer', 'Yıldırım', 'Gemlik', 'İnegöl'] },
-      'Kocaeli': { lat: 40.8533, lon: 29.8815, districts: ['İzmit', 'Gebze', 'Körfez', 'Gölcük'] },
-      'Sakarya': { lat: 40.7569, lon: 30.3781, districts: ['Adapazarı', 'Serdivan', 'Erenler'] },
-      'Antalya': { lat: 36.8969, lon: 30.7133, districts: ['Muratpaşa', 'Kepez', 'Konyaaltı', 'Alanya'] },
-      'Adana': { lat: 37.0000, lon: 35.3213, districts: ['Seyhan', 'Çukurova', 'Yüreğir'] },
-      'Konya': { lat: 37.8746, lon: 32.4932, districts: ['Selçuklu', 'Meram', 'Karatay'] },
-      'Gaziantep': { lat: 37.0662, lon: 37.3833, districts: ['Şahinbey', 'Şehitkamil'] },
-      'Trabzon': { lat: 41.0027, lon: 39.7168, districts: ['Ortahisar', 'Akçaabat', 'Yomra'] },
-      'Samsun': { lat: 41.2867, lon: 36.3300, districts: ['Atakum', 'İlkadım', 'Canik'] },
-      'Eskişehir': { lat: 39.7767, lon: 30.5206, districts: ['Odunpazarı', 'Tepebaşı'] },
-      'Kayseri': { lat: 38.7312, lon: 35.4787, districts: ['Melikgazi', 'Kocasinan'] },
-      'Diyarbakır': { lat: 37.9144, lon: 40.2306, districts: ['Bağlar', 'Kayapınar', 'Yenişehir'] },
-      'Mersin': { lat: 36.8121, lon: 34.6415, districts: ['Yenişehir', 'Mezitli', 'Tarsus'] },
-      'Erzurum': { lat: 39.9000, lon: 41.2700, districts: ['Yakutiye', 'Palandöken'] },
-      'Van': { lat: 38.4891, lon: 43.4089, districts: ['İpekyolu', 'Edremit'] }
-    };
-    const ALL_CITIES = Object.keys(TURKEY_LOCATIONS);
-
-    function calcTravelCost(fromCity, toCity) {
-      if (!fromCity || !toCity || fromCity === toCity) return 1000;
-      const a = TURKEY_LOCATIONS[fromCity] || TURKEY_LOCATIONS['Yalova'];
-      const b = TURKEY_LOCATIONS[toCity] || TURKEY_LOCATIONS['Yalova'];
-      const dx = (a.lat - b.lat) * 111;
-      const dy = (a.lon - b.lon) * 85;
-      const distKm = Math.sqrt(dx * dx + dy * dy);
-      const ratio = Math.max(0, Math.min(1, distKm / 1450));
-      return Math.round((1000 + ratio * 19000) / 250) * 250;
-    }
-
-    const GALLERY_TIERS = [
-      { id: 1, name: 'Ara Sokak Eski Galeri', streetType: 'Ara Sokak', capacity: 2, rent30: 20000, upgradeCost: 0, trafficDensity: 1, desc: 'Küçük ara sokak galerisi. 2 araç sınır, 30 günde ₺20.000 kira.' },
-      { id: 2, name: 'Ara Cadde 3 Araçlık Galeri', streetType: 'Ara Cadde', capacity: 3, rent30: 50000, upgradeCost: 120000, trafficDensity: 2, desc: 'Ara caddede 3 araç kapasiteli galeri. 30 günde ₺50.000 kira.' },
-      { id: 3, name: 'Ara Cadde 4 Araçlık Galeri', streetType: 'Ara Cadde', capacity: 4, rent30: 70000, upgradeCost: 220000, trafficDensity: 3, desc: 'Ara caddede 4 araç kapasiteli galeri. 30 günde ₺70.000 kira.' },
-      { id: 4, name: 'Cadde Başı 4 Araçlık Galeri', streetType: 'Cadde Başı', capacity: 4, rent30: 110000, upgradeCost: 350000, trafficDensity: 4, desc: 'Cadde başında 4 araç kapasiteli galeri. 30 günde ₺110.000 kira.' },
-      { id: 5, name: 'İşlek Cadde 5 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 5, rent30: 200000, upgradeCost: 650000, trafficDensity: 6, desc: 'İşlek caddede 5 araç kapasiteli galeri. 30 günde ₺200.000 kira.' },
-      { id: 6, name: 'İşlek Cadde 7 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 7, rent30: 280000, upgradeCost: 1100000, trafficDensity: 7, desc: 'İşlek caddede 7 araç kapasiteli galeri. 30 günde ₺280.000 kira.' },
-      { id: 7, name: 'İşlek Cadde 10 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 10, rent30: 400000, upgradeCost: 1850000, trafficDensity: 8, desc: 'İşlek caddede 10 araç kapasiteli galeri. 30 günde ₺400.000 kira.' },
-      { id: 8, name: 'İşlek Cadde 13 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 13, rent30: 600000, upgradeCost: 3100000, trafficDensity: 9, desc: 'İşlek caddede 13 araç kapasiteli galeri. 30 günde ₺600.000 kira.' },
-      { id: 9, name: 'İşlek Cadde 16 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 16, rent30: 800000, upgradeCost: 4800000, trafficDensity: 10, desc: 'İşlek caddede 16 araç kapasiteli galeri. 30 günde ₺800.000 kira.' },
-      { id: 10, name: 'İşlek Cadde 20 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 20, rent30: 1000000, upgradeCost: 7500000, trafficDensity: 12, desc: 'İşlek caddede 20 araç kapasiteli galeri. 30 günde ₺1.000.000 kira.' }
+    const TURKEY_CARS = [
+      { id: 'anadolu_sahin_slx', name: 'Anadolu Şahin 1.6 SLX', marketHint: 'Klasik Yerli Sedan', body: 'sedan', segment: 'Klasik', basePrice: 235000, hp: 84, engine: '1.6 SLX', fuel: 'Benzin & LPG', gear: '5 İleri Manuel', baseKm: 225000, colors: ['#f8fafc', '#dc2626', '#1e293b'] },
+      { id: 'egeya_13_urban', name: 'Egeya 1.3 Multijet Urban', marketHint: 'Popüler C-Sedan', body: 'sedan', segment: 'C-Sedan', basePrice: 685000, hp: 95, engine: '1.3 Multijet', fuel: 'Dizel', gear: '6 İleri Manuel', baseKm: 86000, colors: ['#f8fafc', '#475569', '#1e293b'] },
+      { id: 'golfen_14_rline', name: 'Golfen 1.4 TSI R-Line', marketHint: 'Popüler C-Hatchback', body: 'hatch', segment: 'C-Hatchback', basePrice: 1085000, hp: 150, engine: '1.4 TSI', fuel: 'Benzin', gear: '7 İleri DSG', baseKm: 77000, colors: ['#0f172a', '#f8fafc', '#1d4ed8'] },
+      { id: 'corollan_16_dream', name: 'Corollan 1.6 Dream', marketHint: 'Aile Sedanı', body: 'sedan', segment: 'C-Sedan', basePrice: 1025000, hp: 132, engine: '1.6 Valvematic', fuel: 'Benzin & LPG', gear: 'Otomatik', baseKm: 66000, colors: ['#f8fafc', '#475569', '#0f172a'] },
+      { id: 'boga_duster_4x4', name: 'Boğa Duster 1.3 TCe 4x4', marketHint: 'SUV', body: 'suv', segment: 'SUV', basePrice: 1120000, hp: 150, engine: '1.3 TCe 4x4', fuel: 'Benzin', gear: 'EDC Otomatik', baseKm: 49000, colors: ['#065f46', '#d97706', '#0f172a'] },
+      { id: 'bavyera_320i_msport', name: 'Bavyera 320i M-Sport', marketHint: 'Spor Sedan', body: 'sedan', segment: 'Spor Sedan', basePrice: 1780000, hp: 170, engine: '1.6 TwinPower', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 78000, colors: ['#1d4ed8', '#0f172a', '#f8fafc'] },
+      { id: 'yildiz_c200d_amg', name: 'Yıldız C200d AMG', marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2140000, hp: 160, engine: '1.6 Turbo Dizel', fuel: 'Dizel', gear: '9G-Tronic', baseKm: 61000, colors: ['#0f172a', '#cbd5e1', '#f8fafc'] },
+      { id: 'halkali_a6_quattro', name: 'Halkalı A6 2.0 TDI Quattro', marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2680000, hp: 204, engine: '2.0 TDI Quattro', fuel: 'Dizel', gear: '7 İleri S-Tronic', baseKm: 55000, colors: ['#1e293b', '#94a3b8', '#0f172a'] },
+      { id: 'vadi_rover_vogue', name: 'Vadi Rover 3.0 TDV6 Vogue', marketHint: 'Lüks SUV', body: 'suv', segment: 'Lüks SUV', basePrice: 4480000, hp: 258, engine: '3.0 V6 Turbo', fuel: 'Dizel', gear: '8 İleri 4x4', baseKm: 44000, colors: ['#0f172a', '#f8fafc', '#065f46'] },
+      { id: 'yildiz_s580_maybach', name: 'Yıldız S580 Long Lüks', marketHint: 'Ultra Lüks Makam', body: 'sedan', segment: 'Ultra Lüks', basePrice: 6800000, hp: 503, engine: '4.0 V8 Biturbo Mild Hybrid', fuel: 'Benzin', gear: '9G-Tronic 4MATIC', baseKm: 24000, colors: ['#0f172a', '#94a3b8', '#7f1d1d'] },
+      { id: 'bogaz_911_carrera_s', name: 'Boğaz 911 Carrera S', marketHint: 'Lüks Spor Coupe', body: 'sedan', segment: 'Lüks Spor', basePrice: 5400000, hp: 450, engine: '3.0 Boxer 6 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri PDK', baseKm: 19000, colors: ['#dc2626', '#facc15', '#f8fafc'] },
+      { id: 'elmas_urus_performante', name: 'Elmas Urus Performante', marketHint: 'Lüks Süper SUV', body: 'suv', segment: 'Lüks Süper SUV', basePrice: 7900000, hp: 666, engine: '4.0 V8 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 15000, colors: ['#facc15', '#dc2626', '#0f172a'] }
     ];
 
+    const CAR_PARTS = [
+      { key: 'hood', label: 'Motor Kaputu', weight: 0.09 },
+      { key: 'roof', label: 'Tavan', weight: 0.12 },
+      { key: 'frontBumper', label: 'Ön Tampon', weight: 0.035 },
+      { key: 'rearBumper', label: 'Arka Tampon', weight: 0.03 },
+      { key: 'leftFrontDoor', label: 'Sol Ön Kapı', weight: 0.055 },
+      { key: 'rightFrontDoor', label: 'Sağ Ön Kapı', weight: 0.055 },
+      { key: 'leftRearDoor', label: 'Sol Arka Kapı', weight: 0.045 },
+      { key: 'rightRearDoor', label: 'Sağ Arka Kapı', weight: 0.045 },
+      { key: 'leftFender', label: 'Sol Ön Çamurluk', weight: 0.045 },
+      { key: 'rightFender', label: 'Sağ Ön Çamurluk', weight: 0.045 }
+    ];
+
+    const SELLER_PERSONAS = [
+      { type: 'Doktordan', badge: 'Hatasız / Boyasız', titles: ['DOKTORDAN HATASIZ BOYASIZ GARAJ ARABASI', 'İLK SAHİBİNDEN BAKIMLI TEMİZ'], notes: 'Titizlikle kullanıldı, ekspertize açıktır.', priceMult: [1.01, 1.07], condRange: [86, 97], defectChance: 0.15 },
+      { type: 'Memurdan', badge: 'Temiz Bakımlı', titles: ['MEMURDAN TEMİZ AİLE ARACI', 'BAKIMLARI YENİ MASRAFSIZ'], notes: 'Aile aracı olarak kullanıldı.', priceMult: [0.94, 1.02], condRange: [76, 88], defectChance: 0.25 },
+      { type: 'Acil Satılık', badge: '🔥 Fırsat İlan', titles: ['ACİL NAKİTTEN SATILIK UYGUN FİYAT', 'BUGÜNE ÖZEL FIRSAT ARAÇ'], notes: 'Acil nakit ihtiyacı nedeniyle satılık.', priceMult: [0.80, 0.90], condRange: [68, 84], defectChance: 0.35 },
+      { type: 'Hasarlı Fırsat', badge: 'Hasarlı / Boyalı', titles: ['KAPORTA İŞLEMLİ FIRSAT ARAÇ', 'UYGUN FİYATLI YATIRIMLIK ARAÇ'], notes: 'Bazı parçalarında boya/değişen bulunabilir.', priceMult: [0.72, 0.85], condRange: [55, 72], defectChance: 0.5 }
+    ];
+
+    const NPC_BUYERS = ['Ahmet Yılmaz', 'Mehmet Usta', 'Zeynep Kaya', 'Burak Demir', 'Selin Arslan', 'Murat Şahin', 'Emre Öztürk', 'Elif Yıldız'];
+    const RIVAL_GALLERIES = ['Kardeşler Oto', 'Yalova Motors', 'Prestij Galeri', 'Anadolu Auto', 'Bosphorus Motors'];
+
+    const CARE_COSTS = { wash: 1500, polish: 6500, tires: 18000, rims: 32000 };
+
+    function formatTL(amount) {
+      const num = Number(amount) || 0;
+      const sign = num < 0 ? '-' : '';
+      return sign + '₺' + Math.abs(Math.round(num)).toLocaleString('tr-TR');
+    }
+
+    class SariGaleriGame {
+      constructor() {
+        this.BANKRUPTCY_LIMIT
