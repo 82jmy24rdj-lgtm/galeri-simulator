@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2D Oto Galeri Simülatörü v7</title>
+  <title>2D Oto Galeri Simülatörü v8</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
@@ -50,7 +50,7 @@
             <span class="text-slate-900/50">•</span>
             <span id="prestigeText" class="font-bold text-xs text-slate-900">★ Prestij: 50</span>
             <span class="text-slate-900/50">•</span>
-            <span id="creditScoreText" class="font-extrabold text-xs text-slate-950">Kredi Puanı: 1200</span>
+            <span id="creditScoreText" class="font-extrabold text-xs text-slate-950">Kredi Puanı: 1200/1900</span>
             <span class="text-slate-900/50">•</span>
             <span id="marketPhaseText" class="font-extrabold text-xs px-1.5 py-0.5 rounded bg-slate-950 text-yellow-400">Normal Piyasa</span>
           </div>
@@ -92,7 +92,7 @@
     <div id="marketNewsBanner" class="bg-slate-900/95 border border-yellow-500/30 rounded-xl px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
       <div class="flex items-center gap-2 text-slate-200">
         <span class="bg-yellow-400 text-slate-950 font-black px-2 py-0.5 rounded text-[10px]">PİYASA BÜLTENİ</span>
-        <span id="marketNewsText">2. el piyasasında dengeli seyir sürüyor; ekspertizli araçlar alıcıdan daha çok güven görüyor.</span>
+        <span id="marketNewsText">Tüm araçların modeli yalnızca gerçek üretim yıllarından seçilir; 81 il ve tüm ilçeler aktif.</span>
       </div>
       <button type="button" onclick="ui.cycleTip()" class="text-[11px] font-bold text-sky-300 hover:underline shrink-0">💡 İpucu Göster</button>
     </div>
@@ -146,16 +146,16 @@
       </div>
       <div class="space-y-2.5 text-slate-200 leading-relaxed">
         <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-          <b class="text-yellow-400 block mb-0.5">1. Ekspertiz, Satıcı Tavrı ve Yol Masrafı</b>
-          Satıcıların pazarlık tavırları farklıdır (kimi hızlı iner, kimi serttir). İlanlarda gizli kusur/hasar kaydı çıkabilir; <b>Ekspertiz (₺2.500)</b> sürprizleri önceden gösterir. Farklı şehirlerden alımda <b>₺1.000 – ₺20.000</b> yol ücreti eklenir.
+          <b class="text-yellow-400 block mb-0.5">1. Gerçek Modeller & 81 İl</b>
+          Her araç yalnızca gerçek üretim yıllarında çıkar. Galerini 81 il ve ilçelerinden istediğin yerde kurabilir, şehirlerarası alımlarda <b>₺1.000 – ₺20.000</b> yol ücreti ödersin.
         </div>
         <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-          <b class="text-emerald-400 block mb-0.5">2. Bakım, İlan ve Rozetler</b>
-          Aldığın aracı <b>Galerim</b> sekmesinden yıkayıp pasta-cila yaparak değerini artırabilir, ilana koyup teklif değerlendirebilirsin (%5 satış vergisi). Hedefleri tamamladıkça <b>Rozetler</b> açılır!
+          <b class="text-emerald-400 block mb-0.5">2. Ekspertiz, Bakım ve Satış</b>
+          Ekspertiz (₺2.500) gizli kusur ve tramer sürprizlerini ortaya çıkarır. Yıkama/pasta-cila piyasa değerine maliyetinin 1.5 katı katkı sağlar; satışta <b>%5 vergi</b> kesilir.
         </div>
         <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-          <b class="text-sky-400 block mb-0.5">3. Kredi Puanı (0 – 1900) ve Limitler</b>
-          Başlangıç puanın <b>1200</b>'dür. <b>700 altı</b> kredi alamaz; puan arttıkça limit <b>₺100.000</b>'den <b>₺1.000.000.000</b>'a çıkar. Kasa <b>-₺150.000</b> altına inerse iflas edersin.
+          <b class="text-sky-400 block mb-0.5">3. Kredi Puanı (0 – 1900) ve Faiz</b>
+          Başlangıç puanın <b>1200</b>'dür. <b>700 altı</b> kredi alamaz; kredi ekranında her paketin <b>faiz oranı</b> ve toplam geri ödemesi görünür. Kasa <b>-₺150.000</b> altına inerse iflas edersin.
         </div>
       </div>
       <button type="button" onclick="ui.closeTutorialModal()" class="w-full py-3 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm">Anladım, Oyuna Geç</button>
@@ -182,7 +182,7 @@
       <div>
         <span id="galleryModalBadge" class="text-[11px] font-black uppercase tracking-wider text-yellow-400">Yeni Kariyer Başlangıcı</span>
         <h3 id="galleryModalTitle" class="text-lg sm:text-xl font-black text-white mt-0.5">Galeri Adı ve Konum Seç</h3>
-        <p class="text-xs text-slate-300 mt-1">₺500.000 başlangıç kasasıyla kariyerine başlayacağın şehri, ilçeyi ve galeri adını belirle.</p>
+        <p class="text-xs text-slate-300 mt-1">₺500.000 başlangıç kasasıyla kariyerine başlayacağın 81 ilden bir şehir, ilçe ve galeri adı seç.</p>
       </div>
       <div class="space-y-3">
         <div>
@@ -193,7 +193,7 @@
         </div>
         <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Şehir</label>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Şehir (81 İl)</label>
             <select id="modalCitySelect" onchange="ui.onModalCityChange()" class="w-full bg-slate-950 border border-slate-700 focus:border-yellow-400 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-white outline-none"></select>
           </div>
           <div>
@@ -231,25 +231,85 @@
 
   <script>
     const TURKEY_LOCATIONS = {
-      'İzmir': { lat: 38.4237, lon: 27.1428, districts: ['Konak', 'Karşıyaka', 'Bornova', 'Buca', 'Gaziemir', 'Bayraklı'] },
+      'Adana': { lat: 37.0000, lon: 35.3213, districts: ['Seyhan', 'Yüreğir', 'Çukurova', 'Sarıçam', 'Ceyhan', 'Kozan', 'İmamoğlu', 'Karaisalı', 'Karataş', 'Pozantı', 'Tufanbeyli', 'Yumurtalık', 'Aladağ', 'Feke', 'Saimbeyli'] },
+      'Adıyaman': { lat: 37.7648, lon: 38.2786, districts: ['Merkez', 'Kahta', 'Besni', 'Gölbaşı', 'Gerger', 'Sincik', 'Çelikhan', 'Tut', 'Samsat'] },
+      'Afyonkarahisar': { lat: 38.7507, lon: 30.5567, districts: ['Merkez', 'Sandıklı', 'Dinar', 'Bolvadin', 'Emirdağ', 'Şuhut', 'Çay', 'İhsaniye', 'Sinanpaşa', 'Sultandağı', 'İscehisar', 'Bayat', 'Çobanlar', 'Dazkırı', 'Evciler', 'Hocalar', 'Kızılören', 'Başmakçı'] },
+      'Ağrı': { lat: 39.7191, lon: 43.0503, districts: ['Merkez', 'Patnos', 'Doğubayazıt', 'Diyadin', 'Eleşkirt', 'Tutak', 'Hamur', 'Taşlıçay'] },
+      'Amasya': { lat: 40.6499, lon: 35.8353, districts: ['Merkez', 'Merzifon', 'Suluova', 'Taşova', 'Gümüşhacıköy', 'Göynücek', 'Hamamözü'] },
+      'Ankara': { lat: 39.9334, lon: 32.8597, districts: ['Çankaya', 'Keçiören', 'Yenimahalle', 'Mamak', 'Etimesgut', 'Sincan', 'Altındağ', 'Pursaklar', 'Polatlı', 'Beypazarı', 'Çubuk', 'Elmadağ', 'Kahramankazan', 'Akyurt', 'Ayaş', 'Bala', 'Çamlıdere', 'Evren', 'Güdül', 'Haymana', 'Kalecik', 'Kızılcahamam', 'Nallıhan', 'Şereflikoçhisar', 'Gölbaşı'] },
+      'Antalya': { lat: 36.8969, lon: 30.7133, districts: ['Muratpaşa', 'Kepez', 'Konyaaltı', 'Alanya', 'Manavgat', 'Serik', 'Kumluca', 'Kaş', 'Kemer', 'Finike', 'Gazipaşa', 'Elmalı', 'Korkuteli', 'Demre', 'Aksu', 'Döşemealtı', 'Gündoğmuş', 'İbradı', 'Akseki'] },
+      'Artvin': { lat: 41.1828, lon: 41.8183, districts: ['Merkez', 'Hopa', 'Borçka', 'Arhavi', 'Yusufeli', 'Şavşat', 'Ardanuç', 'Murgul', 'Kemalpaşa'] },
+      'Aydın': { lat: 37.8560, lon: 27.8416, districts: ['Efeler', 'Nazilli', 'Söke', 'Kuşadası', 'Didim', 'İncirliova', 'Çine', 'Germencik', 'Bozdoğan', 'Köşk', 'Kuyucak', 'Sultanhisar', 'Karacasu', 'Koçarlı', 'Yenipazar', 'Buharkent', 'Karpuzlu'] },
+      'Balıkesir': { lat: 39.6484, lon: 27.8826, districts: ['Altıeylül', 'Karesi', 'Bandırma', 'Edremit', 'Gönen', 'Burhaniye', 'Ayvalık', 'Bigadiç', 'Susurluk', 'Dursunbey', 'İvrindi', 'Sındırgı', 'Havran', 'Kepsut', 'Manyas', 'Savaştepe', 'Marmara', 'Gömeç', 'Balya'] },
+      'Bartın': { lat: 41.6344, lon: 32.3375, districts: ['Merkez', 'Ulus', 'Amasra', 'Kurucaşile'] },
+      'Batman': { lat: 37.8812, lon: 41.1351, districts: ['Merkez', 'Kozluk', 'Sason', 'Beşiri', 'Gercüş', 'Hasankeyf'] },
+      'Bayburt': { lat: 40.2552, lon: 40.2249, districts: ['Merkez', 'Demirözü', 'Aydıntepe'] },
+      'Bilecik': { lat: 40.1426, lon: 29.9793, districts: ['Merkez', 'Bozüyük', 'Osmaneli', 'Söğüt', 'Gölpazarı', 'Pazaryeri', 'İnhisar', 'Yenipazar'] },
+      'Bingöl': { lat: 38.8848, lon: 40.4983, districts: ['Merkez', 'Genç', 'Solhan', 'Karlıova', 'Adaklı', 'Kiğı', 'Yayladere', 'Yedisu'] },
+      'Bitlis': { lat: 38.4006, lon: 42.1095, districts: ['Tatvan', 'Merkez', 'Güroymak', 'Ahlat', 'Hizan', 'Mutki', 'Adilcevaz'] },
+      'Bolu': { lat: 40.7360, lon: 31.6061, districts: ['Merkez', 'Gerede', 'Mudurnu', 'Göynük', 'Mengen', 'Yeniçağa', 'Dörtdivan', 'Seben', 'Kıbrıscık'] },
+      'Burdur': { lat: 37.7203, lon: 30.2908, districts: ['Merkez', 'Bucak', 'Gölhisar', 'Yeşilova', 'Çavdır', 'Tefenni', 'Ağlasun', 'Karamanlı', 'Kemer', 'Altınyayla', 'Çeltikçi'] },
+      'Bursa': { lat: 40.1885, lon: 29.0610, districts: ['Osmangazi', 'Nilüfer', 'Yıldırım', 'İnegöl', 'Gemlik', 'Mustafakemalpaşa', 'Mudanya', 'Karacabey', 'Gürsu', 'Kestel', 'Orhangazi', 'Yenişehir', 'İznik', 'Keles', 'Orhaneli', 'Büyükorhan', 'Harmancık'] },
+      'Çanakkale': { lat: 40.1553, lon: 26.4142, districts: ['Merkez', 'Biga', 'Çan', 'Gelibolu', 'Ayvacık', 'Ezine', 'Lapseki', 'Bayramiç', 'Yenice', 'Eceabat', 'Gökçeada', 'Bozcaada'] },
+      'Çankırı': { lat: 40.6013, lon: 33.6134, districts: ['Merkez', 'Çerkeş', 'Ilgaz', 'Şabanözü', 'Kurşunlu', 'Yapraklı', 'Korgun', 'Orta', 'Atkaracalar', 'Eldivan', 'Kızılırmak', 'Bayramören'] },
+      'Çorum': { lat: 40.5506, lon: 34.9556, districts: ['Merkez', 'Sungurlu', 'Osmancık', 'İskilip', 'Alaca', 'Bayat', 'Kargı', 'Mecitözü', 'Ortaköy', 'Uğurludağ', 'Dodurga', 'Laçin', 'Boğazkale', 'Oğuzlar'] },
+      'Denizli': { lat: 37.7765, lon: 29.0864, districts: ['Pamukkale', 'Merkezefendi', 'Çivril', 'Acıpayam', 'Tavas', 'Honaz', 'Sarayköy', 'Buldan', 'Kale', 'Çal', 'Bozkurt', 'Güney', 'Çameli', 'Serinhisar', 'Babadağ', 'Baklan', 'Bekilli', 'Beyağaç', 'Bozkurt'] },
+      'Diyarbakır': { lat: 37.9144, lon: 40.2306, districts: ['Bağlar', 'Kayapınar', 'Yenişehir', 'Sur', 'Ergani', 'Bismil', 'Silvan', 'Çınar', 'Dicle', 'Hani', 'Kulp', 'Lice', 'Eğil', 'Kocaköy', 'Çermik', 'Çüngüş', 'Hazro'] },
+      'Düzce': { lat: 40.8438, lon: 31.1565, districts: ['Merkez', 'Akçakoca', 'Kaynaşlı', 'Gölyaka', 'Cumayeri', 'Çilimli', 'Yığılca', 'Gümüşova'] },
+      'Edirne': { lat: 41.6818, lon: 26.5623, districts: ['Merkez', 'Keşan', 'Uzunköprü', 'İpsala', 'Havsa', 'Meriç', 'Enez', 'Süloğlu', 'Lalapaşa'] },
+      'Elazığ': { lat: 38.6810, lon: 39.2264, districts: ['Merkez', 'Kovancılar', 'Karakoçan', 'Palu', 'Baskil', 'Arıcak', 'Maden', 'Sivrice', 'Alacakaya', 'Ağın', 'Keban'] },
+      'Erzincan': { lat: 39.7500, lon: 39.5000, districts: ['Merkez', 'Tercan', 'Üzümlü', 'Refahiye', 'Çayırlı', 'İliç', 'Kemah', 'Kemaliye', 'Otlukbeli'] },
+      'Erzurum': { lat: 39.9000, lon: 41.2700, districts: ['Yakutiye', 'Palandöken', 'Aziziye', 'Horasan', 'Oltu', 'Pasinler', 'Karayazı', 'Hınıs', 'Tekman', 'Aşkale', 'Tortum', 'İspir', 'Köprüköy', 'Narman', 'Şenkaya', 'Çat', 'Karaçoban', 'Olur', 'Pazaryolu'] },
+      'Eskişehir': { lat: 39.7767, lon: 30.5206, districts: ['Odunpazarı', 'Tepebaşı', 'Sivrihisar', 'Çifteler', 'Seyitgazi', 'Alpu', 'Mihalıççık', 'Mahmudiye', 'Günyüzü', 'Beylikova', 'İnönü', 'Sarıcakaya', 'Mihalgazi', 'Han'] },
+      'Gaziantep': { lat: 37.0662, lon: 37.3833, districts: ['Şahinbey', 'Şehitkamil', 'Nizip', 'İslahiye', 'Nurdağı', 'Oğuzeli', 'Araban', 'Yavuzeli', 'Karkamış'] },
+      'Giresun': { lat: 40.9128, lon: 38.3895, districts: ['Merkez', 'Bulancak', 'Espiye', 'Görele', 'Tirebolu', 'Dereli', 'Şebinkarahisar', 'Keşap', 'Yağlıdere', 'Alucra', 'Piraziz', 'Eynesil', 'Çanakçı', 'Doğankent', 'Güce', 'Çamoluk'] },
+      'Gümüşhane': { lat: 40.4603, lon: 39.4814, districts: ['Merkez', 'Kelkit', 'Şiran', 'Kürtün', 'Torul', 'Köse'] },
+      'Hakkari': { lat: 37.5833, lon: 43.7333, districts: ['Yüksekova', 'Merkez', 'Şemdinli', 'Çukurca', 'Derecik'] },
+      'Hatay': { lat: 36.4018, lon: 36.3498, districts: ['Antakya', 'İskenderun', 'Defne', 'Dörtyol', 'Kırıkhan', 'Samandağ', 'Reyhanlı', 'Arsuz', 'Payas', 'Altınözü', 'Hassa', 'Belen', 'Erzin', 'Kumlu', 'Yayladağı'] },
+      'Iğdır': { lat: 39.9237, lon: 44.0450, districts: ['Merkez', 'Tuzluca', 'Aralık', 'Karakoyunlu'] },
+      'Isparta': { lat: 37.7648, lon: 30.5566, districts: ['Merkez', 'Yalvaç', 'Eğirdir', 'Şarkikaraağaç', 'Gelendost', 'Keçiborlu', 'Senirkent', 'Sütçüler', 'Gönen', 'Uluborlu', 'Atabey', 'Aksu', 'Yenişarbademli'] },
+      'İstanbul': { lat: 41.0082, lon: 28.9784, districts: ['Esenyurt', 'Küçükçekmece', 'Bağcılar', 'Ümraniye', 'Pendik', 'Bahçelievler', 'Üsküdar', 'Sultangazi', 'Maltepe', 'Gaziosmanpaşa', 'Kartal', 'Başakşehir', 'Esenler', 'Avcılar', 'Kağıthane', 'Fatih', 'Sancaktepe', 'Beylikdüzü', 'Ataşehir', 'Eyüpsultan', 'Sarayburnu', 'Tuzla', 'Büyükçekmece', 'Arnavutköy', 'Kadıköy', 'Şişli', 'Zeytinburnu', 'Bayrampaşa', 'Beşiktaş', 'Bakırköy', 'Sarıyer', 'Çekmeköy', 'Beykoz', 'Silivri', 'Çatalca', 'Şile', 'Adalar'] },
+      'İzmir': { lat: 38.4237, lon: 27.1428, districts: ['Buca', 'Karabağlar', 'Bornova', 'Konak', 'Karşıyaka', 'Bayraklı', 'Çiğli', 'Torbalı', 'Menemen', 'Gaziemir', 'Ödemiş', 'Kemalpaşa', 'Bergama', 'Aliağa', 'Tire', 'Menderes', 'Urla', 'Balçova', 'Çeşme', 'Dikili', 'Seferihisar', 'Selçuk', 'Kiraz', 'Bayındır', 'Foça', 'Güzelbahçe', 'Kınık', 'Beydağ', 'Karaburun'] },
+      'Kahramanmaraş': { lat: 37.5753, lon: 36.9228, districts: ['Onikişubat', 'Dulkadiroğlu', 'Elbistan', 'Afşin', 'Türkoğlu', 'Pazarcık', 'Göksun', 'Andırın', 'Çağlayancerit', 'Ekinözü', 'Nurhak'] },
+      'Karabük': { lat: 41.2061, lon: 32.6204, districts: ['Merkez', 'Safranbolu', 'Yenice', 'Eskipazar', 'Eflani', 'Ovacık'] },
+      'Karaman': { lat: 37.1759, lon: 33.2287, districts: ['Merkez', 'Ermenek', 'Sarıveliler', 'Ayrancı', 'Kazımkarabekir', 'Başyayla'] },
+      'Kars': { lat: 40.6013, lon: 43.0975, districts: ['Merkez', 'Sarıkamış', 'Kağızman', 'Digor', 'Selim', 'Susuz', 'Arpaçay', 'Akyaka'] },
+      'Kastamonu': { lat: 41.3887, lon: 33.7827, districts: ['Merkez', 'Tosya', 'Taşköprü', 'Cide', 'İnebolu', 'Araç', 'Daday', 'Devrekani', 'Küre', 'Bozkurt', 'Çatalzeytin', 'Hanönü', 'İhsangazi', 'Pınarbaşı', 'Seydiler', 'Şenpazar', 'Abana', 'Ağlı', 'Azdavay', 'Doğanyurt'] },
+      'Kayseri': { lat: 38.7312, lon: 35.4787, districts: ['Melikgazi', 'Kocasinan', 'Talas', 'Develi', 'Yahyalı', 'Bünyan', 'İncesu', 'Pınarbaşı', 'Tomarza', 'Yeşilhisar', 'Sarıoğlan', 'Hacılar', 'Sarız', 'Akkışla', 'Felahiye', 'Özavatan'] },
+      'Kırıkkale': { lat: 39.8468, lon: 33.5153, districts: ['Merkez', 'Yahşihan', 'Keskin', 'Delice', 'Sulakyurt', 'Bahşılı', 'Balışeyh', 'Karakeçili', 'Çelebi'] },
+      'Kırklareli': { lat: 41.7333, lon: 27.2167, districts: ['Lüleburgaz', 'Merkez', 'Babaeski', 'Vize', 'Pınarhisar', 'Demirköy', 'Pehlivanköy', 'Kofçaz'] },
+      'Kırşehir': { lat: 39.1425, lon: 34.1709, districts: ['Merkez', 'Kaman', 'Mucur', 'Çiçekdağı', 'Akpınar', 'Boztepe', 'Akçakent'] },
+      'Kilis': { lat: 36.7184, lon: 37.1212, districts: ['Merkez', 'Musabeyli', 'Elbeyli', 'Polateli'] },
+      'Kocaeli': { lat: 40.8533, lon: 29.8815, districts: ['Gebze', 'İzmit', 'Körfez', 'Derince', 'Gölcük', 'Darıca', 'Kartepe', 'Çayırova', 'Başiskele', 'Karamürsel', 'Kandıra', 'Dilovası'] },
+      'Konya': { lat: 37.8746, lon: 32.4932, districts: ['Selçuklu', 'Meram', 'Karatay', 'Ereğli', 'Akşehir', 'Beyşehir', 'Çumra', 'Seydişehir', 'Ilgın', 'Kulu', 'Cihanbeyli', 'Karapınar', 'Kadınhanı', 'Sarayönü', 'Bozkır', 'Hüyük', 'Doğanhisar', 'Yunak', 'Altınekin', 'Hadim', 'Taşkent', 'Emirgazi', 'Ahırlı', 'Derbent', 'Derebucak', 'Güneysınır', 'Halkapınar', 'Tuzlukçu', 'Yalıhüyük'] },
+      'Kütahya': { lat: 39.4242, lon: 29.9833, districts: ['Merkez', 'Tavşanlı', 'Simav', 'Gediz', 'Emet', 'Altıntaş', 'Domaniç', 'Hisarcık', 'Pazarlar', 'Şaphane', 'Aslanapa', 'Dumlupınar', 'Çavdarhisar'] },
+      'Malatya': { lat: 38.3552, lon: 38.3095, districts: ['Battalgazi', 'Yeşilyurt', 'Doğanşehir', 'Akçadağ', 'Darende', 'Hekimhan', 'Yazıhan', 'Pütürge', 'Arapgir', 'Arguvan', 'Kuluncak', 'Kale', 'Doğanyol'] },
+      'Manisa': { lat: 38.6191, lon: 27.4289, districts: ['Yunusemre', 'Şehzadeler', 'Akhisar', 'Turgutlu', 'Salihli', 'Soma', 'Alaşehir', 'Kula', 'Kırkağaç', 'Saruhanlı', 'Demirci', 'Gördes', 'Selendi', 'Ahmetli', 'Gölmarmara', 'Köprübaşı'] },
+      'Mardin': { lat: 37.3131, lon: 40.7436, districts: ['Kızıltepe', 'Artuklu', 'Midyat', 'Nusaybin', 'Derik', 'Mazıdağı', 'Dargeçit', 'Savur', 'Yeşilli', 'Ömerli'] },
+      'Mersin': { lat: 36.8121, lon: 34.6415, districts: ['Tarsus', 'Toroslar', 'Yenişehir', 'Mezitli', 'Akdeniz', 'Silifke', 'Erdemli', 'Anamur', 'Mut', 'Bozyazı', 'Aydıncık', 'Gülnar', 'Çamlıyayla'] },
+      'Muğla': { lat: 37.2153, lon: 28.3636, districts: ['Bodrum', 'Fethiye', 'Milas', 'Menteşe', 'Marmaris', 'Seydikemer', 'Yatağan', 'Ortaca', 'Dalaman', 'Köyceğiz', 'Ula', 'Datça', 'Kavaklıdere'] },
+      'Muş': { lat: 38.9462, lon: 41.7539, districts: ['Merkez', 'Bulanık', 'Malazgirt', 'Varto', 'Hasköy', 'Korkut'] },
+      'Nevşehir': { lat: 38.6939, lon: 34.6857, districts: ['Merkez', 'Ürgüp', 'Avanos', 'Gülşehir', 'Derinkuyu', 'Acıgöl', 'Kozaklı', 'Hacıbektaş'] },
+      'Niğde': { lat: 37.9667, lon: 34.6833, districts: ['Merkez', 'Bor', 'Çiftlik', 'Ulukışla', 'Altunhisar', 'Çamardı'] },
+      'Ordu': { lat: 40.9839, lon: 37.8764, districts: ['Altınordu', 'Ünye', 'Fatsa', 'Gölköy', 'Korgan', 'Kumru', 'Aybası', 'Aybastı', 'Mesudiye', 'Perşembe', 'Ulubey', 'Gürgentepe', 'Çamaş', 'Çatalpınar', 'Çaybaşı', 'İkizce', 'Kabadüz', 'Kabataş'] },
+      'Osmaniye': { lat: 37.0742, lon: 36.2476, districts: ['Merkez', 'Kadirli', 'Düziçi', 'Bahçe', 'Toprakkale', 'Sumbas', 'Hasanbeyli'] },
+      'Rize': { lat: 41.0201, lon: 40.5234, districts: ['Merkez', 'Çayeli', 'Ardeşen', 'Pazar', 'Fındıklı', 'Güneysu', 'Kalkandere', 'İyidere', 'İkizdere', 'Çamlıhemşin', 'Derepazarı', 'Hemşin'] },
+      'Sakarya': { lat: 40.7569, lon: 30.3781, districts: ['Adapazarı', 'Serdivan', 'Akyazı', 'Erenler', 'Hendek', 'Karasu', 'Geyve', 'Sapanca', 'Pamukova', 'Ferizli', 'Kaynarca', 'Kocaali', 'Söğütlü', 'Taraklı', 'Arifiye'] },
+      'Samsun': { lat: 41.2867, lon: 36.3300, districts: ['İlkadım', 'Atakum', 'Bafra', 'Çarşamba', 'Vezirköprü', 'Terme', 'Tekkeköy', 'Canik', 'Havza', 'Alaçam', 'Kavak', '19 Mayıs', 'Salıpazarı', 'Ayvacık', 'Asarcık', 'Ladik', 'Yakakent'] },
+      'Siirt': { lat: 37.9333, lon: 41.9500, districts: ['Merkez', 'Kurtalan', 'Pervari', 'Baykan', 'Şirvan', 'Eruh', 'Tillo'] },
+      'Sinop': { lat: 42.0231, lon: 35.1531, districts: ['Merkez', 'Boyabat', 'Gerze', 'Ayancık', 'Durağan', 'Türkeli', 'Erfelek', 'Dikmen', 'Saraydüzü'] },
+      'Sivas': { lat: 39.7477, lon: 37.0179, districts: ['Merkez', 'Şarkışla', 'Yıldızeli', 'Gemerek', 'Suşehri', 'Kangal', 'Gürün', 'Zara', 'Divriği', 'Koyulhisar', 'Altınyayla', 'Akıncılar', 'Doğanşar', 'Gölova', 'Hafik', 'İmranlı', 'Ulaş'] },
+      'Şanlıurfa': { lat: 37.1591, lon: 38.7969, districts: ['Eyyübiye', 'Haliliye', 'Siverek', 'Viranşehir', 'Akçakale', 'Suruç', 'Birecik', 'Ceylanpınar', 'Harran', 'Bozova', 'Hilvan', 'Halfeti'] },
+      'Şırnak': { lat: 37.5164, lon: 42.4611, districts: ['Cizre', 'Silopi', 'Merkez', 'İdil', 'Uludere', 'Beytüşşebap', 'Güçlükonak'] },
+      'Tekirdağ': { lat: 40.9833, lon: 27.5167, districts: ['Çorlu', 'Süleymanpaşa', 'Çerkezköy', 'Ergene', 'Kapaklı', 'Malkara', 'Hayrabolu', 'Saray', 'Muratlı', 'Şarköy', 'Marmaraereğlisi'] },
+      'Tokat': { lat: 40.3167, lon: 36.5500, districts: ['Merkez', 'Erbaa', 'Turhal', 'Niksar', 'Zile', 'Reşadiye', 'Almus', 'Pazar', 'Yeşilyurt', 'Artova', 'Başçiftlik', 'Sulusaray'] },
+      'Trabzon': { lat: 41.0027, lon: 39.7168, districts: ['Ortahisar', 'Akçaabat', 'Araklı', 'Of', 'Yomra', 'Sürmene', 'Vakfıkebir', 'Arsin', 'Beşikdüzü', 'Maçka', 'Çarşıbaşı', 'Tonya', 'Düzköy', 'Hayrat', 'Köprübaşı', 'Şalpazarı', 'Dernekpazarı'] },
+      'Tunceli': { lat: 39.1079, lon: 39.5401, districts: ['Merkez', 'Pertek', 'Çemişgezek', 'Hozat', 'Mazgirt', 'Ovacık', 'Nazımiye', 'Pülümür'] },
+      'Uşak': { lat: 38.6823, lon: 29.4082, districts: ['Merkez', 'Banaz', 'Eşme', 'Sivaslı', 'Ulubey', 'Karahallı'] },
+      'Van': { lat: 38.4891, lon: 43.4089, districts: ['İpekyolu', 'Erciş', 'Edremit', 'Tuşba', 'Özalp', 'Çaldıran', 'Başkale', 'Muradiye', 'Gürpınar', 'Gevaş', 'Saray', 'Bahçesaray', 'Çatak'] },
       'Yalova': { lat: 40.6500, lon: 29.2667, districts: ['Merkez', 'Çiftlikköy', 'Çınarcık', 'Altınova', 'Termal', 'Armutlu'] },
-      'İstanbul': { lat: 41.0082, lon: 28.9784, districts: ['Kadıköy', 'Beşiktaş', 'Ümraniye', 'Ataşehir', 'Bakırköy', 'Kartal'] },
-      'Ankara': { lat: 39.9334, lon: 32.8597, districts: ['Çankaya', 'Yenimahalle', 'Keçiören', 'Mamak', 'Etimesgut'] },
-      'Bursa': { lat: 40.1885, lon: 29.0610, districts: ['Osmangazi', 'Nilüfer', 'Yıldırım', 'Gemlik', 'İnegöl'] },
-      'Kocaeli': { lat: 40.8533, lon: 29.8815, districts: ['İzmit', 'Gebze', 'Körfez', 'Gölcük'] },
-      'Sakarya': { lat: 40.7569, lon: 30.3781, districts: ['Adapazarı', 'Serdivan', 'Erenler'] },
-      'Antalya': { lat: 36.8969, lon: 30.7133, districts: ['Muratpaşa', 'Kepez', 'Konyaaltı', 'Alanya'] },
-      'Adana': { lat: 37.0000, lon: 35.3213, districts: ['Seyhan', 'Çukurova', 'Yüreğir'] },
-      'Konya': { lat: 37.8746, lon: 32.4932, districts: ['Selçuklu', 'Meram', 'Karatay'] },
-      'Gaziantep': { lat: 37.0662, lon: 37.3833, districts: ['Şahinbey', 'Şehitkamil'] },
-      'Trabzon': { lat: 41.0027, lon: 39.7168, districts: ['Ortahisar', 'Akçaabat', 'Yomra'] },
-      'Samsun': { lat: 41.2867, lon: 36.3300, districts: ['Atakum', 'İlkadım', 'Canik'] },
-      'Eskişehir': { lat: 39.7767, lon: 30.5206, districts: ['Odunpazarı', 'Tepebaşı'] },
-      'Kayseri': { lat: 38.7312, lon: 35.4787, districts: ['Melikgazi', 'Kocasinan'] },
-      'Diyarbakır': { lat: 37.9144, lon: 40.2306, districts: ['Bağlar', 'Kayapınar', 'Yenişehir'] },
-      'Mersin': { lat: 36.8121, lon: 34.6415, districts: ['Yenişehir', 'Mezitli', 'Tarsus'] },
-      'Erzurum': { lat: 39.9000, lon: 41.2700, districts: ['Yakutiye', 'Palandöken'] },
-      'Van': { lat: 38.4891, lon: 43.4089, districts: ['İpekyolu', 'Edremit'] }
+      'Yozgat': { lat: 39.8181, lon: 34.8147, districts: ['Merkez', 'Sorgun', 'Akdağmadeni', 'Yerköy', 'Boğazlıyan', 'Sarıkaya', 'Çayıralan', 'Çekerek', 'Şefaatli', 'Kadışehri', 'Saraykent', 'Yenifakılı', 'Aydıncık', 'Çandır'] },
+      'Zonguldak': { lat: 41.4564, lon: 31.7987, districts: ['Ereğli', 'Merkez', 'Çaycuma', 'Devrek', 'Kozlu', 'Kilimli', 'Alaplı', 'Gökçebey'] }
     };
     const ALL_CITIES = Object.keys(TURKEY_LOCATIONS);
 
@@ -319,19 +379,20 @@
     }
     const sound = new SoundEngine();
 
+    // Her aracın gerçek üretim yılları (minYear - maxYear) tanımlıdır
     const TURKEY_CARS = [
-      { id: 'anadolu_sahin_slx', name: 'Anadolu Şahin 1.6 SLX', marketHint: 'Klasik Yerli Sedan', body: 'sedan', segment: 'Klasik', basePrice: 235000, hp: 84, engine: '1.6 SLX', fuel: 'Benzin & LPG', gear: '5 İleri Manuel', baseKm: 225000, colors: ['#f8fafc', '#dc2626', '#1e293b'] },
-      { id: 'egeya_13_urban', name: 'Egeya 1.3 Multijet Urban', marketHint: 'Popüler C-Sedan', body: 'sedan', segment: 'C-Sedan', basePrice: 685000, hp: 95, engine: '1.3 Multijet', fuel: 'Dizel', gear: '6 İleri Manuel', baseKm: 86000, colors: ['#f8fafc', '#475569', '#1e293b'] },
-      { id: 'golfen_14_rline', name: 'Golfen 1.4 TSI R-Line', marketHint: 'Popüler C-Hatchback', body: 'hatch', segment: 'C-Hatchback', basePrice: 1085000, hp: 150, engine: '1.4 TSI', fuel: 'Benzin', gear: '7 İleri DSG', baseKm: 77000, colors: ['#0f172a', '#f8fafc', '#1d4ed8'] },
-      { id: 'corollan_16_dream', name: 'Corollan 1.6 Dream', marketHint: 'Aile Sedanı', body: 'sedan', segment: 'C-Sedan', basePrice: 1025000, hp: 132, engine: '1.6 Valvematic', fuel: 'Benzin & LPG', gear: 'Otomatik', baseKm: 66000, colors: ['#f8fafc', '#475569', '#0f172a'] },
-      { id: 'boga_duster_4x4', name: 'Boğa Duster 1.3 TCe 4x4', marketHint: 'SUV', body: 'suv', segment: 'SUV', basePrice: 1120000, hp: 150, engine: '1.3 TCe 4x4', fuel: 'Benzin', gear: 'EDC Otomatik', baseKm: 49000, colors: ['#065f46', '#d97706', '#0f172a'] },
-      { id: 'bavyera_320i_msport', name: 'Bavyera 320i M-Sport', marketHint: 'Spor Sedan', body: 'sedan', segment: 'Spor Sedan', basePrice: 1780000, hp: 170, engine: '1.6 TwinPower', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 78000, colors: ['#1d4ed8', '#0f172a', '#f8fafc'] },
-      { id: 'yildiz_c200d_amg', name: 'Yıldız C200d AMG', marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2140000, hp: 160, engine: '1.6 Turbo Dizel', fuel: 'Dizel', gear: '9G-Tronic', baseKm: 61000, colors: ['#0f172a', '#cbd5e1', '#f8fafc'] },
-      { id: 'halkali_a6_quattro', name: 'Halkalı A6 2.0 TDI Quattro', marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2680000, hp: 204, engine: '2.0 TDI Quattro', fuel: 'Dizel', gear: '7 İleri S-Tronic', baseKm: 55000, colors: ['#1e293b', '#94a3b8', '#0f172a'] },
-      { id: 'vadi_rover_vogue', name: 'Vadi Rover 3.0 TDV6 Vogue', marketHint: 'Lüks SUV', body: 'suv', segment: 'Lüks SUV', basePrice: 4480000, hp: 258, engine: '3.0 V6 Turbo', fuel: 'Dizel', gear: '8 İleri 4x4', baseKm: 44000, colors: ['#0f172a', '#f8fafc', '#065f46'] },
-      { id: 'yildiz_s580_maybach', name: 'Yıldız S580 Long Lüks', marketHint: 'Ultra Lüks Makam', body: 'sedan', segment: 'Ultra Lüks', basePrice: 6800000, hp: 503, engine: '4.0 V8 Biturbo Mild Hybrid', fuel: 'Benzin', gear: '9G-Tronic 4MATIC', baseKm: 24000, colors: ['#0f172a', '#94a3b8', '#7f1d1d'] },
-      { id: 'bogaz_911_carrera_s', name: 'Boğaz 911 Carrera S', marketHint: 'Lüks Spor Coupe', body: 'sedan', segment: 'Lüks Spor', basePrice: 5400000, hp: 450, engine: '3.0 Boxer 6 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri PDK', baseKm: 19000, colors: ['#dc2626', '#facc15', '#f8fafc'] },
-      { id: 'elmas_urus_performante', name: 'Elmas Urus Performante', marketHint: 'Lüks Süper SUV', body: 'suv', segment: 'Lüks Süper SUV', basePrice: 7900000, hp: 666, engine: '4.0 V8 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 15000, colors: ['#facc15', '#dc2626', '#0f172a'] }
+      { id: 'anadolu_sahin_slx', name: 'Anadolu Şahin 1.6 SLX', minYear: 1993, maxYear: 2002, marketHint: 'Klasik Yerli Sedan', body: 'sedan', segment: 'Klasik', basePrice: 235000, hp: 84, engine: '1.6 SLX', fuel: 'Benzin & LPG', gear: '5 İleri Manuel', baseKm: 235000, colors: ['#f8fafc', '#dc2626', '#1e293b'] },
+      { id: 'egeya_13_urban', name: 'Egeya 1.3 Multijet Urban', minYear: 2015, maxYear: 2024, marketHint: 'Popüler C-Sedan', body: 'sedan', segment: 'C-Sedan', basePrice: 685000, hp: 95, engine: '1.3 Multijet', fuel: 'Dizel', gear: '6 İleri Manuel', baseKm: 86000, colors: ['#f8fafc', '#475569', '#1e293b'] },
+      { id: 'golfen_14_rline', name: 'Golfen 1.4 TSI R-Line', minYear: 2013, maxYear: 2017, marketHint: 'Popüler C-Hatchback', body: 'hatch', segment: 'C-Hatchback', basePrice: 1085000, hp: 150, engine: '1.4 TSI', fuel: 'Benzin', gear: '7 İleri DSG', baseKm: 82000, colors: ['#0f172a', '#f8fafc', '#1d4ed8'] },
+      { id: 'corollan_16_dream', name: 'Corollan 1.6 Dream', minYear: 2019, maxYear: 2021, marketHint: 'Aile Sedanı', body: 'sedan', segment: 'C-Sedan', basePrice: 1025000, hp: 132, engine: '1.6 Valvematic', fuel: 'Benzin & LPG', gear: 'Otomatik', baseKm: 66000, colors: ['#f8fafc', '#475569', '#0f172a'] },
+      { id: 'boga_duster_4x4', name: 'Boğa Duster 1.3 TCe 4x4', minYear: 2019, maxYear: 2024, marketHint: 'SUV', body: 'suv', segment: 'SUV', basePrice: 1120000, hp: 150, engine: '1.3 TCe 4x4', fuel: 'Benzin', gear: 'EDC Otomatik', baseKm: 49000, colors: ['#065f46', '#d97706', '#0f172a'] },
+      { id: 'bavyera_320i_msport', name: 'Bavyera 320i M-Sport', minYear: 2012, maxYear: 2024, marketHint: 'Spor Sedan', body: 'sedan', segment: 'Spor Sedan', basePrice: 1780000, hp: 170, engine: '1.6 TwinPower', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 78000, colors: ['#1d4ed8', '#0f172a', '#f8fafc'] },
+      { id: 'yildiz_c200d_amg', name: 'Yıldız C200d AMG', minYear: 2015, maxYear: 2021, marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2140000, hp: 160, engine: '1.6 Turbo Dizel', fuel: 'Dizel', gear: '9G-Tronic', baseKm: 61000, colors: ['#0f172a', '#cbd5e1', '#f8fafc'] },
+      { id: 'halkali_a6_quattro', name: 'Halkalı A6 2.0 TDI Quattro', minYear: 2014, maxYear: 2023, marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2680000, hp: 204, engine: '2.0 TDI Quattro', fuel: 'Dizel', gear: '7 İleri S-Tronic', baseKm: 55000, colors: ['#1e293b', '#94a3b8', '#0f172a'] },
+      { id: 'vadi_rover_vogue', name: 'Vadi Rover 3.0 TDV6 Vogue', minYear: 2013, maxYear: 2021, marketHint: 'Lüks SUV', body: 'suv', segment: 'Lüks SUV', basePrice: 4480000, hp: 258, engine: '3.0 V6 Turbo', fuel: 'Dizel', gear: '8 İleri 4x4', baseKm: 44000, colors: ['#0f172a', '#f8fafc', '#065f46'] },
+      { id: 'yildiz_s580_maybach', name: 'Yıldız S580 Long Lüks', minYear: 2021, maxYear: 2026, marketHint: 'Ultra Lüks Makam', body: 'sedan', segment: 'Ultra Lüks', basePrice: 6800000, hp: 503, engine: '4.0 V8 Biturbo Mild Hybrid', fuel: 'Benzin', gear: '9G-Tronic 4MATIC', baseKm: 24000, colors: ['#0f172a', '#94a3b8', '#7f1d1d'] },
+      { id: 'bogaz_911_carrera_s', name: 'Boğaz 911 Carrera S', minYear: 2012, maxYear: 2025, marketHint: 'Lüks Spor Coupe', body: 'sedan', segment: 'Lüks Spor', basePrice: 5400000, hp: 450, engine: '3.0 Boxer 6 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri PDK', baseKm: 19000, colors: ['#dc2626', '#facc15', '#f8fafc'] },
+      { id: 'elmas_urus_performante', name: 'Elmas Urus Performante', minYear: 2022, maxYear: 2026, marketHint: 'Lüks Süper SUV', body: 'suv', segment: 'Lüks Süper SUV', basePrice: 7900000, hp: 666, engine: '4.0 V8 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 15000, colors: ['#facc15', '#dc2626', '#0f172a'] }
     ];
 
     const CAR_PARTS = [
@@ -370,7 +431,7 @@
     ];
 
     const MARKET_BULLETINS = [
-      '2. el piyasasında dengeli seyir sürüyor; ekspertizli araçlar alıcıdan daha çok güven görüyor.',
+      'Tüm araçların modeli yalnızca gerçek üretim yıllarından seçilir; 81 il ve tüm ilçeler aktif.',
       'Şehirlerarası alımlarda mesafe arttıkça çekici/yol masrafı yükseliyor; yakındaki fırsatları da kontrol et.',
       'Yıkama ve pasta-cila işlemleri aracın piyasa değerine maliyetinin 1.5 katı kadar katkı sağlar.',
       'Kredi puanını 1400 ve üzerine çıkarırsan dev kredi limitlerinin kapısı açılır; taksitleri aksatma!',
@@ -537,8 +598,13 @@
 
       buildCarFromTemplate(tpl, overrides = {}) {
         const safeTpl = tpl || TURKEY_CARS[0];
-        const year = overrides.year ?? Math.floor(2002 + Math.random() * 23);
-        const ageFactor = Math.max(0.42, 1 - Math.max(0, 2026 - year) * 0.022);
+        const minY = safeTpl.minYear || 2005;
+        const maxY = safeTpl.maxYear || 2024;
+        const rawYear = overrides.year ?? Math.floor(minY + Math.random() * (maxY - minY + 1));
+        const year = Math.max(minY, Math.min(maxY, rawYear));
+        const span = Math.max(1, maxY - minY);
+        const relativeAge = (maxY - year) / span;
+        const ageFactor = Math.max(0.76, 1 - relativeAge * 0.22);
         const adjustedBasePrice = Math.round((safeTpl.basePrice * ageFactor) / 1000) * 1000;
         const city = overrides.city || ALL_CITIES[Math.floor(Math.random() * ALL_CITIES.length)];
         const cityObj = TURKEY_LOCATIONS[city] || TURKEY_LOCATIONS['İzmir'];
@@ -559,7 +625,7 @@
           engine: overrides.engine || safeTpl.engine,
           fuel: overrides.fuel || safeTpl.fuel,
           gear: overrides.gear || safeTpl.gear,
-          km: overrides.km ?? Math.round(safeTpl.baseKm * (0.7 + Math.random() * 0.55)),
+          km: overrides.km ?? Math.round(safeTpl.baseKm * (0.75 + relativeAge * 0.45 + Math.random() * 0.25)),
           color: overrides.color || safeTpl.colors[Math.floor(Math.random() * safeTpl.colors.length)],
           rimColor: overrides.rimColor || '#cbd5e1',
           condition: overrides.condition ?? Math.floor(65 + Math.random() * 30),
@@ -604,14 +670,14 @@
 
       save(notify = false) {
         try {
-          localStorage.setItem('oto_galeri_v7_save', JSON.stringify(this.state));
+          localStorage.setItem('oto_galeri_v8_save', JSON.stringify(this.state));
           if (notify) ui.toast('💾 Oyun kaydedildi!', 'success');
         } catch (e) {}
       }
 
       load() {
         try {
-          const raw = localStorage.getItem('oto_galeri_v7_save');
+          const raw = localStorage.getItem('oto_galeri_v8_save');
           if (raw) {
             const parsed = JSON.parse(raw);
             if (parsed && typeof parsed === 'object') {
@@ -631,7 +697,7 @@
       }
 
       resetSave() {
-        try { localStorage.removeItem('oto_galeri_v7_save'); } catch (e) {}
+        try { localStorage.removeItem('oto_galeri_v8_save'); } catch (e) {}
         this.state = JSON.parse(JSON.stringify(this.defaultState));
         this.roadCars = [];
         this.generateSariListings();
@@ -1002,10 +1068,11 @@
         if (this.state.loans.length >= 2) { sound.error(); ui.toast('En fazla 2 aktif kredin olabilir!', 'error'); return; }
         const totalPayback = Math.round(amount * (1 + interestRate));
         const dailyInstallment = Math.round(totalPayback / days);
+        const ratePct = Math.round(interestRate * 100);
         this.state.money += amount;
-        this.state.loans.push({ id: 'loan_' + Date.now(), bankName, remainingDebt: totalPayback, dailyInstallment, daysLeft: days });
+        this.state.loans.push({ id: 'loan_' + Date.now(), bankName, interestRate: ratePct, remainingDebt: totalPayback, dailyInstallment, daysLeft: days });
         sound.cash();
-        ui.toast(`${bankName}: ${formatTL(amount)} kredi verildi!`, 'success');
+        ui.toast(`${bankName}: %${ratePct} faizle ${formatTL(amount)} kredi verildi!`, 'success');
         this.save();
         ui.renderAll();
       }
@@ -1350,7 +1417,7 @@
         const filtered = game.state.sariListings.filter(c => c.name.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || c.district.toLowerCase().includes(q) || String(c.year).includes(q));
         let html = `
           <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div><h2 class="text-base sm:text-lg font-black text-yellow-400">🟡 Sarı Site — Türkiye İlanları</h2><p class="text-xs text-slate-400">Satıcı tavırları (Esnek, Dengeli, Aceleci, Sert), parça durumu ve yol masrafı (₺1.000 - ₺20.000).</p></div>
+            <div><h2 class="text-base sm:text-lg font-black text-yellow-400">🟡 Sarı Site — Türkiye İlanları</h2><p class="text-xs text-slate-400">Gerçek üretim yılları, 81 il/ilçe, satıcı tavırları ve yol masrafı (₺1.000 - ₺20.000).</p></div>
             <input type="text" value="${this.filterText}" oninput="ui.filterText=this.value; ui.renderTabContent();" placeholder="Model, yıl, il veya ilçe ara..." class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none" />
           </div>
           <div class="space-y-2.5">
@@ -1529,7 +1596,7 @@
         let html = `
           <div class="mb-4">
             <h2 class="text-base sm:text-lg font-extrabold text-white">🏦 Banka & Kredi Puanı (${score} / 1900)</h2>
-            <p class="text-xs text-slate-400">Maksimum limitin: <b class="text-yellow-400">${formatTL(maxLimit)}</b>. 700 puan altında kredi verilmez.</p>
+            <p class="text-xs text-slate-400">Maksimum limitin: <b class="text-yellow-400">${formatTL(maxLimit)}</b>. 700 puan altında kredi verilmez; her pakette <b>faiz oranı</b> ve toplam geri ödeme aşağıda yazılıdır.</p>
           </div>
           <div class="grid grid-cols-3 sm:grid-cols-9 gap-1.5 mb-4 text-[10px]">
             ${brackets.map(b => `<div class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-center"><span class="text-slate-400 block">${b.range}</span><b class="text-yellow-300">${b.limit}</b></div>`).join('')}
@@ -1539,12 +1606,12 @@
           html += `<div class="bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 text-xs text-rose-200 font-bold mb-4">⚠️ Kredi puanın (${score}) kredi kullanmak için yetersiz. Kredi puanını 700 ve üzerine çıkarman gerekiyor.</div>`;
         } else {
           html += `<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">` + packages.map(p => {
-            const total = Math.round(p.amount * (1 + p.rate)), daily = Math.round(total / p.days);
-            return `<div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2.5"><div class="text-xs font-bold text-blue-400">${p.bank}</div><div class="text-xl font-black text-white">${formatTL(p.amount)}</div><div class="text-xs text-slate-400">${p.days} Gün • Günlük Taksit: <b class="text-rose-400">${formatTL(daily)}</b></div><button type="button" onclick="game.takeLoan(${p.amount}, ${p.days}, ${p.rate}, '${p.bank}')" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold">Kredi Çek</button></div>`;
+            const total = Math.round(p.amount * (1 + p.rate)), daily = Math.round(total / p.days), ratePct = Math.round(p.rate * 100);
+            return `<div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2"><div class="flex items-center justify-between text-xs"><b class="text-blue-400">${p.bank}</b><span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-black">Faiz: %${ratePct}</span></div><div class="text-xl font-black text-white">${formatTL(p.amount)}</div><div class="text-xs text-slate-400">${p.days} Gün • Günlük: <b class="text-rose-400">${formatTL(daily)}</b><br>Toplam Geri Ödeme: <b class="text-slate-200">${formatTL(total)}</b></div><button type="button" onclick="game.takeLoan(${p.amount}, ${p.days}, ${p.rate}, '${p.bank}')" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold">Kredi Çek (%${ratePct} Faiz)</button></div>`;
           }).join('') + `</div>`;
         }
         if (s.loans.length > 0) {
-          html += `<div class="space-y-2">${s.loans.map(l => `<div class="bg-slate-950 border border-rose-500/30 rounded-xl p-3 flex items-center justify-between text-xs"><span><b>${l.bankName}</b> • Kalan: <b class="text-rose-400">${formatTL(l.remainingDebt)}</b> • Taksit: <b>${formatTL(l.dailyInstallment)}</b></span><button type="button" onclick="game.payOffLoan('${l.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold">Kapat</button></div>`).join('')}</div>`;
+          html += `<div class="space-y-2">${s.loans.map(l => `<div class="bg-slate-950 border border-rose-500/30 rounded-xl p-3 flex items-center justify-between text-xs"><span><b>${l.bankName}</b> (Faiz: %${l.interestRate || 12}) • Kalan: <b class="text-rose-400">${formatTL(l.remainingDebt)}</b> • Taksit: <b>${formatTL(l.dailyInstallment)}</b></span><button type="button" onclick="game.payOffLoan('${l.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold">Kapat</button></div>`).join('')}</div>`;
         }
         return html;
       }
@@ -1556,9 +1623,9 @@
         let html = `
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5 pb-5 border-b border-slate-800">
             <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2.5 text-xs">
-              <h3 class="font-black text-sm text-sky-300">📍 Galeri Konumu (Şehir & İlçe)</h3>
+              <h3 class="font-black text-sm text-sky-300">📍 Galeri Konumu (81 İl & Tüm İlçeler)</h3>
               <div class="grid grid-cols-2 gap-2">
-                <select onchange="game.setGalleryNameAndLocation(game.state.galleryName, this.value, game.state.district)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none">${ALL_CITIES.map(c => `<option value="${c}" ${s.city === c ? 'selected' : ''}>${c}</option>`).join('')}</select>
+                <select onchange="game.setGalleryNameAndLocation(game.state.galleryName, this.value, TURKEY_LOCATIONS[this.value].districts[0])" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none">${ALL_CITIES.map(c => `<option value="${c}" ${s.city === c ? 'selected' : ''}>${c}</option>`).join('')}</select>
                 <select onchange="game.setGalleryNameAndLocation(game.state.galleryName, game.state.city, this.value)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none">${districts.map(d => `<option value="${d}" ${s.district === d ? 'selected' : ''}>${d}</option>`).join('')}</select>
               </div>
               <div class="text-slate-400">Aktif Konum: <b class="text-white">${s.city} / ${s.district}</b></div>
@@ -1620,3 +1687,4 @@
   </script>
 </body>
 </html>
+
