@@ -245,6 +245,47 @@
   </div>
 
   <script>
+        const CARE_COSTS = { wash: 1500, polish: 4500, tires: 14000, rims: 18000 };
+    const MARKET_BULLETINS = [
+      'Sayfa her yenilendiğinde yeni güne geçilir; tefeci borcu vadesinde ödenmezse dükkana el koyar!',
+      'Yıkama ve pasta-cila masrafının 1.5 katı aracın piyasa değerine eklenir.',
+      'Kredi puanın 700 ve üzerindeyse bankadan kredi çekebilirsin.',
+      'İlanlarda gizli kusur belirtirsen %50 yakalanma ve %50 prestij kaybı riski vardır.'
+    ];
+    const ACHIEVEMENTS = [
+      { id: 'first_sale', icon: '🤝', title: 'İlk Satış', desc: 'İlk aracını sat.' },
+      { id: 'gallery_5', icon: '🏢', title: 'İşlek Cadde', desc: '5. seviye galeriye ulaş.' },
+      { id: 'rich_1m', icon: '💰', title: 'Milyoner', desc: 'Kasayı ₺1.000.000 yap.' },
+      { id: 'collector_5', icon: '🚘', title: 'Filo Sahibi', desc: 'Aynı anda 5 araca sahip ol.' }
+    ];
+
+    function formatTL(num) {
+      const n = Math.round(Number(num) || 0);
+      return (n < 0 ? '-₺' : '₺') + Math.abs(n).toLocaleString('tr-TR');
+    }
+
+    const sound = {
+      muted: false,
+      toggleMute() {
+        this.muted = !this.muted;
+        const btn = document.getElementById('muteBtn');
+        if (btn) btn.textContent = this.muted ? '🔇' : '🔊';
+      },
+      beep(freq = 520, dur = 0.08) {
+        if (this.muted) return;
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.frequency.value = freq;
+          g.gain.value = 0.06;
+          o.connect(g); g.connect(ctx.destination);
+          o.start(); o.stop(ctx.currentTime + dur);
+        } catch (e) {}
+      },
+      cash() { this.beep(780, 0.12); },
+      error() { this.beep(210, 0.16); }
+    };
     const TURKEY_LOCATIONS = {
       'Adana': { lat: 37.0000, lon: 35.3213, districts: ['Seyhan', 'Yüreğir', 'Çukurova', 'Sarıçam', 'Ceyhan', 'Kozan', 'İmamoğlu', 'Karaisalı', 'Karataş', 'Pozantı', 'Tufanbeyli', 'Yumurtalık', 'Aladağ', 'Feke', 'Saimbeyli'] },
       'Adıyaman': { lat: 37.7648, lon: 38.2786, districts: ['Merkez', 'Kahta', 'Besni', 'Gölbaşı', 'Gerger', 'Sincik', 'Çelikhan', 'Tut', 'Samsat'] },
@@ -760,6 +801,744 @@
       { id: 9, name: 'İşlek Cadde 16 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 16, rent30: 800000, upgradeCost: 4800000, trafficDensity: 10, desc: 'İşlek caddede 16 araç kapasiteli galeri. 30 günde ₺800.000 kira.' },
       { id: 10, name: 'İşlek Cadde 20 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 20, rent30: 1000000, upgradeCost: 7500000, trafficDensity: 12, desc: 'İşlek caddede 20 araç kapasiteli galeri. 30 günde ₺1.000.000 kira.' }
     ];
+        const SAVE_KEY = 'sari_galeri_v9_save';
+
+    class SariGaleriGame {
+      constructor() {
+        this.roadCars = [
+          { x: 60, speed: 65, dir: 1, color: '#ef4444' },
+          { x: 340, speed: 80, dir: -1, color: '#38bdf8' },
+          { x: 560, speed: 55, dir: 1, color: '#eab308' }
+        ];
+        this.inspectionJob = null;
+        this.adTimerSec = 0;
+        this.adCallback = null;
+        this.state = this.createInitialState();
+        this.load();
+        if (!this.state.sariListings || this.state.sariListings.length === 0) {
+          this.refreshSariListings(true);
+        }
+        if (!this.state.auction) {
+          this.spawnAuction();
+        }
+      }
+
+      createInitialState() {
+        return {
+          galleryName: 'Benim Galerim',
+          hasNamedGallery: false,
+          city: 'İzmir',
+          district: 'Konak',
+          day: 1,
+          money: 500000,
+          prestige: 50,
+          creditScore: 1200,
+          galleryTierId: 1,
+          tradedToday: false,
+          isBankrupt: false,
+          bankruptReason: '',
+          ownedCars: [],
+          sariListings: [],
+          offers: [],
+          loans: [],
+          tefeciLoans: [],
+          unlockedBadges: [],
+          totalSalesCount: 0,
+          bestProfit: 0,
+          auction: null
+        };
+      }
+
+      getCurrentTier() {
+        return GALLERY_TIERS.find(t => t.id === this.state.galleryTierId) || GALLERY_TIERS[0];
+      }
+
+      getMarketPhase() {
+        const p = ((this.state.day - 1) % 6);
+        if (p === 1) return { name: 'Canlı Piyasa', mult: 1.12 };
+        if (p === 4) return { name: 'Durgun Piyasa', mult: 0.9 };
+        return { name: 'Normal Piyasa', mult: 1.0 };
+      }
+
+      getCarMarketValue(car) {
+        const base = Number(car.basePrice) || 350000;
+        const condMult = 0.65 + ((Number(car.condition) || 75) / 100) * 0.45;
+        const careBonus = Math.round((Number(car.careValueBonus) || 0) * 1.5);
+        const phaseMult = this.getMarketPhase().mult;
+        return Math.round(((base * condMult * phaseMult) + careBonus) / 500) * 500;
+      }
+
+      getMaxLoanLimit() {
+        const s = Number(this.state.creditScore) || 0;
+        if (s < 700) return 0;
+        if (s < 1200) return 100000;
+        if (s < 1300) return 500000;
+        if (s < 1400) return 1000000;
+        if (s < 1500) return 50000000;
+        if (s < 1600) return 100000000;
+        if (s < 1700) return 250000000;
+        if (s < 1800) return 500000000;
+        return 1000000000;
+      }
+
+      setGalleryNameAndLocation(name, city, district) {
+        this.state.galleryName = name || 'Benim Galerim';
+        this.state.hasNamedGallery = true;
+        if (city && TURKEY_LOCATIONS[city]) {
+          this.state.city = city;
+          const dists = TURKEY_LOCATIONS[city].districts;
+          this.state.district = dists.includes(district) ? district : dists[0];
+        }
+        this.save(false);
+        if (typeof ui !== 'undefined') ui.renderAll();
+      }
+
+      refreshSariListings(silent = false) {
+        const pool = [
+          { name: 'Fiat Egea 1.4 Fire', body: 'sedan', color: '#e2e8f0', base: 520000 },
+          { name: 'Renault Clio 1.0 TCe', body: 'hatch', color: '#38bdf8', base: 590000 },
+          { name: 'Toyota Corolla 1.6', body: 'sedan', color: '#cbd5e1', base: 740000 },
+          { name: 'Volkswagen Golf 1.5 TSI', body: 'hatch', color: '#f8fafc', base: 960000 },
+          { name: 'Hyundai Tucson 1.6 T-GDI', body: 'suv', color: '#94a3b8', base: 1280000 },
+          { name: 'Peugeot 3008 1.2 PureTech', body: 'suv', color: '#60a5fa', base: 1340000 },
+          { name: 'Ford Focus 1.5 EcoBlue', body: 'hatch', color: '#facc15', base: 680000 },
+          { name: 'Honda Civic 1.6 Eco', body: 'sedan', color: '#ef4444', base: 790000 }
+        ];
+        const styles = ['Esnaf', 'Aceleci', 'Piyasacı', 'Titiz'];
+        const partsList = [
+          'Hat Boya Değişen Yok',
+          '1 Parça Lokal Boyalı',
+          'Sol Ön Çamurluk Boyalı',
+          '2 Parça Boyalı, Değişensiz'
+        ];
+        const list = [];
+        for (let i = 0; i < 8; i++) {
+          const m = pool[(i + this.state.day) % pool.length];
+          const city = ALL_CITIES[(i * 7 + this.state.day * 3) % ALL_CITIES.length];
+          const districts = TURKEY_LOCATIONS[city].districts;
+          const district = districts[(i + this.state.day) % districts.length];
+          const year = 2016 + ((i * 2 + this.state.day) % 9);
+          const km = 38000 + ((i * 24500 + this.state.day * 3100) % 145000);
+          const condition = 68 + ((i * 5 + this.state.day * 3) % 27);
+          const basePrice = Math.round((m.base * (0.78 + (condition - 65) * 0.008)) / 500) * 500;
+          const askPrice = Math.round((basePrice * (0.94 + ((i % 4) * 0.04))) / 500) * 500;
+          const sellerStyle = styles[(i + this.state.day) % styles.length];
+          const hasHiddenDefect = (i + this.state.day) % 3 === 0;
+
+          list.push({
+            uid: `sari_${this.state.day}_${i}_${Math.random().toString(36).slice(2, 6)}`,
+            name: m.name,
+            body: m.body,
+            color: m.color,
+            rimColor: '#cbd5e1',
+            year,
+            km,
+            city,
+            district,
+            condition,
+            basePrice,
+            askPrice,
+            sellerStyle,
+            partsSummary: partsList[(i + this.state.day) % partsList.length],
+            adTitle: `${year} ${m.name} • ${district} İçi Temiz`,
+            adDesc: 'Bakımları düzenli yapılmış, ekspere açık araç.',
+            tireCondition: condition > 80 ? 'İyi (%80)' : 'Orta (%55)',
+            rimCondition: 'Çelik Jant',
+            careValueBonus: 0,
+            isDirty: condition < 75,
+            inspected: false,
+            hasHiddenDefect,
+            hiddenDefectInfo: hasHiddenDefect ? { report: 'Şanzıman geçişinde hafif vuruntu tespit edildi.' } : null,
+            haggleState: {
+              attempts: 0,
+              maxAttempts: 3,
+              agreedPrice: null,
+              sellerCounterPrice: null,
+              closed: false,
+              lastMessage: 'Ciddi alıcılarla makul rakamlarda anlaşabiliriz.'
+            }
+          });
+        }
+        this.state.sariListings = list;
+        if (!silent && typeof ui !== 'undefined') ui.renderAll();
+      }
+
+      spawnAuction() {
+        const pool = [
+          { name: 'BMW 320i ED', body: 'sedan', color: '#f8fafc', base: 1150000 },
+          { name: 'Mercedes C180 AMG', body: 'sedan', color: '#94a3b8', base: 1420000 },
+          { name: 'Nissan Qashqai 1.3 DIG-T', body: 'suv', color: '#38bdf8', base: 1080000 },
+          { name: 'Renault Megane 1.3 TCe', body: 'sedan', color: '#facc15', base: 760000 }
+        ];
+        const m = pool[this.state.day % pool.length];
+        const city = ALL_CITIES[(this.state.day * 5) % ALL_CITIES.length];
+        const district = TURKEY_LOCATIONS[city].districts[0];
+        const car = {
+          uid: `auc_${this.state.day}_${Date.now()}`,
+          name: m.name,
+          body: m.body,
+          color: m.color,
+          rimColor: '#e2e8f0',
+          year: 2019 + (this.state.day % 5),
+          km: 64000,
+          city,
+          district,
+          condition: 82,
+          basePrice: m.base,
+          partsSummary: '1 Değişen, Boyasız Şasi',
+          tireCondition: 'İyi (%85)',
+          rimCondition: 'Spor Jant',
+          careValueBonus: 0,
+          isDirty: false
+        };
+        const marketVal = this.getCarMarketValue(car);
+        this.state.auction = {
+          car,
+          marketVal,
+          currentBid: Math.round((marketVal * 0.72) / 1000) * 1000,
+          highestBidder: 'Açılış Fiyatı',
+          timeLeft: 45
+        };
+      }
+
+      placeAuctionBid(inc) {
+        const auc = this.state.auction;
+        if (!auc) return;
+        const nextBid = auc.currentBid + inc;
+        if (this.state.money < nextBid) {
+          sound.error();
+          ui.toast('İhale peyini karşılayacak nakdin yok!', 'error');
+          return;
+        }
+        auc.currentBid = nextBid;
+        auc.highestBidder = this.state.galleryName || 'Sen';
+        auc.timeLeft = Math.max(auc.timeLeft, 12);
+        sound.beep(640, 0.08);
+        ui.toast(`Pey verildi: ${formatTL(nextBid)}`, 'info');
+        if (ui.activeTab === 'auction') ui.renderTabContent();
+      }
+
+      finishAuction() {
+        const auc = this.state.auction;
+        if (!auc) return;
+        if (auc.highestBidder === (this.state.galleryName || 'Sen')) {
+          const tier = this.getCurrentTier();
+          if (this.state.ownedCars.length >= tier.capacity) {
+            ui.toast('Galeri kapasitesi dolu, ihale aracı alınamadı!', 'error');
+          } else {
+            this.state.money -= auc.currentBid;
+            this.state.ownedCars.push({
+              ...auc.car,
+              uid: `own_${Date.now()}`,
+              purchasePrice: auc.currentBid,
+              askPrice: auc.marketVal,
+              adTitle: `${auc.car.year} ${auc.car.name}`,
+              adDesc: 'İhaleden kazanılmış temiz araç.',
+              listedOnSari: false,
+              hiddenDefectsSelected: []
+            });
+            sound.cash();
+            ui.toast(`İhale kazanıldı: ${auc.car.name} (${formatTL(auc.currentBid)})`, 'success');
+          }
+        } else {
+          ui.toast('İhale sona erdi, araç başka alıcıda kaldı.', 'info');
+        }
+        this.spawnAuction();
+        this.checkAchievements();
+        this.checkBankruptcy();
+        this.save(false);
+        ui.renderAll();
+      }
+
+      startInspection(uid) {
+        const car = this.state.sariListings.find(c => c.uid === uid);
+        if (!car) return;
+        const fee = 2500;
+        if (this.state.money < fee) {
+          sound.error();
+          ui.toast('Ekspertiz için ₺2.500 gerekli!', 'error');
+          return;
+        }
+        this.state.money -= fee;
+        this.inspectionJob = { uid, totalSec: 120, remainingSec: 120 };
+        sound.beep(580, 0.1);
+        ui.openInspectionAnimModal();
+        this.save(false);
+        ui.updateHUD();
+      }
+
+      completeInspection() {
+        if (!this.inspectionJob) return;
+        const car = this.state.sariListings.find(c => c.uid === this.inspectionJob.uid);
+        this.inspectionJob = null;
+        document.getElementById('inspectionAnimModal').classList.add('hidden');
+        if (car) {
+          car.inspected = true;
+          sound.cash();
+          ui.toast('Ekspertiz raporu hazır!', 'success');
+          ui.openListingDetail(car.uid);
+        }
+        this.save(false);
+      }
+
+      openAdForInspection() {
+        if (!this.inspectionJob) return;
+        this.adTimerSec = 5;
+        this.adCallback = () => this.completeInspection();
+        ui.renderAdModal();
+        document.getElementById('adModal').classList.remove('hidden');
+      }
+
+      submitBuyerHaggle(uid, rawOffer) {
+        const car = this.state.sariListings.find(c => c.uid === uid);
+        if (!car) return;
+        const hs = car.haggleState;
+        const offer = Math.round((Number(rawOffer) || 0) / 500) * 500;
+        if (offer <= 0 || offer > car.askPrice) {
+          sound.error();
+          ui.toast('Geçerli bir teklif tutarı gir.', 'error');
+          return;
+        }
+        hs.attempts += 1;
+        const minAccept = car.sellerStyle === 'Aceleci' ? car.askPrice * 0.86 : car.sellerStyle === 'Titiz' ? car.askPrice * 0.94 : car.askPrice * 0.9;
+        if (offer >= minAccept) {
+          hs.agreedPrice = offer;
+          hs.sellerCounterPrice = null;
+          hs.lastMessage = `Tamam, ${formatTL(offer)} rakamında anlaşalım!`;
+          sound.cash();
+        } else if (hs.attempts >= hs.maxAttempts) {
+          hs.closed = true;
+          hs.sellerCounterPrice = null;
+          hs.lastMessage = 'Pazarlık hakkın doldu, bu fiyata inemem.';
+          sound.error();
+        } else {
+          const counter = Math.round(((offer + car.askPrice) / 2) / 500) * 500;
+          hs.sellerCounterPrice = counter;
+          hs.lastMessage = `Biraz daha çıkarsan olur. Son sözüm ${formatTL(counter)}.`;
+          sound.beep(480, 0.08);
+        }
+        ui.openListingDetail(uid);
+      }
+
+      acceptSellerCounter(uid) {
+        const car = this.state.sariListings.find(c => c.uid === uid);
+        if (!car || !car.haggleState.sellerCounterPrice) return;
+        car.haggleState.agreedPrice = car.haggleState.sellerCounterPrice;
+        car.haggleState.sellerCounterPrice = null;
+        car.haggleState.lastMessage = `Anlaştık: ${formatTL(car.haggleState.agreedPrice)}!`;
+        sound.cash();
+        ui.openListingDetail(uid);
+      }
+
+      buyFromSariSite(uid, useAgreed = false) {
+        const idx = this.state.sariListings.findIndex(c => c.uid === uid);
+        if (idx === -1) return;
+        const car = this.state.sariListings[idx];
+        const tier = this.getCurrentTier();
+        if (this.state.ownedCars.length >= tier.capacity) {
+          sound.error();
+          ui.toast('Galeri kapasitesi dolu! Yeni galeri al veya araç sat.', 'error');
+          return;
+        }
+        const price = (useAgreed && car.haggleState.agreedPrice) ? car.haggleState.agreedPrice : car.askPrice;
+        const travelFee = calcTravelCost(this.state.city, car.city);
+        const total = price + travelFee;
+        if (this.state.money < total) {
+          sound.error();
+          ui.toast('Bu alım için kasan yetersiz!', 'error');
+          return;
+        }
+        this.state.money -= total;
+        this.state.sariListings.splice(idx, 1);
+        this.state.ownedCars.push({
+          ...car,
+          uid: `own_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+          purchasePrice: total,
+          askPrice: this.getCarMarketValue(car),
+          listedOnSari: false,
+          hiddenDefectsSelected: []
+        });
+        document.getElementById('listingDetailModal').classList.add('hidden');
+        sound.cash();
+        ui.toast(`${car.name} alındı (${formatTL(total)})!`, 'success');
+        this.checkAchievements();
+        this.checkBankruptcy();
+        this.save(false);
+        ui.renderAll();
+      }
+
+      applyCareOption(uid, type) {
+        const car = this.state.ownedCars.find(c => c.uid === uid);
+        if (!car) return;
+        const cost = CARE_COSTS[type] || 1500;
+        if (this.state.money < cost) {
+          sound.error();
+          ui.toast('Bakım ücreti için kasan yetersiz!', 'error');
+          return;
+        }
+        this.state.money -= cost;
+        car.careValueBonus = (Number(car.careValueBonus) || 0) + cost;
+        car.condition = Math.min(100, (Number(car.condition) || 75) + (type === 'polish' ? 6 : 3));
+        if (type === 'wash') car.isDirty = false;
+        if (type === 'tires') car.tireCondition = 'Sıfır (%100)';
+        if (type === 'rims') { car.rimCondition = 'Özel Alaşım Jant'; car.rimColor = '#facc15'; }
+        sound.cash();
+        ui.toast('Bakım uygulandı, aracın piyasa değeri arttı!', 'success');
+        this.checkBankruptcy();
+        this.save(false);
+        ui.renderAll();
+      }
+
+      publishCarAd(uid, title, desc, rawPrice, hiddenDefects) {
+        const car = this.state.ownedCars.find(c => c.uid === uid);
+        if (!car) return;
+        const price = Math.max(10000, Math.round((Number(rawPrice) || this.getCarMarketValue(car)) / 500) * 500);
+        car.adTitle = (title || '').trim() || `${car.year} ${car.name}`;
+        car.adDesc = (desc || '').trim() || 'Temiz araç.';
+        car.askPrice = price;
+        car.hiddenDefectsSelected = hiddenDefects || [];
+        car.listedOnSari = true;
+        document.getElementById('postAdModal').classList.add('hidden');
+        sound.cash();
+        ui.toast('İlan yayına alındı!', 'success');
+        if (!this.state.offers.some(o => o.carUid === car.uid)) {
+          this.spawnBuyerOfferForCar(car);
+        }
+        this.save(false);
+        ui.renderAll();
+      }
+
+      spawnBuyerOfferForCar(car) {
+        const names = ['Ahmet Yılmaz', 'Mehmet Kaya', 'Zeynep Demir', 'Caner Çelik', 'Elif Arslan'];
+        const buyerName = names[Math.floor(Math.random() * names.length)];
+        const offeredAmount = Math.round(((car.askPrice || this.getCarMarketValue(car)) * (0.9 + Math.random() * 0.08)) / 500) * 500;
+        this.state.offers.push({
+          id: `off_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+          carUid: car.uid,
+          carName: `${car.year} ${car.name}`,
+          buyerName,
+          askPrice: car.askPrice || this.getCarMarketValue(car),
+          offeredAmount,
+          haggled: false
+        });
+      }
+
+      spawnBuyerOffer() {
+        const listed = this.state.ownedCars.filter(c => c.listedOnSari);
+        if (listed.length === 0) {
+          sound.error();
+          ui.toast('Önce Galerim sekmesinden bir aracını ilana koy!', 'error');
+          return;
+        }
+        const car = listed[Math.floor(Math.random() * listed.length)];
+        this.spawnBuyerOfferForCar(car);
+        sound.beep(620, 0.08);
+        ui.toast('Yeni müşteri teklifi geldi!', 'info');
+        this.save(false);
+        ui.renderAll();
+      }
+
+      acceptOffer(offerId) {
+        const idx = this.state.offers.findIndex(o => o.id === offerId);
+        if (idx === -1) return;
+        const off = this.state.offers[idx];
+        const carIdx = this.state.ownedCars.findIndex(c => c.uid === off.carUid);
+        this.state.offers.splice(idx, 1);
+
+        let soldPrice = off.offeredAmount;
+        let carObj = null;
+        if (carIdx !== -1) {
+          carObj = this.state.ownedCars[carIdx];
+          if ((carObj.hiddenDefectsSelected || []).length > 0 && Math.random() < 0.5) {
+            const penalty = Math.round(this.state.prestige * 0.5);
+            this.state.prestige = Math.max(0, this.state.prestige - penalty);
+            soldPrice = Math.round((soldPrice * 0.85) / 500) * 500;
+            ui.toast(`Gizli kusur ortaya çıktı! Fiyat düştü ve -${penalty} prestij kaybettin.`, 'error');
+          }
+          this.state.ownedCars.splice(carIdx, 1);
+        }
+
+        const tax = Math.round(soldPrice * 0.05);
+        const net = soldPrice - tax;
+        this.state.money += net;
+        this.state.totalSalesCount = (this.state.totalSalesCount || 0) + 1;
+        this.state.creditScore = Math.min(1900, (Number(this.state.creditScore) || 1200) + 15);
+        this.state.prestige = Math.min(100, (Number(this.state.prestige) || 50) + 2);
+
+        const profit = carObj ? (net - (Number(carObj.purchasePrice) || 0)) : net;
+        if (profit > (this.state.bestProfit || 0)) this.state.bestProfit = profit;
+
+        sound.cash();
+        ui.toast(`Araç satıldı! Net kasa girişi: ${formatTL(net)} (%5 vergi: ${formatTL(tax)})`, 'success');
+        this.checkAchievements();
+        this.save(false);
+        ui.renderAll();
+      }
+
+      haggleOffer(offerId) {
+        const off = this.state.offers.find(o => o.id === offerId);
+        if (!off || off.haggled) return;
+        off.haggled = true;
+        if (Math.random() < 0.65) {
+          const bumped = Math.min(off.askPrice, Math.round((off.offeredAmount * 1.05) / 500) * 500);
+          off.offeredAmount = bumped;
+          sound.beep(660, 0.08);
+          ui.toast(`Müşteri teklifi ${formatTL(bumped)} seviyesine çekti!`, 'info');
+        } else {
+          sound.error();
+          ui.toast('Müşteri bu teklifte diretti.', 'error');
+        }
+        ui.renderAll();
+      }
+
+      rejectOffer(offerId) {
+        this.state.offers = this.state.offers.filter(o => o.id !== offerId);
+        ui.toast('Teklif reddedildi.', 'info');
+        ui.renderAll();
+      }
+
+      takeLoan(amount, days, rate, bankName) {
+        const maxLimit = this.getMaxLoanLimit();
+        if (maxLimit <= 0 || amount > maxLimit) {
+          sound.error();
+          ui.toast('Kredi puanın veya limitin bu tutar için uygun değil!', 'error');
+          return;
+        }
+        const total = Math.round(amount * (1 + rate));
+        const dailyInstallment = Math.round(total / days);
+        this.state.money += amount;
+        this.state.loans.push({
+          id: `loan_${Date.now()}`,
+          bankName,
+          interestRate: Math.round(rate * 100),
+          remainingDebt: total,
+          dailyInstallment
+        });
+        sound.cash();
+        ui.toast(`${bankName} kredisinden ${formatTL(amount)} kasana girdi!`, 'success');
+        this.save(false);
+        ui.renderAll();
+      }
+
+      payOffLoan(loanId) {
+        const idx = this.state.loans.findIndex(l => l.id === loanId);
+        if (idx === -1) return;
+        const loan = this.state.loans[idx];
+        if (this.state.money < loan.remainingDebt) {
+          sound.error();
+          ui.toast('Kredi borcunu kapatmak için nakdin yetersiz!', 'error');
+          return;
+        }
+        this.state.money -= loan.remainingDebt;
+        this.state.loans.splice(idx, 1);
+        this.state.creditScore = Math.min(1900, (Number(this.state.creditScore) || 1200) + 25);
+        sound.cash();
+        ui.toast('Banka kredisi kapatıldı, kredi puanın arttı!', 'success');
+        this.save(false);
+        ui.renderAll();
+      }
+
+      takeTefeciLoan(amount, days, rate) {
+        const payback = Math.round(amount * (1 + rate));
+        this.state.money += amount;
+        this.state.tefeciLoans = this.state.tefeciLoans || [];
+        this.state.tefeciLoans.push({
+          id: `tfc_${Date.now()}`,
+          amount,
+          payback,
+          dueDay: this.state.day + days
+        });
+        sound.cash();
+        ui.toast(`Tefeciden ${formatTL(amount)} alındı! Vade: Gün ${this.state.day + days}`, 'info');
+        this.save(false);
+        ui.renderAll();
+      }
+
+      payOffTefeciLoan(tfcId) {
+        const list = this.state.tefeciLoans || [];
+        const idx = list.findIndex(t => t.id === tfcId);
+        if (idx === -1) return;
+        const tfc = list[idx];
+        if (this.state.money < tfc.payback) {
+          sound.error();
+          ui.toast('Tefeci borcunu kapatacak nakdin yok!', 'error');
+          return;
+        }
+        this.state.money -= tfc.payback;
+        list.splice(idx, 1);
+        sound.cash();
+        ui.toast('Tefeci borcu kapatıldı, paçayı kurtardın!', 'success');
+        this.save(false);
+        ui.renderAll();
+      }
+
+      buyGalleryTier(tierId) {
+        const target = GALLERY_TIERS.find(t => t.id === tierId);
+        if (!target || tierId !== this.state.galleryTierId + 1) return;
+        if (this.state.money < target.upgradeCost) {
+          sound.error();
+          ui.toast('Bu galeri kademesi için kasan yetersiz!', 'error');
+          return;
+        }
+        this.state.money -= target.upgradeCost;
+        this.state.galleryTierId = target.id;
+        sound.cash();
+        ui.toast(`Tebrikler! ${target.name} açıldı!`, 'success');
+        this.checkAchievements();
+        this.checkBankruptcy();
+        this.save(false);
+        ui.renderAll();
+      }
+
+      checkAchievements() {
+        const s = this.state;
+        s.unlockedBadges = s.unlockedBadges || [];
+        const unlock = (id, title) => {
+          if (!s.unlockedBadges.includes(id)) {
+            s.unlockedBadges.push(id);
+            ui.toast(`🏅 Yeni Rozet Açıldı: ${title}`, 'success');
+          }
+        };
+        if ((s.totalSalesCount || 0) >= 1) unlock('first_sale', 'İlk Satış');
+        if ((s.galleryTierId || 1) >= 5) unlock('gallery_5', 'İşlek Cadde');
+        if ((s.money || 0) >= 1000000) unlock('rich_1m', 'Milyoner');
+        if ((s.ownedCars || []).length >= 5) unlock('collector_5', 'Filo Sahibi');
+      }
+
+      advanceDay(silent = false, reason = 'Yeni güne geçildi') {
+        if (this.state.isBankrupt) return;
+        this.state.day += 1;
+        this.state.tradedToday = false;
+
+        const tier = this.getCurrentTier();
+        if (this.state.day % 30 === 0) {
+          this.state.money -= tier.rent30;
+          if (!silent) ui.toast(`30 günlük kira kesildi: -${formatTL(tier.rent30)}`, 'info');
+        }
+
+        for (let i = this.state.loans.length - 1; i >= 0; i--) {
+          const l = this.state.loans[i];
+          const pay = Math.min(l.remainingDebt, l.dailyInstallment);
+          this.state.money -= pay;
+          l.remainingDebt -= pay;
+          if (l.remainingDebt <= 0) this.state.loans.splice(i, 1);
+        }
+
+        for (const tfc of (this.state.tefeciLoans || [])) {
+          if (this.state.day >= tfc.dueDay) {
+            this.triggerBankruptcy(`Tefeci borcu (${formatTL(tfc.payback)}) Gün ${tfc.dueDay} vadesinde ödenmediği için galerine el konuldu!`);
+            return;
+          }
+        }
+
+        this.refreshSariListings(true);
+        if (this.state.ownedCars.some(c => c.listedOnSari) && Math.random() < 0.7) {
+          this.spawnBuyerOffer();
+        }
+
+        this.checkAchievements();
+        this.checkBankruptcy();
+        this.save(false);
+        if (!silent && typeof ui !== 'undefined') {
+          sound.beep(540, 0.08);
+          ui.toast(`${reason} • Gün ${this.state.day}`, 'info');
+          ui.renderAll();
+        }
+      }
+
+      checkBankruptcy() {
+        if (this.state.isBankrupt) return;
+        if (this.state.money <= -150000) {
+          this.triggerBankruptcy('Kasa bakiyen -₺150.000 haciz sınırının altına düştüğü için galerine el konuldu.');
+        }
+      }
+
+      triggerBankruptcy(reason) {
+        this.state.isBankrupt = true;
+        this.state.bankruptReason = reason;
+        this.save(false);
+        if (typeof ui !== 'undefined') {
+          sound.error();
+          ui.updateHUD();
+          ui.showBankruptcyScreen();
+        }
+      }
+
+      update(dt) {
+        const tier = this.getCurrentTier();
+        const speedMult = 0.7 + (tier.trafficDensity || 1) * 0.08;
+        this.roadCars.forEach(rc => {
+          rc.x += rc.dir * rc.speed * speedMult * dt;
+          if (rc.dir === 1 && rc.x > 960) rc.x = -50;
+          if (rc.dir === -1 && rc.x < -50) rc.x = 960;
+        });
+
+        if (this.inspectionJob) {
+          this.inspectionJob.remainingSec -= dt;
+          if (this.inspectionJob.remainingSec <= 0) {
+            this.completeInspection();
+          } else if (typeof ui !== 'undefined') {
+            ui.updateInspectionAnimModal();
+          }
+        }
+
+        if (this.adCallback && this.adTimerSec > 0) {
+          this.adTimerSec = Math.max(0, this.adTimerSec - dt);
+          if (typeof ui !== 'undefined') ui.updateAdModal();
+        }
+
+        if (this.state.auction && !this.state.isBankrupt) {
+          this.state.auction.timeLeft -= dt;
+          if (this.state.auction.timeLeft <= 0) {
+            this.finishAuction();
+          } else if (typeof ui !== 'undefined' && ui.activeTab === 'auction') {
+            const tEl = document.getElementById('auctionTimerText');
+            const bEl = document.getElementById('auctionCurrentBid');
+            const nEl = document.getElementById('auctionBidderName');
+            if (tEl) tEl.textContent = `${Math.ceil(this.state.auction.timeLeft)} sn`;
+            if (bEl) bEl.textContent = formatTL(this.state.auction.currentBid);
+            if (nEl) nEl.textContent = this.state.auction.highestBidder;
+          }
+        }
+      }
+
+      save(showToast = false) {
+        try {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(this.state));
+          if (showToast && typeof ui !== 'undefined') {
+            sound.cash();
+            ui.toast('Oyun kaydedildi!', 'success');
+          }
+        } catch (e) {}
+      }
+
+      load() {
+        try {
+          const raw = localStorage.getItem(SAVE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          this.state = { ...this.createInitialState(), ...parsed };
+        } catch (e) {}
+      }
+
+      resetSave() {
+        try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+        this.state = this.createInitialState();
+        this.inspectionJob = null;
+        this.adCallback = null;
+        this.refreshSariListings(true);
+        this.spawnAuction();
+        ['resetModal', 'bankruptcyModal', 'summaryModal'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('hidden');
+        });
+        if (typeof ui !== 'undefined') {
+          ui.renderAll();
+          ui.openGalleryNameModal(true);
+        }
+      }
+    }
+
     class GalleryCanvas {
       constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
