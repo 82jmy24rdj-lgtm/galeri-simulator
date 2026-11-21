@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2D Oto Galeri Simülatörü v8</title>
+  <title>2D Oto Galeri Simülatörü v9</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
@@ -32,6 +32,11 @@
       50% { opacity: 0.55; }
     }
     .danger-blink { animation: dangerBlink 1.1s infinite; }
+    @keyframes scanBeam {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+    .scan-beam { animation: scanBeam 1.6s linear infinite; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -77,7 +82,7 @@
         <button type="button" onclick="ui.openSummaryModal(false)" class="bg-slate-950 hover:bg-slate-800 text-emerald-300 text-xs font-extrabold px-2.5 py-2 rounded-xl shadow">📊 Özet</button>
         <button type="button" onclick="ui.openTutorialModal()" class="bg-slate-950 hover:bg-slate-800 text-sky-300 text-xs font-extrabold px-2.5 py-2 rounded-xl shadow">❓ Öğretici</button>
 
-        <button type="button" onclick="game.advanceDay(false)" class="bg-slate-950 hover:bg-slate-800 active:scale-95 transition text-yellow-400 text-xs sm:text-sm font-extrabold px-3 py-2 rounded-xl shadow flex items-center gap-1.5">
+        <button type="button" onclick="game.advanceDay(false, 'Yeni güne geçildi')" class="bg-slate-950 hover:bg-slate-800 active:scale-95 transition text-yellow-400 text-xs sm:text-sm font-extrabold px-3 py-2 rounded-xl shadow flex items-center gap-1.5">
           <span>⏭ Yeni Gün</span>
         </button>
 
@@ -92,7 +97,7 @@
     <div id="marketNewsBanner" class="bg-slate-900/95 border border-yellow-500/30 rounded-xl px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
       <div class="flex items-center gap-2 text-slate-200">
         <span class="bg-yellow-400 text-slate-950 font-black px-2 py-0.5 rounded text-[10px]">PİYASA BÜLTENİ</span>
-        <span id="marketNewsText">Tüm araçların modeli yalnızca gerçek üretim yıllarından seçilir; 81 il ve tüm ilçeler aktif.</span>
+        <span id="marketNewsText">Sayfa her yenilendiğinde yeni güne geçilir; tefeci borcu vadesinde ödenmezse dükkana el koyar!</span>
       </div>
       <button type="button" onclick="ui.cycleTip()" class="text-[11px] font-bold text-sky-300 hover:underline shrink-0">💡 İpucu Göster</button>
     </div>
@@ -120,7 +125,7 @@
       <button type="button" onclick="ui.setTab('garage')" id="tab-garage" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🚘 Galerim</span><span id="garageCountBadge" class="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded-full text-[11px]">0</span></button>
       <button type="button" onclick="ui.setTab('offers')" id="tab-offers" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🤝 Teklifler</span><span id="offerCountBadge" class="hidden bg-emerald-500 text-slate-950 font-black px-1.5 py-0.5 rounded-full text-[11px]">0</span></button>
       <button type="button" onclick="ui.setTab('auction')" id="tab-auction" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🔨 İhale</span></button>
-      <button type="button" onclick="ui.setTab('bank')" id="tab-bank" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🏦 Banka</span></button>
+      <button type="button" onclick="ui.setTab('bank')" id="tab-bank" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🏦 Banka & Tefeci</span></button>
       <button type="button" onclick="ui.setTab('galleries')" id="tab-galleries" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🏢 Galeriler & Rozet</span></button>
     </nav>
 
@@ -129,6 +134,16 @@
 
   <div id="listingDetailModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-3">
     <div id="listingDetailBody" class="bg-slate-900 border border-yellow-500/40 rounded-2xl max-w-xl w-full p-4 sm:p-5 shadow-2xl max-h-[90vh] overflow-y-auto"></div>
+  </div>
+
+  <!-- 2 Dakikalık Ekspertiz Animasyonu + Reklamla Geçme Modalı -->
+  <div id="inspectionAnimModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div id="inspectionAnimBody" class="bg-slate-900 border border-sky-500/50 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4"></div>
+  </div>
+
+  <!-- Simüle Reklam İzleme Modalı -->
+  <div id="adModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div id="adModalBody" class="bg-slate-950 border-2 border-amber-400 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 text-center"></div>
   </div>
 
   <div id="postAdModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-3">
@@ -146,16 +161,16 @@
       </div>
       <div class="space-y-2.5 text-slate-200 leading-relaxed">
         <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-          <b class="text-yellow-400 block mb-0.5">1. Gerçek Modeller & 81 İl</b>
-          Her araç yalnızca gerçek üretim yıllarında çıkar. Galerini 81 il ve ilçelerinden istediğin yerde kurabilir, şehirlerarası alımlarda <b>₺1.000 – ₺20.000</b> yol ücreti ödersin.
+          <b class="text-yellow-400 block mb-0.5">1. Sarı Site Yenileme = Yeni Gün</b>
+          Sarı Site yanındaki <b>Sayfayı Yenile (+1 Gün)</b> butonuna bastığında veya tarayıcıdan sayfayı yenilediğinde oyunda <b>yeni güne geçilir</b>.
         </div>
         <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-          <b class="text-emerald-400 block mb-0.5">2. Ekspertiz, Bakım ve Satış</b>
-          Ekspertiz (₺2.500) gizli kusur ve tramer sürprizlerini ortaya çıkarır. Yıkama/pasta-cila piyasa değerine maliyetinin 1.5 katı katkı sağlar; satışta <b>%5 vergi</b> kesilir.
+          <b class="text-sky-400 block mb-0.5">2. 2 Dakikalık Ekspertiz & Reklam</b>
+          Ekspertiz <b>120 saniye (2 dk)</b> sürer; istersen <b>Reklam İzle</b> butonuna tıklayıp kısa reklam izleyerek süreyi anında tamamlayabilirsin.
         </div>
         <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-          <b class="text-sky-400 block mb-0.5">3. Kredi Puanı (0 – 1900) ve Faiz</b>
-          Başlangıç puanın <b>1200</b>'dür. <b>700 altı</b> kredi alamaz; kredi ekranında her paketin <b>faiz oranı</b> ve toplam geri ödemesi görünür. Kasa <b>-₺150.000</b> altına inerse iflas edersin.
+          <b class="text-rose-400 block mb-0.5">3. Tefeci Riski</b>
+          Tefeci yüksek nakit verir ama vade günü geldiğinde borç ödenmezse <b>tefeci galerine el koyar ve anında iflas edersin!</b>
         </div>
       </div>
       <button type="button" onclick="ui.closeTutorialModal()" class="w-full py-3 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm">Anladım, Oyuna Geç</button>
@@ -169,7 +184,7 @@
   <div id="resetModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
       <h3 class="text-lg font-bold text-white mb-2">Kariyeri Sıfırla?</h3>
-      <p class="text-sm text-slate-300 mb-5">Mevcut kasan, araçların, kredilerin ve rozetlerin sıfırlanacak; ₺500.000 başlangıç kasasıyla yeniden başlayacaksın.</p>
+      <p class="text-sm text-slate-300 mb-5">Mevcut kasan, araçların, kredilerin, tefeci borçların ve rozetlerin sıfırlanacak; ₺500.000 başlangıç kasasıyla yeniden başlayacaksın.</p>
       <div class="flex justify-end gap-2">
         <button type="button" onclick="document.getElementById('resetModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-semibold text-slate-200">Vazgeç</button>
         <button type="button" onclick="game.resetSave()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-sm font-bold text-white">Evet, Sıfırla</button>
@@ -213,9 +228,9 @@
     <div class="bg-slate-950 border-2 border-rose-600 rounded-3xl max-w-md w-full p-6 shadow-2xl text-center space-y-4">
       <div class="w-16 h-16 mx-auto rounded-2xl bg-rose-600/20 border border-rose-500 flex items-center justify-center text-3xl">🚨</div>
       <div>
-        <span class="text-xs font-black uppercase tracking-wider text-rose-400">Banka Haciz Kararı</span>
+        <span class="text-xs font-black uppercase tracking-wider text-rose-400">Haciz / El Koyma Kararı</span>
         <h2 class="text-2xl font-black text-white mt-1">İFLAS ETTİN!</h2>
-        <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">Kasa bakiyen <b class="text-rose-400">-₺150.000</b> haciz sınırının altına düştüğü için bankalar galerine el koydu.</p>
+        <p id="bankruptReasonText" class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">Kasa bakiyen <b class="text-rose-400">-₺150.000</b> haciz sınırının altına düştüğü için bankalar galerine el koydu.</p>
       </div>
       <div class="grid grid-cols-3 gap-2 bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs">
         <div><span class="text-slate-400 block">Gün</span><b id="bankruptDays" class="text-base font-black text-yellow-400">1</b></div>
@@ -253,7 +268,7 @@
       'Çanakkale': { lat: 40.1553, lon: 26.4142, districts: ['Merkez', 'Biga', 'Çan', 'Gelibolu', 'Ayvacık', 'Ezine', 'Lapseki', 'Bayramiç', 'Yenice', 'Eceabat', 'Gökçeada', 'Bozcaada'] },
       'Çankırı': { lat: 40.6013, lon: 33.6134, districts: ['Merkez', 'Çerkeş', 'Ilgaz', 'Şabanözü', 'Kurşunlu', 'Yapraklı', 'Korgun', 'Orta', 'Atkaracalar', 'Eldivan', 'Kızılırmak', 'Bayramören'] },
       'Çorum': { lat: 40.5506, lon: 34.9556, districts: ['Merkez', 'Sungurlu', 'Osmancık', 'İskilip', 'Alaca', 'Bayat', 'Kargı', 'Mecitözü', 'Ortaköy', 'Uğurludağ', 'Dodurga', 'Laçin', 'Boğazkale', 'Oğuzlar'] },
-      'Denizli': { lat: 37.7765, lon: 29.0864, districts: ['Pamukkale', 'Merkezefendi', 'Çivril', 'Acıpayam', 'Tavas', 'Honaz', 'Sarayköy', 'Buldan', 'Kale', 'Çal', 'Bozkurt', 'Güney', 'Çameli', 'Serinhisar', 'Babadağ', 'Baklan', 'Bekilli', 'Beyağaç', 'Bozkurt'] },
+      'Denizli': { lat: 37.7765, lon: 29.0864, districts: ['Pamukkale', 'Merkezefendi', 'Çivril', 'Acıpayam', 'Tavas', 'Honaz', 'Sarayköy', 'Buldan', 'Kale', 'Çal', 'Bozkurt', 'Güney', 'Çameli', 'Serinhisar', 'Babadağ', 'Baklan', 'Bekilli', 'Beyağaç'] },
       'Diyarbakır': { lat: 37.9144, lon: 40.2306, districts: ['Bağlar', 'Kayapınar', 'Yenişehir', 'Sur', 'Ergani', 'Bismil', 'Silvan', 'Çınar', 'Dicle', 'Hani', 'Kulp', 'Lice', 'Eğil', 'Kocaköy', 'Çermik', 'Çüngüş', 'Hazro'] },
       'Düzce': { lat: 40.8438, lon: 31.1565, districts: ['Merkez', 'Akçakoca', 'Kaynaşlı', 'Gölyaka', 'Cumayeri', 'Çilimli', 'Yığılca', 'Gümüşova'] },
       'Edirne': { lat: 41.6818, lon: 26.5623, districts: ['Merkez', 'Keşan', 'Uzunköprü', 'İpsala', 'Havsa', 'Meriç', 'Enez', 'Süloğlu', 'Lalapaşa'] },
@@ -324,6 +339,34 @@
       return Math.round((1000 + ratio * 19000) / 250) * 250;
     }
 
+    // Telif getirmeyen, araç gövdesi ve rengine göre gerçekçi SVG görsel üretici
+    function renderCarSvgPhoto(car) {
+      const col = (car && car.color) || '#e2e8f0';
+      const body = (car && car.body) || 'sedan';
+      const isSuv = body === 'suv';
+      const cabinPath = isSuv
+        ? 'M68 78 L86 42 Q92 36 102 36 L192 36 Q202 36 208 44 L228 78 Z'
+        : body === 'hatch'
+        ? 'M72 78 L92 44 Q98 38 108 38 L184 38 Q194 38 202 48 L220 78 Z'
+        : 'M74 78 L98 46 Q104 40 114 40 L176 40 Q186 40 194 50 L218 78 Z';
+
+      return `
+        <svg viewBox="0 0 300 130" class="w-full h-full object-cover bg-gradient-to-b from-slate-900 via-slate-950 to-black">
+          <rect x="0" y="96" width="300" height="34" fill="#111827" />
+          <line x1="0" y1="96" x2="300" y2="96" stroke="#334155" stroke-width="2" />
+          <ellipse cx="150" cy="103" rx="92" ry="7" fill="rgba(0,0,0,0.65)" />
+          <path d="${cabinPath}" fill="#1e293b" stroke="#475569" stroke-width="2" />
+          <path d="M46 76 L254 76 Q262 76 262 84 L262 96 Q262 101 255 101 L45 101 Q38 101 38 96 L38 84 Q38 76 46 76 Z" fill="${col}" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+          <rect x="246" y="81" width="12" height="6" rx="2" fill="#fef08a" />
+          <rect x="42" y="81" width="10" height="6" rx="2" fill="#ef4444" />
+          <circle cx="88" cy="100" r="16" fill="#090d16" stroke="#475569" stroke-width="2.5" />
+          <circle cx="88" cy="100" r="8" fill="#cbd5e1" />
+          <circle cx="212" cy="100" r="16" fill="#090d16" stroke="#475569" stroke-width="2.5" />
+          <circle cx="212" cy="100" r="8" fill="#cbd5e1" />
+        </svg>
+      `;
+    }
+
     const GALLERY_TIERS = [
       { id: 1, name: 'Ara Sokak Eski Galeri', streetType: 'Ara Sokak', capacity: 2, rent30: 20000, upgradeCost: 0, trafficDensity: 1, desc: 'Küçük ara sokak galerisi. 2 araç sınır, 30 günde ₺20.000 kira.' },
       { id: 2, name: 'Ara Cadde 3 Araçlık Galeri', streetType: 'Ara Cadde', capacity: 3, rent30: 50000, upgradeCost: 120000, trafficDensity: 2, desc: 'Ara caddede 3 araç kapasiteli galeri. 30 günde ₺50.000 kira.' },
@@ -336,854 +379,387 @@
       { id: 9, name: 'İşlek Cadde 16 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 16, rent30: 800000, upgradeCost: 4800000, trafficDensity: 10, desc: 'İşlek caddede 16 araç kapasiteli galeri. 30 günde ₺800.000 kira.' },
       { id: 10, name: 'İşlek Cadde 20 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 20, rent30: 1000000, upgradeCost: 7500000, trafficDensity: 12, desc: 'İşlek caddede 20 araç kapasiteli galeri. 30 günde ₺1.000.000 kira.' }
     ];
-    class SoundEngine {
-      constructor() { this.ctx = null; this.muted = false; }
-      init() {
-        try {
-          if (!this.ctx) {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (AudioCtx) this.ctx = new AudioCtx();
-          }
-          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
-        } catch (e) {}
-      }
-      toggleMute() {
-        this.muted = !this.muted;
-        const btn = document.getElementById('muteBtn');
-        if (btn) btn.textContent = this.muted ? '🔇' : '🔊';
-      }
-      playTone(freq, type, duration, vol = 0.14, delay = 0) {
-        if (this.muted) return;
-        try {
-          this.init();
-          if (!this.ctx) return;
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = type;
-          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
-          gain.gain.setValueAtTime(vol, this.ctx.currentTime + delay);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(this.ctx.currentTime + delay);
-          osc.stop(this.ctx.currentTime + delay + duration);
-        } catch (e) {}
-      }
-      cash() { this.playTone(980, 'sine', 0.12, 0.15, 0); this.playTone(1320, 'sine', 0.25, 0.18, 0.09); }
-      wash() { this.playTone(540, 'triangle', 0.15, 0.12, 0); this.playTone(820, 'sine', 0.22, 0.12, 0.1); }
-      wrench() { this.playTone(210, 'sawtooth', 0.1, 0.12, 0); this.playTone(360, 'square', 0.14, 0.12, 0.11); }
-      engine() { this.playTone(90, 'sawtooth', 0.22, 0.15, 0); this.playTone(145, 'sawtooth', 0.3, 0.16, 0.14); }
-      bid() { this.playTone(660, 'triangle', 0.12, 0.14, 0); }
-      scan() { this.playTone(720, 'sine', 0.09, 0.13, 0); this.playTone(1040, 'triangle', 0.16, 0.14, 0.08); }
-      error() { this.playTone(155, 'sawtooth', 0.22, 0.15, 0); }
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2D Oto Galeri Simülatörü v9</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f17;
+      color: #f1f5f9;
+      user-select: none;
+      overflow-x: hidden;
     }
-    const sound = new SoundEngine();
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #111827; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    canvas { display: block; width: 100%; height: 100%; }
+    .sari-banner {
+      background: linear-gradient(90deg, #facc15 0%, #eab308 100%);
+      color: #0f172a;
+    }
+    .tab-btn.active {
+      background: #facc15;
+      color: #0f172a;
+      box-shadow: 0 4px 14px rgba(250, 204, 21, 0.35);
+    }
+    @keyframes dangerBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+    .danger-blink { animation: dangerBlink 1.1s infinite; }
+    @keyframes scanBeam {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+    .scan-beam { animation: scanBeam 1.6s linear infinite; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
 
-    // Her aracın gerçek üretim yılları (minYear - maxYear) tanımlıdır
-    const TURKEY_CARS = [
-      { id: 'anadolu_sahin_slx', name: 'Anadolu Şahin 1.6 SLX', minYear: 1993, maxYear: 2002, marketHint: 'Klasik Yerli Sedan', body: 'sedan', segment: 'Klasik', basePrice: 235000, hp: 84, engine: '1.6 SLX', fuel: 'Benzin & LPG', gear: '5 İleri Manuel', baseKm: 235000, colors: ['#f8fafc', '#dc2626', '#1e293b'] },
-      { id: 'egeya_13_urban', name: 'Egeya 1.3 Multijet Urban', minYear: 2015, maxYear: 2024, marketHint: 'Popüler C-Sedan', body: 'sedan', segment: 'C-Sedan', basePrice: 685000, hp: 95, engine: '1.3 Multijet', fuel: 'Dizel', gear: '6 İleri Manuel', baseKm: 86000, colors: ['#f8fafc', '#475569', '#1e293b'] },
-      { id: 'golfen_14_rline', name: 'Golfen 1.4 TSI R-Line', minYear: 2013, maxYear: 2017, marketHint: 'Popüler C-Hatchback', body: 'hatch', segment: 'C-Hatchback', basePrice: 1085000, hp: 150, engine: '1.4 TSI', fuel: 'Benzin', gear: '7 İleri DSG', baseKm: 82000, colors: ['#0f172a', '#f8fafc', '#1d4ed8'] },
-      { id: 'corollan_16_dream', name: 'Corollan 1.6 Dream', minYear: 2019, maxYear: 2021, marketHint: 'Aile Sedanı', body: 'sedan', segment: 'C-Sedan', basePrice: 1025000, hp: 132, engine: '1.6 Valvematic', fuel: 'Benzin & LPG', gear: 'Otomatik', baseKm: 66000, colors: ['#f8fafc', '#475569', '#0f172a'] },
-      { id: 'boga_duster_4x4', name: 'Boğa Duster 1.3 TCe 4x4', minYear: 2019, maxYear: 2024, marketHint: 'SUV', body: 'suv', segment: 'SUV', basePrice: 1120000, hp: 150, engine: '1.3 TCe 4x4', fuel: 'Benzin', gear: 'EDC Otomatik', baseKm: 49000, colors: ['#065f46', '#d97706', '#0f172a'] },
-      { id: 'bavyera_320i_msport', name: 'Bavyera 320i M-Sport', minYear: 2012, maxYear: 2024, marketHint: 'Spor Sedan', body: 'sedan', segment: 'Spor Sedan', basePrice: 1780000, hp: 170, engine: '1.6 TwinPower', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 78000, colors: ['#1d4ed8', '#0f172a', '#f8fafc'] },
-      { id: 'yildiz_c200d_amg', name: 'Yıldız C200d AMG', minYear: 2015, maxYear: 2021, marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2140000, hp: 160, engine: '1.6 Turbo Dizel', fuel: 'Dizel', gear: '9G-Tronic', baseKm: 61000, colors: ['#0f172a', '#cbd5e1', '#f8fafc'] },
-      { id: 'halkali_a6_quattro', name: 'Halkalı A6 2.0 TDI Quattro', minYear: 2014, maxYear: 2023, marketHint: 'Lüks Sedan', body: 'sedan', segment: 'Lüks Sedan', basePrice: 2680000, hp: 204, engine: '2.0 TDI Quattro', fuel: 'Dizel', gear: '7 İleri S-Tronic', baseKm: 55000, colors: ['#1e293b', '#94a3b8', '#0f172a'] },
-      { id: 'vadi_rover_vogue', name: 'Vadi Rover 3.0 TDV6 Vogue', minYear: 2013, maxYear: 2021, marketHint: 'Lüks SUV', body: 'suv', segment: 'Lüks SUV', basePrice: 4480000, hp: 258, engine: '3.0 V6 Turbo', fuel: 'Dizel', gear: '8 İleri 4x4', baseKm: 44000, colors: ['#0f172a', '#f8fafc', '#065f46'] },
-      { id: 'yildiz_s580_maybach', name: 'Yıldız S580 Long Lüks', minYear: 2021, maxYear: 2026, marketHint: 'Ultra Lüks Makam', body: 'sedan', segment: 'Ultra Lüks', basePrice: 6800000, hp: 503, engine: '4.0 V8 Biturbo Mild Hybrid', fuel: 'Benzin', gear: '9G-Tronic 4MATIC', baseKm: 24000, colors: ['#0f172a', '#94a3b8', '#7f1d1d'] },
-      { id: 'bogaz_911_carrera_s', name: 'Boğaz 911 Carrera S', minYear: 2012, maxYear: 2025, marketHint: 'Lüks Spor Coupe', body: 'sedan', segment: 'Lüks Spor', basePrice: 5400000, hp: 450, engine: '3.0 Boxer 6 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri PDK', baseKm: 19000, colors: ['#dc2626', '#facc15', '#f8fafc'] },
-      { id: 'elmas_urus_performante', name: 'Elmas Urus Performante', minYear: 2022, maxYear: 2026, marketHint: 'Lüks Süper SUV', body: 'suv', segment: 'Lüks Süper SUV', basePrice: 7900000, hp: 666, engine: '4.0 V8 Twin-Turbo', fuel: 'Benzin', gear: '8 İleri Otomatik', baseKm: 15000, colors: ['#facc15', '#dc2626', '#0f172a'] }
-    ];
+  <header class="sari-banner px-3 sm:px-5 py-2.5 sticky top-0 z-30 shadow-lg border-b border-yellow-600/40">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <button type="button" onclick="ui.openGalleryNameModal(false)" class="bg-slate-950 hover:bg-slate-900 active:scale-95 transition text-yellow-400 font-black px-3 py-1.5 rounded-xl text-sm sm:text-base tracking-tight shadow flex items-center gap-1.5 border border-yellow-400/20">
+          <span>🏢</span>
+          <span id="hudGalleryName" class="text-white truncate max-w-[140px] sm:max-w-[200px]">Benim Galerim</span>
+          <span class="text-xs text-yellow-400">✏️</span>
+        </button>
+        <div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span id="dayText" class="font-extrabold text-xs sm:text-sm text-slate-950">Gün 1</span>
+            <span class="text-slate-900/50">•</span>
+            <span id="prestigeText" class="font-bold text-xs text-slate-900">★ Prestij: 50</span>
+            <span class="text-slate-900/50">•</span>
+            <span id="creditScoreText" class="font-extrabold text-xs text-slate-950">Kredi Puanı: 1200/1900</span>
+            <span class="text-slate-900/50">•</span>
+            <span id="marketPhaseText" class="font-extrabold text-xs px-1.5 py-0.5 rounded bg-slate-950 text-yellow-400">Normal Piyasa</span>
+          </div>
+          <div id="hudSubInfo" class="text-[11px] font-semibold text-slate-900/85">
+            Konum: İzmir / Konak • Kira: 30 Günde ₺20.000 • Satış Vergisi: %5
+          </div>
+        </div>
+      </div>
 
-    const CAR_PARTS = [
-      { key: 'hood', label: 'Motor Kaputu', weight: 0.09 },
-      { key: 'roof', label: 'Tavan', weight: 0.12 },
-      { key: 'frontBumper', label: 'Ön Tampon', weight: 0.035 },
-      { key: 'rearBumper', label: 'Arka Tampon', weight: 0.03 },
-      { key: 'leftFrontDoor', label: 'Sol Ön Kapı', weight: 0.055 },
-      { key: 'rightFrontDoor', label: 'Sağ Ön Kapı', weight: 0.055 },
-      { key: 'leftRearDoor', label: 'Sol Arka Kapı', weight: 0.045 },
-      { key: 'rightRearDoor', label: 'Sağ Arka Kapı', weight: 0.045 },
-      { key: 'leftFender', label: 'Sol Ön Çamurluk', weight: 0.045 },
-      { key: 'rightFender', label: 'Sağ Ön Çamurluk', weight: 0.045 }
-    ];
+      <div class="flex flex-wrap items-center gap-2">
+        <div id="moneyBox" class="bg-slate-950 text-white px-3 py-1.5 rounded-xl flex items-center gap-2 shadow">
+          <span class="text-[11px] text-slate-400">Kasa:</span>
+          <span id="moneyText" class="font-black text-sm sm:text-base text-emerald-400">₺500.000</span>
+        </div>
 
-    const SELLER_PERSONAS = [
-      { type: 'Doktordan', badge: 'Hatasız / Boyasız', style: 'Esnek', titles: ['DOKTORDAN HATASIZ BOYASIZ GARAJ ARABASI', 'İLK SAHİBİNDEN BAKIMLI TEMİZ'], notes: 'Titizlikle kullanıldı, ekspertize açıktır.', priceMult: [1.01, 1.07], condRange: [86, 97], defectChance: 0.15, floorRatio: 0.87, maxAtt: 3 },
-      { type: 'Memurdan', badge: 'Temiz Bakımlı', style: 'Dengeli', titles: ['MEMURDAN TEMİZ AİLE ARACI', 'BAKIMLARI YENİ MASRAFSIZ'], notes: 'Aile aracı olarak kullanıldı.', priceMult: [0.94, 1.02], condRange: [76, 88], defectChance: 0.25, floorRatio: 0.84, maxAtt: 3 },
-      { type: 'Acil Satılık', badge: '🔥 Fırsat İlan', style: 'Aceleci', titles: ['ACİL NAKİTTEN SATILIK UYGUN FİYAT', 'BUGÜNE ÖZEL FIRSAT ARAÇ'], notes: 'Acil nakit ihtiyacı nedeniyle satılık.', priceMult: [0.80, 0.90], condRange: [68, 84], defectChance: 0.35, floorRatio: 0.80, maxAtt: 4 },
-      { type: 'Hasarlı Fırsat', badge: 'Hasarlı / Boyalı', style: 'Sert', titles: ['KAPORTA İŞLEMLİ FIRSAT ARAÇ', 'UYGUN FİYATLI YATIRIMLIK ARAÇ'], notes: 'Bazı parçalarında boya/değişen bulunabilir.', priceMult: [0.72, 0.85], condRange: [55, 72], defectChance: 0.50, floorRatio: 0.88, maxAtt: 2 }
-    ];
+        <div id="bankruptcyWarningPill" class="hidden bg-rose-600 text-white border border-rose-300 px-2.5 py-1.5 rounded-xl text-xs font-black shadow danger-blink">
+          ⚠️ HACİZ RİSKİ! (-₺150.000'de İflas)
+        </div>
 
-    const HIDDEN_SURPRISES = [
-      { report: 'Tramer hasar kaydı ve şanzıman yağ kaçağı tespit edildi', tramer: '₺48.500 Hasar Kaydı', condPenalty: 16 },
-      { report: 'Ekspertizde sol şasi ucunda düzeltme ve turbo boşluğu görüldü', tramer: '₺32.000 Hasar Kaydı', condPenalty: 18 },
-      { report: 'Alt takım burçları bitik ve arka panel boyalı çıktı', tramer: '₺19.500 Hasar Kaydı', condPenalty: 14 }
-    ];
+        <div id="debtPill" class="hidden bg-rose-950 text-rose-200 border border-rose-500/40 px-2.5 py-1.5 rounded-xl text-xs font-bold">
+          Borç: <span id="debtText">₺0</span>
+        </div>
 
-    const ACHIEVEMENTS = [
-      { id: 'first_trade', title: 'İlk Al-Sat', desc: 'İlk aracını satarak kasana para koy.', icon: '🏁' },
-      { id: 'haggle_pro', title: 'Pazarlık Ustası', desc: 'Pazarlıkla anlaştığın bir aracı satın al.', icon: '🤝' },
-      { id: 'inspector_eye', title: 'Ekspertiz Kurdu', desc: 'Ekspertiz yaptırarak gizli sürpriz yakala veya temiz araç bul.', icon: '🔍' },
-      { id: 'tier_5', title: 'İşlek Cadde Patronu', desc: '5. galeri kademesine veya üstüne ulaş.', icon: '🏢' },
-      { id: 'millionaire', title: 'Milyoner Galeri', desc: 'Kasanı ₺1.000.000 veya üzerine çıkar.', icon: '💰' },
-      { id: 'credit_1500', title: 'Yüksek Güven', desc: 'Kredi puanını 1500 veya üzerine çıkar.', icon: '🏦' }
-    ];
+        <button type="button" onclick="ui.openSummaryModal(false)" class="bg-slate-950 hover:bg-slate-800 text-emerald-300 text-xs font-extrabold px-2.5 py-2 rounded-xl shadow">📊 Özet</button>
+        <button type="button" onclick="ui.openTutorialModal()" class="bg-slate-950 hover:bg-slate-800 text-sky-300 text-xs font-extrabold px-2.5 py-2 rounded-xl shadow">❓ Öğretici</button>
 
-    const MARKET_BULLETINS = [
-      'Tüm araçların modeli yalnızca gerçek üretim yıllarından seçilir; 81 il ve tüm ilçeler aktif.',
-      'Şehirlerarası alımlarda mesafe arttıkça çekici/yol masrafı yükseliyor; yakındaki fırsatları da kontrol et.',
-      'Yıkama ve pasta-cila işlemleri aracın piyasa değerine maliyetinin 1.5 katı kadar katkı sağlar.',
-      'Kredi puanını 1400 ve üzerine çıkarırsan dev kredi limitlerinin kapısı açılır; taksitleri aksatma!',
-      'Bazı satıcılar aceleci davranıp pazarlıkta daha fazla esnerken, sert satıcılar çabuk sinirlenebilir.'
-    ];
+        <button type="button" onclick="game.advanceDay(false, 'Yeni güne geçildi')" class="bg-slate-950 hover:bg-slate-800 active:scale-95 transition text-yellow-400 text-xs sm:text-sm font-extrabold px-3 py-2 rounded-xl shadow flex items-center gap-1.5">
+          <span>⏭ Yeni Gün</span>
+        </button>
 
-    const NPC_BUYERS = ['Ahmet Yılmaz', 'Mehmet Usta', 'Zeynep Kaya', 'Burak Demir', 'Selin Arslan', 'Murat Şahin', 'Emre Öztürk', 'Elif Yıldız'];
-    const RIVAL_GALLERIES = ['Kardeşler Oto', 'Ege Motors', 'Prestij Galeri', 'Anadolu Auto', 'Bosphorus Motors'];
-    const CARE_COSTS = { wash: 1500, polish: 6500, tires: 18000, rims: 32000 };
+        <button type="button" onclick="game.save(true)" class="bg-slate-950 hover:bg-slate-800 text-emerald-400 px-2.5 py-2 rounded-xl text-xs font-bold" title="Oyunu Kaydet">💾</button>
+        <button type="button" id="muteBtn" onclick="sound.toggleMute()" class="bg-slate-950/90 hover:bg-slate-800 text-white p-2 rounded-xl text-xs">🔊</button>
+        <button type="button" onclick="document.getElementById('resetModal').classList.remove('hidden')" class="bg-slate-950/90 hover:bg-rose-900 text-white p-2 rounded-xl text-xs">↺</button>
+      </div>
+    </div>
+  </header>
 
-    function formatTL(amount) {
-      const num = Number(amount) || 0;
-      const sign = num < 0 ? '-' : '';
-      return sign + '₺' + Math.abs(Math.round(num)).toLocaleString('tr-TR');
+  <main class="flex-1 max-w-7xl w-full mx-auto p-2.5 sm:p-4 flex flex-col gap-3">
+    <div id="marketNewsBanner" class="bg-slate-900/95 border border-yellow-500/30 rounded-xl px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="flex items-center gap-2 text-slate-200">
+        <span class="bg-yellow-400 text-slate-950 font-black px-2 py-0.5 rounded text-[10px]">PİYASA BÜLTENİ</span>
+        <span id="marketNewsText">Sayfa her yenilendiğinde yeni güne geçilir; tefeci borcu vadesinde ödenmezse dükkana el koyar!</span>
+      </div>
+      <button type="button" onclick="ui.cycleTip()" class="text-[11px] font-bold text-sky-300 hover:underline shrink-0">💡 İpucu Göster</button>
+    </div>
+
+    <section class="relative w-full h-60 sm:h-72 md:h-[300px] bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+      <canvas id="galleryCanvas"></canvas>
+
+      <div class="absolute top-3 left-3 flex flex-wrap gap-2 pointer-events-none">
+        <div class="bg-slate-950/90 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-200">
+          🅿️ Galeri: <span id="slotCounter" class="text-yellow-400">0 / 2</span>
+        </div>
+        <div id="galleryTierBadge" class="bg-slate-950/90 border border-yellow-500/30 px-2.5 py-1 rounded-lg text-xs font-bold text-yellow-300">
+          📍 Ara Sokak Eski Galeri (1/10)
+        </div>
+        <div id="dailyTradeBadge" class="bg-slate-950/90 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-300">
+          Günlük İşlem Hakkı: 1/1
+        </div>
+      </div>
+
+      <div id="toastContainer" class="absolute bottom-3 right-3 flex flex-col gap-1.5 max-w-xs sm:max-w-sm pointer-events-none z-20"></div>
+    </section>
+
+    <nav class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
+      <button type="button" onclick="ui.setTab('sarisite')" id="tab-sarisite" class="tab-btn active py-2 px-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5"><span>🟡 Sarı Site</span></button>
+      <button type="button" onclick="ui.setTab('garage')" id="tab-garage" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🚘 Galerim</span><span id="garageCountBadge" class="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded-full text-[11px]">0</span></button>
+      <button type="button" onclick="ui.setTab('offers')" id="tab-offers" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🤝 Teklifler</span><span id="offerCountBadge" class="hidden bg-emerald-500 text-slate-950 font-black px-1.5 py-0.5 rounded-full text-[11px]">0</span></button>
+      <button type="button" onclick="ui.setTab('auction')" id="tab-auction" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🔨 İhale</span></button>
+      <button type="button" onclick="ui.setTab('bank')" id="tab-bank" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🏦 Banka & Tefeci</span></button>
+      <button type="button" onclick="ui.setTab('galleries')" id="tab-galleries" class="tab-btn py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:bg-slate-800 transition flex items-center justify-center gap-1.5"><span>🏢 Galeriler & Rozet</span></button>
+    </nav>
+
+    <section id="tabContent" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-5 min-h-[360px]"></section>
+  </main>
+
+  <div id="listingDetailModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-3">
+    <div id="listingDetailBody" class="bg-slate-900 border border-yellow-500/40 rounded-2xl max-w-xl w-full p-4 sm:p-5 shadow-2xl max-h-[90vh] overflow-y-auto"></div>
+  </div>
+
+  <!-- 2 Dakikalık Ekspertiz Animasyonu + Reklamla Geçme Modalı -->
+  <div id="inspectionAnimModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div id="inspectionAnimBody" class="bg-slate-900 border border-sky-500/50 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4"></div>
+  </div>
+
+  <!-- Simüle Reklam İzleme Modalı -->
+  <div id="adModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div id="adModalBody" class="bg-slate-950 border-2 border-amber-400 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 text-center"></div>
+  </div>
+
+  <div id="postAdModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-3">
+    <div id="postAdBody" class="bg-slate-900 border border-yellow-500/40 rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl max-h-[90vh] overflow-y-auto"></div>
+  </div>
+
+  <div id="tutorialModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-sky-500/40 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-xs sm:text-sm">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-wider text-sky-400">Oyun İçi Rehber</span>
+          <h3 class="text-lg font-black text-white">Nasıl Oynanır?</h3>
+        </div>
+        <button type="button" onclick="ui.closeTutorialModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 w-8 h-8 rounded-xl font-bold">✕</button>
+      </div>
+      <div class="space-y-2.5 text-slate-200 leading-relaxed">
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+          <b class="text-yellow-400 block mb-0.5">1. Sarı Site Yenileme = Yeni Gün</b>
+          Sarı Site yanındaki <b>Sayfayı Yenile (+1 Gün)</b> butonuna bastığında veya tarayıcıdan sayfayı yenilediğinde oyunda <b>yeni güne geçilir</b>.
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+          <b class="text-sky-400 block mb-0.5">2. 2 Dakikalık Ekspertiz & Reklam</b>
+          Ekspertiz <b>120 saniye (2 dk)</b> sürer; istersen <b>Reklam İzle</b> butonuna tıklayıp kısa reklam izleyerek süreyi anında tamamlayabilirsin.
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+          <b class="text-rose-400 block mb-0.5">3. Tefeci Riski</b>
+          Tefeci yüksek nakit verir ama vade günü geldiğinde borç ödenmezse <b>tefeci galerine el koyar ve anında iflas edersin!</b>
+        </div>
+      </div>
+      <button type="button" onclick="ui.closeTutorialModal()" class="w-full py-3 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm">Anladım, Oyuna Geç</button>
+    </div>
+  </div>
+
+  <div id="summaryModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="summaryBody" class="bg-slate-900 border border-emerald-500/40 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4"></div>
+  </div>
+
+  <div id="resetModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
+      <h3 class="text-lg font-bold text-white mb-2">Kariyeri Sıfırla?</h3>
+      <p class="text-sm text-slate-300 mb-5">Mevcut kasan, araçların, kredilerin, tefeci borçların ve rozetlerin sıfırlanacak; ₺500.000 başlangıç kasasıyla yeniden başlayacaksın.</p>
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="document.getElementById('resetModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-semibold text-slate-200">Vazgeç</button>
+        <button type="button" onclick="game.resetSave()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-sm font-bold text-white">Evet, Sıfırla</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="galleryNameModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-yellow-500/50 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4">
+      <div>
+        <span id="galleryModalBadge" class="text-[11px] font-black uppercase tracking-wider text-yellow-400">Yeni Kariyer Başlangıcı</span>
+        <h3 id="galleryModalTitle" class="text-lg sm:text-xl font-black text-white mt-0.5">Galeri Adı ve Konum Seç</h3>
+        <p class="text-xs text-slate-300 mt-1">₺500.000 başlangıç kasasıyla kariyerine başlayacağın 81 ilden bir şehir, ilçe ve galeri adı seç.</p>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Galeri Adı</label>
+          <input id="galleryNameInput" type="text" maxlength="26" placeholder="Örn: Ege Motors, Kardeşler Oto..."
+            onkeydown="if(event.key==='Enter') ui.submitGalleryName()"
+            class="w-full bg-slate-950 border border-slate-700 focus:border-yellow-400 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Şehir (81 İl)</label>
+            <select id="modalCitySelect" onchange="ui.onModalCityChange()" class="w-full bg-slate-950 border border-slate-700 focus:border-yellow-400 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-white outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">İlçe</label>
+            <select id="modalDistrictSelect" class="w-full bg-slate-950 border border-slate-700 focus:border-yellow-400 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-white outline-none"></select>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-1">
+        <button type="button" id="galleryModalCancelBtn" onclick="document.getElementById('galleryNameModal').classList.add('hidden')" class="hidden px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200">Vazgeç</button>
+        <button type="button" id="galleryModalSaveBtn" onclick="ui.submitGalleryName()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg">🚀 Kariyere Başla</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="bankruptcyModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-950 border-2 border-rose-600 rounded-3xl max-w-md w-full p-6 shadow-2xl text-center space-y-4">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-rose-600/20 border border-rose-500 flex items-center justify-center text-3xl">🚨</div>
+      <div>
+        <span class="text-xs font-black uppercase tracking-wider text-rose-400">Haciz / El Koyma Kararı</span>
+        <h2 class="text-2xl font-black text-white mt-1">İFLAS ETTİN!</h2>
+        <p id="bankruptReasonText" class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">Kasa bakiyen <b class="text-rose-400">-₺150.000</b> haciz sınırının altına düştüğü için bankalar galerine el koydu.</p>
+      </div>
+      <div class="grid grid-cols-3 gap-2 bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs">
+        <div><span class="text-slate-400 block">Gün</span><b id="bankruptDays" class="text-base font-black text-yellow-400">1</b></div>
+        <div><span class="text-slate-400 block">Prestij</span><b id="bankruptPrestige" class="text-base font-black text-emerald-400">50</b></div>
+        <div><span class="text-slate-400 block">Kasa</span><b id="bankruptMoney" class="text-sm font-black text-rose-400">-₺150.000</b></div>
+      </div>
+      <div class="flex flex-col gap-2">
+        <button type="button" onclick="document.getElementById('bankruptcyModal').classList.add('hidden'); ui.openSummaryModal(true);" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-xs">📊 Kariyer Özeti Kartını Gör</button>
+        <button type="button" onclick="game.resetSave()" class="w-full py-3.5 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-sm shadow-lg">🔄 Yeni Kariyer Başlat (₺500.000 Kasa)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TURKEY_LOCATIONS = {
+      'Adana': { lat: 37.0000, lon: 35.3213, districts: ['Seyhan', 'Yüreğir', 'Çukurova', 'Sarıçam', 'Ceyhan', 'Kozan', 'İmamoğlu', 'Karaisalı', 'Karataş', 'Pozantı', 'Tufanbeyli', 'Yumurtalık', 'Aladağ', 'Feke', 'Saimbeyli'] },
+      'Adıyaman': { lat: 37.7648, lon: 38.2786, districts: ['Merkez', 'Kahta', 'Besni', 'Gölbaşı', 'Gerger', 'Sincik', 'Çelikhan', 'Tut', 'Samsat'] },
+      'Afyonkarahisar': { lat: 38.7507, lon: 30.5567, districts: ['Merkez', 'Sandıklı', 'Dinar', 'Bolvadin', 'Emirdağ', 'Şuhut', 'Çay', 'İhsaniye', 'Sinanpaşa', 'Sultandağı', 'İscehisar', 'Bayat', 'Çobanlar', 'Dazkırı', 'Evciler', 'Hocalar', 'Kızılören', 'Başmakçı'] },
+      'Ağrı': { lat: 39.7191, lon: 43.0503, districts: ['Merkez', 'Patnos', 'Doğubayazıt', 'Diyadin', 'Eleşkirt', 'Tutak', 'Hamur', 'Taşlıçay'] },
+      'Amasya': { lat: 40.6499, lon: 35.8353, districts: ['Merkez', 'Merzifon', 'Suluova', 'Taşova', 'Gümüşhacıköy', 'Göynücek', 'Hamamözü'] },
+      'Ankara': { lat: 39.9334, lon: 32.8597, districts: ['Çankaya', 'Keçiören', 'Yenimahalle', 'Mamak', 'Etimesgut', 'Sincan', 'Altındağ', 'Pursaklar', 'Polatlı', 'Beypazarı', 'Çubuk', 'Elmadağ', 'Kahramankazan', 'Akyurt', 'Ayaş', 'Bala', 'Çamlıdere', 'Evren', 'Güdül', 'Haymana', 'Kalecik', 'Kızılcahamam', 'Nallıhan', 'Şereflikoçhisar', 'Gölbaşı'] },
+      'Antalya': { lat: 36.8969, lon: 30.7133, districts: ['Muratpaşa', 'Kepez', 'Konyaaltı', 'Alanya', 'Manavgat', 'Serik', 'Kumluca', 'Kaş', 'Kemer', 'Finike', 'Gazipaşa', 'Elmalı', 'Korkuteli', 'Demre', 'Aksu', 'Döşemealtı', 'Gündoğmuş', 'İbradı', 'Akseki'] },
+      'Artvin': { lat: 41.1828, lon: 41.8183, districts: ['Merkez', 'Hopa', 'Borçka', 'Arhavi', 'Yusufeli', 'Şavşat', 'Ardanuç', 'Murgul', 'Kemalpaşa'] },
+      'Aydın': { lat: 37.8560, lon: 27.8416, districts: ['Efeler', 'Nazilli', 'Söke', 'Kuşadası', 'Didim', 'İncirliova', 'Çine', 'Germencik', 'Bozdoğan', 'Köşk', 'Kuyucak', 'Sultanhisar', 'Karacasu', 'Koçarlı', 'Yenipazar', 'Buharkent', 'Karpuzlu'] },
+      'Balıkesir': { lat: 39.6484, lon: 27.8826, districts: ['Altıeylül', 'Karesi', 'Bandırma', 'Edremit', 'Gönen', 'Burhaniye', 'Ayvalık', 'Bigadiç', 'Susurluk', 'Dursunbey', 'İvrindi', 'Sındırgı', 'Havran', 'Kepsut', 'Manyas', 'Savaştepe', 'Marmara', 'Gömeç', 'Balya'] },
+      'Bartın': { lat: 41.6344, lon: 32.3375, districts: ['Merkez', 'Ulus', 'Amasra', 'Kurucaşile'] },
+      'Batman': { lat: 37.8812, lon: 41.1351, districts: ['Merkez', 'Kozluk', 'Sason', 'Beşiri', 'Gercüş', 'Hasankeyf'] },
+      'Bayburt': { lat: 40.2552, lon: 40.2249, districts: ['Merkez', 'Demirözü', 'Aydıntepe'] },
+      'Bilecik': { lat: 40.1426, lon: 29.9793, districts: ['Merkez', 'Bozüyük', 'Osmaneli', 'Söğüt', 'Gölpazarı', 'Pazaryeri', 'İnhisar', 'Yenipazar'] },
+      'Bingöl': { lat: 38.8848, lon: 40.4983, districts: ['Merkez', 'Genç', 'Solhan', 'Karlıova', 'Adaklı', 'Kiğı', 'Yayladere', 'Yedisu'] },
+      'Bitlis': { lat: 38.4006, lon: 42.1095, districts: ['Tatvan', 'Merkez', 'Güroymak', 'Ahlat', 'Hizan', 'Mutki', 'Adilcevaz'] },
+      'Bolu': { lat: 40.7360, lon: 31.6061, districts: ['Merkez', 'Gerede', 'Mudurnu', 'Göynük', 'Mengen', 'Yeniçağa', 'Dörtdivan', 'Seben', 'Kıbrıscık'] },
+      'Burdur': { lat: 37.7203, lon: 30.2908, districts: ['Merkez', 'Bucak', 'Gölhisar', 'Yeşilova', 'Çavdır', 'Tefenni', 'Ağlasun', 'Karamanlı', 'Kemer', 'Altınyayla', 'Çeltikçi'] },
+      'Bursa': { lat: 40.1885, lon: 29.0610, districts: ['Osmangazi', 'Nilüfer', 'Yıldırım', 'İnegöl', 'Gemlik', 'Mustafakemalpaşa', 'Mudanya', 'Karacabey', 'Gürsu', 'Kestel', 'Orhangazi', 'Yenişehir', 'İznik', 'Keles', 'Orhaneli', 'Büyükorhan', 'Harmancık'] },
+      'Çanakkale': { lat: 40.1553, lon: 26.4142, districts: ['Merkez', 'Biga', 'Çan', 'Gelibolu', 'Ayvacık', 'Ezine', 'Lapseki', 'Bayramiç', 'Yenice', 'Eceabat', 'Gökçeada', 'Bozcaada'] },
+      'Çankırı': { lat: 40.6013, lon: 33.6134, districts: ['Merkez', 'Çerkeş', 'Ilgaz', 'Şabanözü', 'Kurşunlu', 'Yapraklı', 'Korgun', 'Orta', 'Atkaracalar', 'Eldivan', 'Kızılırmak', 'Bayramören'] },
+      'Çorum': { lat: 40.5506, lon: 34.9556, districts: ['Merkez', 'Sungurlu', 'Osmancık', 'İskilip', 'Alaca', 'Bayat', 'Kargı', 'Mecitözü', 'Ortaköy', 'Uğurludağ', 'Dodurga', 'Laçin', 'Boğazkale', 'Oğuzlar'] },
+      'Denizli': { lat: 37.7765, lon: 29.0864, districts: ['Pamukkale', 'Merkezefendi', 'Çivril', 'Acıpayam', 'Tavas', 'Honaz', 'Sarayköy', 'Buldan', 'Kale', 'Çal', 'Bozkurt', 'Güney', 'Çameli', 'Serinhisar', 'Babadağ', 'Baklan', 'Bekilli', 'Beyağaç'] },
+      'Diyarbakır': { lat: 37.9144, lon: 40.2306, districts: ['Bağlar', 'Kayapınar', 'Yenişehir', 'Sur', 'Ergani', 'Bismil', 'Silvan', 'Çınar', 'Dicle', 'Hani', 'Kulp', 'Lice', 'Eğil', 'Kocaköy', 'Çermik', 'Çüngüş', 'Hazro'] },
+      'Düzce': { lat: 40.8438, lon: 31.1565, districts: ['Merkez', 'Akçakoca', 'Kaynaşlı', 'Gölyaka', 'Cumayeri', 'Çilimli', 'Yığılca', 'Gümüşova'] },
+      'Edirne': { lat: 41.6818, lon: 26.5623, districts: ['Merkez', 'Keşan', 'Uzunköprü', 'İpsala', 'Havsa', 'Meriç', 'Enez', 'Süloğlu', 'Lalapaşa'] },
+      'Elazığ': { lat: 38.6810, lon: 39.2264, districts: ['Merkez', 'Kovancılar', 'Karakoçan', 'Palu', 'Baskil', 'Arıcak', 'Maden', 'Sivrice', 'Alacakaya', 'Ağın', 'Keban'] },
+      'Erzincan': { lat: 39.7500, lon: 39.5000, districts: ['Merkez', 'Tercan', 'Üzümlü', 'Refahiye', 'Çayırlı', 'İliç', 'Kemah', 'Kemaliye', 'Otlukbeli'] },
+      'Erzurum': { lat: 39.9000, lon: 41.2700, districts: ['Yakutiye', 'Palandöken', 'Aziziye', 'Horasan', 'Oltu', 'Pasinler', 'Karayazı', 'Hınıs', 'Tekman', 'Aşkale', 'Tortum', 'İspir', 'Köprüköy', 'Narman', 'Şenkaya', 'Çat', 'Karaçoban', 'Olur', 'Pazaryolu'] },
+      'Eskişehir': { lat: 39.7767, lon: 30.5206, districts: ['Odunpazarı', 'Tepebaşı', 'Sivrihisar', 'Çifteler', 'Seyitgazi', 'Alpu', 'Mihalıççık', 'Mahmudiye', 'Günyüzü', 'Beylikova', 'İnönü', 'Sarıcakaya', 'Mihalgazi', 'Han'] },
+      'Gaziantep': { lat: 37.0662, lon: 37.3833, districts: ['Şahinbey', 'Şehitkamil', 'Nizip', 'İslahiye', 'Nurdağı', 'Oğuzeli', 'Araban', 'Yavuzeli', 'Karkamış'] },
+      'Giresun': { lat: 40.9128, lon: 38.3895, districts: ['Merkez', 'Bulancak', 'Espiye', 'Görele', 'Tirebolu', 'Dereli', 'Şebinkarahisar', 'Keşap', 'Yağlıdere', 'Alucra', 'Piraziz', 'Eynesil', 'Çanakçı', 'Doğankent', 'Güce', 'Çamoluk'] },
+      'Gümüşhane': { lat: 40.4603, lon: 39.4814, districts: ['Merkez', 'Kelkit', 'Şiran', 'Kürtün', 'Torul', 'Köse'] },
+      'Hakkari': { lat: 37.5833, lon: 43.7333, districts: ['Yüksekova', 'Merkez', 'Şemdinli', 'Çukurca', 'Derecik'] },
+      'Hatay': { lat: 36.4018, lon: 36.3498, districts: ['Antakya', 'İskenderun', 'Defne', 'Dörtyol', 'Kırıkhan', 'Samandağ', 'Reyhanlı', 'Arsuz', 'Payas', 'Altınözü', 'Hassa', 'Belen', 'Erzin', 'Kumlu', 'Yayladağı'] },
+      'Iğdır': { lat: 39.9237, lon: 44.0450, districts: ['Merkez', 'Tuzluca', 'Aralık', 'Karakoyunlu'] },
+      'Isparta': { lat: 37.7648, lon: 30.5566, districts: ['Merkez', 'Yalvaç', 'Eğirdir', 'Şarkikaraağaç', 'Gelendost', 'Keçiborlu', 'Senirkent', 'Sütçüler', 'Gönen', 'Uluborlu', 'Atabey', 'Aksu', 'Yenişarbademli'] },
+      'İstanbul': { lat: 41.0082, lon: 28.9784, districts: ['Esenyurt', 'Küçükçekmece', 'Bağcılar', 'Ümraniye', 'Pendik', 'Bahçelievler', 'Üsküdar', 'Sultangazi', 'Maltepe', 'Gaziosmanpaşa', 'Kartal', 'Başakşehir', 'Esenler', 'Avcılar', 'Kağıthane', 'Fatih', 'Sancaktepe', 'Beylikdüzü', 'Ataşehir', 'Eyüpsultan', 'Sarayburnu', 'Tuzla', 'Büyükçekmece', 'Arnavutköy', 'Kadıköy', 'Şişli', 'Zeytinburnu', 'Bayrampaşa', 'Beşiktaş', 'Bakırköy', 'Sarıyer', 'Çekmeköy', 'Beykoz', 'Silivri', 'Çatalca', 'Şile', 'Adalar'] },
+      'İzmir': { lat: 38.4237, lon: 27.1428, districts: ['Buca', 'Karabağlar', 'Bornova', 'Konak', 'Karşıyaka', 'Bayraklı', 'Çiğli', 'Torbalı', 'Menemen', 'Gaziemir', 'Ödemiş', 'Kemalpaşa', 'Bergama', 'Aliağa', 'Tire', 'Menderes', 'Urla', 'Balçova', 'Çeşme', 'Dikili', 'Seferihisar', 'Selçuk', 'Kiraz', 'Bayındır', 'Foça', 'Güzelbahçe', 'Kınık', 'Beydağ', 'Karaburun'] },
+      'Kahramanmaraş': { lat: 37.5753, lon: 36.9228, districts: ['Onikişubat', 'Dulkadiroğlu', 'Elbistan', 'Afşin', 'Türkoğlu', 'Pazarcık', 'Göksun', 'Andırın', 'Çağlayancerit', 'Ekinözü', 'Nurhak'] },
+      'Karabük': { lat: 41.2061, lon: 32.6204, districts: ['Merkez', 'Safranbolu', 'Yenice', 'Eskipazar', 'Eflani', 'Ovacık'] },
+      'Karaman': { lat: 37.1759, lon: 33.2287, districts: ['Merkez', 'Ermenek', 'Sarıveliler', 'Ayrancı', 'Kazımkarabekir', 'Başyayla'] },
+      'Kars': { lat: 40.6013, lon: 43.0975, districts: ['Merkez', 'Sarıkamış', 'Kağızman', 'Digor', 'Selim', 'Susuz', 'Arpaçay', 'Akyaka'] },
+      'Kastamonu': { lat: 41.3887, lon: 33.7827, districts: ['Merkez', 'Tosya', 'Taşköprü', 'Cide', 'İnebolu', 'Araç', 'Daday', 'Devrekani', 'Küre', 'Bozkurt', 'Çatalzeytin', 'Hanönü', 'İhsangazi', 'Pınarbaşı', 'Seydiler', 'Şenpazar', 'Abana', 'Ağlı', 'Azdavay', 'Doğanyurt'] },
+      'Kayseri': { lat: 38.7312, lon: 35.4787, districts: ['Melikgazi', 'Kocasinan', 'Talas', 'Develi', 'Yahyalı', 'Bünyan', 'İncesu', 'Pınarbaşı', 'Tomarza', 'Yeşilhisar', 'Sarıoğlan', 'Hacılar', 'Sarız', 'Akkışla', 'Felahiye', 'Özavatan'] },
+      'Kırıkkale': { lat: 39.8468, lon: 33.5153, districts: ['Merkez', 'Yahşihan', 'Keskin', 'Delice', 'Sulakyurt', 'Bahşılı', 'Balışeyh', 'Karakeçili', 'Çelebi'] },
+      'Kırklareli': { lat: 41.7333, lon: 27.2167, districts: ['Lüleburgaz', 'Merkez', 'Babaeski', 'Vize', 'Pınarhisar', 'Demirköy', 'Pehlivanköy', 'Kofçaz'] },
+      'Kırşehir': { lat: 39.1425, lon: 34.1709, districts: ['Merkez', 'Kaman', 'Mucur', 'Çiçekdağı', 'Akpınar', 'Boztepe', 'Akçakent'] },
+      'Kilis': { lat: 36.7184, lon: 37.1212, districts: ['Merkez', 'Musabeyli', 'Elbeyli', 'Polateli'] },
+      'Kocaeli': { lat: 40.8533, lon: 29.8815, districts: ['Gebze', 'İzmit', 'Körfez', 'Derince', 'Gölcük', 'Darıca', 'Kartepe', 'Çayırova', 'Başiskele', 'Karamürsel', 'Kandıra', 'Dilovası'] },
+      'Konya': { lat: 37.8746, lon: 32.4932, districts: ['Selçuklu', 'Meram', 'Karatay', 'Ereğli', 'Akşehir', 'Beyşehir', 'Çumra', 'Seydişehir', 'Ilgın', 'Kulu', 'Cihanbeyli', 'Karapınar', 'Kadınhanı', 'Sarayönü', 'Bozkır', 'Hüyük', 'Doğanhisar', 'Yunak', 'Altınekin', 'Hadim', 'Taşkent', 'Emirgazi', 'Ahırlı', 'Derbent', 'Derebucak', 'Güneysınır', 'Halkapınar', 'Tuzlukçu', 'Yalıhüyük'] },
+      'Kütahya': { lat: 39.4242, lon: 29.9833, districts: ['Merkez', 'Tavşanlı', 'Simav', 'Gediz', 'Emet', 'Altıntaş', 'Domaniç', 'Hisarcık', 'Pazarlar', 'Şaphane', 'Aslanapa', 'Dumlupınar', 'Çavdarhisar'] },
+      'Malatya': { lat: 38.3552, lon: 38.3095, districts: ['Battalgazi', 'Yeşilyurt', 'Doğanşehir', 'Akçadağ', 'Darende', 'Hekimhan', 'Yazıhan', 'Pütürge', 'Arapgir', 'Arguvan', 'Kuluncak', 'Kale', 'Doğanyol'] },
+      'Manisa': { lat: 38.6191, lon: 27.4289, districts: ['Yunusemre', 'Şehzadeler', 'Akhisar', 'Turgutlu', 'Salihli', 'Soma', 'Alaşehir', 'Kula', 'Kırkağaç', 'Saruhanlı', 'Demirci', 'Gördes', 'Selendi', 'Ahmetli', 'Gölmarmara', 'Köprübaşı'] },
+      'Mardin': { lat: 37.3131, lon: 40.7436, districts: ['Kızıltepe', 'Artuklu', 'Midyat', 'Nusaybin', 'Derik', 'Mazıdağı', 'Dargeçit', 'Savur', 'Yeşilli', 'Ömerli'] },
+      'Mersin': { lat: 36.8121, lon: 34.6415, districts: ['Tarsus', 'Toroslar', 'Yenişehir', 'Mezitli', 'Akdeniz', 'Silifke', 'Erdemli', 'Anamur', 'Mut', 'Bozyazı', 'Aydıncık', 'Gülnar', 'Çamlıyayla'] },
+      'Muğla': { lat: 37.2153, lon: 28.3636, districts: ['Bodrum', 'Fethiye', 'Milas', 'Menteşe', 'Marmaris', 'Seydikemer', 'Yatağan', 'Ortaca', 'Dalaman', 'Köyceğiz', 'Ula', 'Datça', 'Kavaklıdere'] },
+      'Muş': { lat: 38.9462, lon: 41.7539, districts: ['Merkez', 'Bulanık', 'Malazgirt', 'Varto', 'Hasköy', 'Korkut'] },
+      'Nevşehir': { lat: 38.6939, lon: 34.6857, districts: ['Merkez', 'Ürgüp', 'Avanos', 'Gülşehir', 'Derinkuyu', 'Acıgöl', 'Kozaklı', 'Hacıbektaş'] },
+      'Niğde': { lat: 37.9667, lon: 34.6833, districts: ['Merkez', 'Bor', 'Çiftlik', 'Ulukışla', 'Altunhisar', 'Çamardı'] },
+      'Ordu': { lat: 40.9839, lon: 37.8764, districts: ['Altınordu', 'Ünye', 'Fatsa', 'Gölköy', 'Korgan', 'Kumru', 'Aybası', 'Aybastı', 'Mesudiye', 'Perşembe', 'Ulubey', 'Gürgentepe', 'Çamaş', 'Çatalpınar', 'Çaybaşı', 'İkizce', 'Kabadüz', 'Kabataş'] },
+      'Osmaniye': { lat: 37.0742, lon: 36.2476, districts: ['Merkez', 'Kadirli', 'Düziçi', 'Bahçe', 'Toprakkale', 'Sumbas', 'Hasanbeyli'] },
+      'Rize': { lat: 41.0201, lon: 40.5234, districts: ['Merkez', 'Çayeli', 'Ardeşen', 'Pazar', 'Fındıklı', 'Güneysu', 'Kalkandere', 'İyidere', 'İkizdere', 'Çamlıhemşin', 'Derepazarı', 'Hemşin'] },
+      'Sakarya': { lat: 40.7569, lon: 30.3781, districts: ['Adapazarı', 'Serdivan', 'Akyazı', 'Erenler', 'Hendek', 'Karasu', 'Geyve', 'Sapanca', 'Pamukova', 'Ferizli', 'Kaynarca', 'Kocaali', 'Söğütlü', 'Taraklı', 'Arifiye'] },
+      'Samsun': { lat: 41.2867, lon: 36.3300, districts: ['İlkadım', 'Atakum', 'Bafra', 'Çarşamba', 'Vezirköprü', 'Terme', 'Tekkeköy', 'Canik', 'Havza', 'Alaçam', 'Kavak', '19 Mayıs', 'Salıpazarı', 'Ayvacık', 'Asarcık', 'Ladik', 'Yakakent'] },
+      'Siirt': { lat: 37.9333, lon: 41.9500, districts: ['Merkez', 'Kurtalan', 'Pervari', 'Baykan', 'Şirvan', 'Eruh', 'Tillo'] },
+      'Sinop': { lat: 42.0231, lon: 35.1531, districts: ['Merkez', 'Boyabat', 'Gerze', 'Ayancık', 'Durağan', 'Türkeli', 'Erfelek', 'Dikmen', 'Saraydüzü'] },
+      'Sivas': { lat: 39.7477, lon: 37.0179, districts: ['Merkez', 'Şarkışla', 'Yıldızeli', 'Gemerek', 'Suşehri', 'Kangal', 'Gürün', 'Zara', 'Divriği', 'Koyulhisar', 'Altınyayla', 'Akıncılar', 'Doğanşar', 'Gölova', 'Hafik', 'İmranlı', 'Ulaş'] },
+      'Şanlıurfa': { lat: 37.1591, lon: 38.7969, districts: ['Eyyübiye', 'Haliliye', 'Siverek', 'Viranşehir', 'Akçakale', 'Suruç', 'Birecik', 'Ceylanpınar', 'Harran', 'Bozova', 'Hilvan', 'Halfeti'] },
+      'Şırnak': { lat: 37.5164, lon: 42.4611, districts: ['Cizre', 'Silopi', 'Merkez', 'İdil', 'Uludere', 'Beytüşşebap', 'Güçlükonak'] },
+      'Tekirdağ': { lat: 40.9833, lon: 27.5167, districts: ['Çorlu', 'Süleymanpaşa', 'Çerkezköy', 'Ergene', 'Kapaklı', 'Malkara', 'Hayrabolu', 'Saray', 'Muratlı', 'Şarköy', 'Marmaraereğlisi'] },
+      'Tokat': { lat: 40.3167, lon: 36.5500, districts: ['Merkez', 'Erbaa', 'Turhal', 'Niksar', 'Zile', 'Reşadiye', 'Almus', 'Pazar', 'Yeşilyurt', 'Artova', 'Başçiftlik', 'Sulusaray'] },
+      'Trabzon': { lat: 41.0027, lon: 39.7168, districts: ['Ortahisar', 'Akçaabat', 'Araklı', 'Of', 'Yomra', 'Sürmene', 'Vakfıkebir', 'Arsin', 'Beşikdüzü', 'Maçka', 'Çarşıbaşı', 'Tonya', 'Düzköy', 'Hayrat', 'Köprübaşı', 'Şalpazarı', 'Dernekpazarı'] },
+      'Tunceli': { lat: 39.1079, lon: 39.5401, districts: ['Merkez', 'Pertek', 'Çemişgezek', 'Hozat', 'Mazgirt', 'Ovacık', 'Nazımiye', 'Pülümür'] },
+      'Uşak': { lat: 38.6823, lon: 29.4082, districts: ['Merkez', 'Banaz', 'Eşme', 'Sivaslı', 'Ulubey', 'Karahallı'] },
+      'Van': { lat: 38.4891, lon: 43.4089, districts: ['İpekyolu', 'Erciş', 'Edremit', 'Tuşba', 'Özalp', 'Çaldıran', 'Başkale', 'Muradiye', 'Gürpınar', 'Gevaş', 'Saray', 'Bahçesaray', 'Çatak'] },
+      'Yalova': { lat: 40.6500, lon: 29.2667, districts: ['Merkez', 'Çiftlikköy', 'Çınarcık', 'Altınova', 'Termal', 'Armutlu'] },
+      'Yozgat': { lat: 39.8181, lon: 34.8147, districts: ['Merkez', 'Sorgun', 'Akdağmadeni', 'Yerköy', 'Boğazlıyan', 'Sarıkaya', 'Çayıralan', 'Çekerek', 'Şefaatli', 'Kadışehri', 'Saraykent', 'Yenifakılı', 'Aydıncık', 'Çandır'] },
+      'Zonguldak': { lat: 41.4564, lon: 31.7987, districts: ['Ereğli', 'Merkez', 'Çaycuma', 'Devrek', 'Kozlu', 'Kilimli', 'Alaplı', 'Gökçebey'] }
+    };
+    const ALL_CITIES = Object.keys(TURKEY_LOCATIONS);
+
+    function calcTravelCost(fromCity, toCity) {
+      if (!fromCity || !toCity || fromCity === toCity) return 1000;
+      const a = TURKEY_LOCATIONS[fromCity] || TURKEY_LOCATIONS['İzmir'];
+      const b = TURKEY_LOCATIONS[toCity] || TURKEY_LOCATIONS['İzmir'];
+      const dx = (a.lat - b.lat) * 111;
+      const dy = (a.lon - b.lon) * 85;
+      const distKm = Math.sqrt(dx * dx + dy * dy);
+      const ratio = Math.max(0, Math.min(1, distKm / 1450));
+      return Math.round((1000 + ratio * 19000) / 250) * 250;
     }
 
-    class SariGaleriGame {
-      constructor() {
-        this.BANKRUPTCY_LIMIT = -150000;
-        this.MIN_CREDIT = 0;
-        this.MAX_CREDIT = 1900;
-        this.defaultState = {
-          playerId: 'GLR-' + Math.floor(100000 + Math.random() * 900000),
-          galleryName: 'Benim Galerim',
-          hasNamedGallery: false,
-          city: 'İzmir',
-          district: 'Konak',
-          galleryTierId: 1,
-          money: 500000,
-          day: 1,
-          prestige: 50,
-          creditScore: 1200,
-          tradedToday: false,
-          isBankrupt: false,
-          totalSalesCount: 0,
-          bestProfit: 0,
-          unlockedBadges: [],
-          ownedCars: [],
-          sariListings: [],
-          offers: [],
-          loans: [],
-          auction: null
-        };
-        this.state = JSON.parse(JSON.stringify(this.defaultState));
-        this.roadCars = [];
-        this.offerTimer = 0;
+    // Telif getirmeyen, araç gövdesi ve rengine göre gerçekçi SVG görsel üretici
+    function renderCarSvgPhoto(car) {
+      const col = (car && car.color) || '#e2e8f0';
+      const body = (car && car.body) || 'sedan';
+      const isSuv = body === 'suv';
+      const cabinPath = isSuv
+        ? 'M68 78 L86 42 Q92 36 102 36 L192 36 Q202 36 208 44 L228 78 Z'
+        : body === 'hatch'
+        ? 'M72 78 L92 44 Q98 38 108 38 L184 38 Q194 38 202 48 L220 78 Z'
+        : 'M74 78 L98 46 Q104 40 114 40 L176 40 Q186 40 194 50 L218 78 Z';
 
-        this.load();
-        if (this.state.sariListings.length === 0) this.generateSariListings();
-        if (!this.state.auction) this.generateNewAuction();
-        this.checkAchievements();
-        this.checkBankruptcy();
-      }
-
-      getCurrentTier() { return GALLERY_TIERS.find(t => t.id === this.state.galleryTierId) || GALLERY_TIERS[0]; }
-
-      getMarketPhase() {
-        const cycle = (this.state.day - 1) % 9;
-        if (cycle < 3) return { name: 'Aktiflik Dönemi', key: 'active', demandMult: 1.35, priceMult: 1.06 };
-        if (cycle < 6) return { name: 'Normal Piyasa', key: 'normal', demandMult: 1.0, priceMult: 1.0 };
-        return { name: 'Durgunluk Dönemi', key: 'slow', demandMult: 0.65, priceMult: 0.94 };
-      }
-
-      getMaxLoanLimit() {
-        const score = Math.max(this.MIN_CREDIT, Math.min(this.MAX_CREDIT, Number(this.state.creditScore) || 0));
-        if (score < 700) return 0;
-        if (score < 1200) return 100000;
-        if (score < 1300) return 500000;
-        if (score < 1400) return 1000000;
-        if (score < 1500) return 50000000;
-        if (score < 1600) return 100000000;
-        if (score < 1700) return 250000000;
-        if (score < 1800) return 500000000;
-        return 1000000000;
-      }
-
-      adjustCreditScore(delta, reason = '') {
-        this.state.creditScore = Math.max(this.MIN_CREDIT, Math.min(this.MAX_CREDIT, (Number(this.state.creditScore) || 1200) + delta));
-        if (reason) {
-          const sign = delta >= 0 ? `+${delta}` : `${delta}`;
-          ui.toast(`🏦 Kredi Puanı (${sign}): ${reason} (${this.state.creditScore}/1900)`, delta >= 0 ? 'success' : 'error');
-        }
-        this.checkAchievements();
-      }
-
-      adjustPrestige(delta, reason = '') {
-        this.state.prestige = Math.max(0, (this.state.prestige || 50) + delta);
-        this.adjustCreditScore(Math.round(delta * 2), '');
-        if (reason) {
-          const sign = delta >= 0 ? `+${delta}` : `${delta}`;
-          ui.toast(`★ Prestij (${sign}): ${reason}`, delta >= 0 ? 'success' : 'error');
-        }
-      }
-
-      unlockBadge(id) {
-        if (!Array.isArray(this.state.unlockedBadges)) this.state.unlockedBadges = [];
-        if (this.state.unlockedBadges.includes(id)) return;
-        const badge = ACHIEVEMENTS.find(a => a.id === id);
-        if (!badge) return;
-        this.state.unlockedBadges.push(id);
-        sound.cash();
-        ui.toast(`🏅 Rozet Açıldı: ${badge.icon} ${badge.title}!`, 'success');
-      }
-
-      checkAchievements() {
-        if ((this.state.totalSalesCount || 0) >= 1) this.unlockBadge('first_trade');
-        if ((this.state.galleryTierId || 1) >= 5) this.unlockBadge('tier_5');
-        if ((this.state.money || 0) >= 1000000) this.unlockBadge('millionaire');
-        if ((this.state.creditScore || 0) >= 1500) this.unlockBadge('credit_1500');
-      }
-
-      generatePartsStatus(forceClean = false) {
-        const parts = {};
-        CAR_PARTS.forEach(p => {
-          if (forceClean) { parts[p.key] = 'temiz'; return; }
-          const r = Math.random();
-          if (r < 0.08) parts[p.key] = 'degisen';
-          else if (r < 0.18) parts[p.key] = 'boya';
-          else if (r < 0.28) parts[p.key] = 'lokal_boya';
-          else parts[p.key] = 'temiz';
-        });
-        return { parts, summaryText: this.buildPartsSummaryText(parts) };
-      }
-
-      buildPartsSummaryText(parts) {
-        const p = parts || {};
-        const boyali = [], lokal = [], degisen = [];
-        CAR_PARTS.forEach(item => {
-          const st = p[item.key] || 'temiz';
-          if (st === 'degisen') degisen.push(item.label);
-          else if (st === 'boya') boyali.push(item.label);
-          else if (st === 'lokal_boya') lokal.push(item.label);
-        });
-        const chunks = [];
-        if (degisen.length) chunks.push(`Değişen: ${degisen.join(', ')}`);
-        if (boyali.length) chunks.push(`Boya: ${boyali.join(', ')}`);
-        if (lokal.length) chunks.push(`Lokal Boya: ${lokal.join(', ')}`);
-        return chunks.length ? chunks.join(' | ') : 'Boya veya değişen yok';
-      }
-
-      getPartsPenaltyFactor(car) {
-        if (!car || !car.parts) return 1.0;
-        let penalty = 0;
-        CAR_PARTS.forEach(item => {
-          const st = car.parts[item.key] || 'temiz';
-          if (st === 'degisen') penalty += item.weight * 1.15;
-          else if (st === 'boya') penalty += item.weight * 0.70;
-          else if (st === 'lokal_boya') penalty += item.weight * 0.30;
-        });
-        return Math.max(0.45, 1 - penalty);
-      }
-
-      getCarMarketValue(car) {
-        if (!car) return 100000;
-        const phase = this.getMarketPhase();
-        const cond = Math.max(15, Math.min(100, Number(car.condition) || 70));
-        const condMult = 0.52 + (cond / 100) * 0.52;
-        const partsFactor = this.getPartsPenaltyFactor(car);
-        const tireFactor = car.tireCondition === 'Yeni' ? 1.03 : (car.tireCondition === 'Kötü' ? 0.94 : 1.0);
-        const rimFactor = car.rimCondition === 'Özel Jant' ? 1.04 : (car.rimCondition === 'Çizik/Hasarlı' ? 0.95 : 1.0);
-        const careBonus = Number(car.careValueBonus) || 0;
-        return Math.max(30000, Math.round((car.basePrice * condMult * partsFactor * tireFactor * rimFactor * phase.priceMult + careBonus) / 500) * 500);
-      }
-
-      buildCarFromTemplate(tpl, overrides = {}) {
-        const safeTpl = tpl || TURKEY_CARS[0];
-        const minY = safeTpl.minYear || 2005;
-        const maxY = safeTpl.maxYear || 2024;
-        const rawYear = overrides.year ?? Math.floor(minY + Math.random() * (maxY - minY + 1));
-        const year = Math.max(minY, Math.min(maxY, rawYear));
-        const span = Math.max(1, maxY - minY);
-        const relativeAge = (maxY - year) / span;
-        const ageFactor = Math.max(0.76, 1 - relativeAge * 0.22);
-        const adjustedBasePrice = Math.round((safeTpl.basePrice * ageFactor) / 1000) * 1000;
-        const city = overrides.city || ALL_CITIES[Math.floor(Math.random() * ALL_CITIES.length)];
-        const cityObj = TURKEY_LOCATIONS[city] || TURKEY_LOCATIONS['İzmir'];
-        const district = overrides.district || cityObj.districts[Math.floor(Math.random() * cityObj.districts.length)];
-        const partsData = overrides.parts ? { parts: overrides.parts, summaryText: this.buildPartsSummaryText(overrides.parts) } : this.generatePartsStatus(!!overrides.forceCleanParts);
-
-        return {
-          uid: 'car_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-          adNo: Math.floor(1150000000 + Math.random() * 84000000),
-          name: overrides.name || safeTpl.name,
-          year,
-          city,
-          district,
-          body: overrides.body || safeTpl.body,
-          segment: overrides.segment || safeTpl.segment,
-          basePrice: adjustedBasePrice,
-          hp: overrides.hp || safeTpl.hp,
-          engine: overrides.engine || safeTpl.engine,
-          fuel: overrides.fuel || safeTpl.fuel,
-          gear: overrides.gear || safeTpl.gear,
-          km: overrides.km ?? Math.round(safeTpl.baseKm * (0.75 + relativeAge * 0.45 + Math.random() * 0.25)),
-          color: overrides.color || safeTpl.colors[Math.floor(Math.random() * safeTpl.colors.length)],
-          rimColor: overrides.rimColor || '#cbd5e1',
-          condition: overrides.condition ?? Math.floor(65 + Math.random() * 30),
-          isDirty: overrides.isDirty ?? (Math.random() < 0.45),
-          polished: overrides.polished ?? false,
-          careValueBonus: overrides.careValueBonus ?? 0,
-          tireCondition: overrides.tireCondition || (Math.random() < 0.25 ? 'Kötü' : 'İyi'),
-          rimCondition: overrides.rimCondition || (Math.random() < 0.25 ? 'Çizik/Hasarlı' : 'Standart'),
-          parts: partsData.parts,
-          partsSummary: partsData.summaryText,
-          hiddenDefectsSelected: overrides.hiddenDefectsSelected || [],
-          sellerType: overrides.sellerType || 'Galeriden',
-          sellerBadge: overrides.sellerBadge || 'Temiz',
-          sellerStyle: overrides.sellerStyle || 'Dengeli',
-          adTitle: overrides.adTitle || `${year} ${safeTpl.name.toUpperCase()}`,
-          adDesc: overrides.adDesc || `${year} model ${safeTpl.name}. ${partsData.summaryText}.`,
-          boughtFor: overrides.boughtFor || adjustedBasePrice,
-          listedOnSari: overrides.listedOnSari ?? false,
-          askPrice: overrides.askPrice || 0,
-          inspected: overrides.inspected ?? false,
-          hasHiddenDefect: overrides.hasHiddenDefect ?? false,
-          hiddenDefectInfo: overrides.hiddenDefectInfo || null,
-          haggleState: {
-            attempts: 0, maxAttempts: overrides.maxAttempts || 3, patience: 100, mood: 'İlgili',
-            agreedPrice: null, sellerCounterPrice: null, closed: false,
-            lastMessage: 'Satıcı pazarlığa açık. İlan fiyatını aşmayan makul bir teklif sunabilirsin.'
-          }
-        };
-      }
-
-      setGalleryNameAndLocation(name, city, district) {
-        this.state.galleryName = (name || '').trim().slice(0, 26) || 'Benim Galerim';
-        if (city && TURKEY_LOCATIONS[city]) {
-          this.state.city = city;
-          const distList = TURKEY_LOCATIONS[city].districts;
-          this.state.district = distList.includes(district) ? district : distList[0];
-        }
-        this.state.hasNamedGallery = true;
-        this.save();
-        ui.renderAll();
-      }
-
-      save(notify = false) {
-        try {
-          localStorage.setItem('oto_galeri_v8_save', JSON.stringify(this.state));
-          if (notify) ui.toast('💾 Oyun kaydedildi!', 'success');
-        } catch (e) {}
-      }
-
-      load() {
-        try {
-          const raw = localStorage.getItem('oto_galeri_v8_save');
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (parsed && typeof parsed === 'object') {
-              this.state = {
-                ...this.defaultState,
-                ...parsed,
-                creditScore: Math.max(this.MIN_CREDIT, Math.min(this.MAX_CREDIT, Number(parsed.creditScore ?? 1200))),
-                unlockedBadges: Array.isArray(parsed.unlockedBadges) ? parsed.unlockedBadges : [],
-                ownedCars: Array.isArray(parsed.ownedCars) ? parsed.ownedCars : [],
-                sariListings: Array.isArray(parsed.sariListings) ? parsed.sariListings : [],
-                offers: Array.isArray(parsed.offers) ? parsed.offers : [],
-                loans: Array.isArray(parsed.loans) ? parsed.loans : []
-              };
-            }
-          }
-        } catch (e) {}
-      }
-
-      resetSave() {
-        try { localStorage.removeItem('oto_galeri_v8_save'); } catch (e) {}
-        this.state = JSON.parse(JSON.stringify(this.defaultState));
-        this.roadCars = [];
-        this.generateSariListings();
-        this.generateNewAuction();
-        document.getElementById('resetModal').classList.add('hidden');
-        document.getElementById('bankruptcyModal').classList.add('hidden');
-        document.getElementById('summaryModal').classList.add('hidden');
-        ui.renderAll();
-        ui.openGalleryNameModal(true);
-      }
-
-      checkBankruptcy() {
-        if (this.state.money < this.BANKRUPTCY_LIMIT && !this.state.isBankrupt) {
-          this.state.isBankrupt = true;
-          sound.error();
-          this.save();
-          ui.showBankruptcyScreen();
-        }
-      }
-
-      generateSariListings() {
-        const list = [];
-        for (let i = 0; i < 9; i++) {
-          const tpl = TURKEY_CARS[Math.floor(Math.random() * TURKEY_CARS.length)];
-          const persona = SELLER_PERSONAS[Math.floor(Math.random() * SELLER_PERSONAS.length)];
-          const cond = Math.floor(persona.condRange[0] + Math.random() * (persona.condRange[1] - persona.condRange[0]));
-          const hasHiddenDefect = Math.random() < persona.defectChance;
-          const surprise = hasHiddenDefect ? HIDDEN_SURPRISES[Math.floor(Math.random() * HIDDEN_SURPRISES.length)] : null;
-          const car = this.buildCarFromTemplate(tpl, {
-            condition: cond,
-            sellerType: persona.type,
-            sellerBadge: persona.badge,
-            sellerStyle: persona.style,
-            maxAttempts: persona.maxAtt,
-            adTitle: persona.titles[Math.floor(Math.random() * persona.titles.length)],
-            hasHiddenDefect,
-            hiddenDefectInfo: surprise ? { report: `${surprise.report} (${surprise.tramer})`, condPenalty: surprise.condPenalty } : null
-          });
-          car.floorRatio = persona.floorRatio;
-          const mVal = this.getCarMarketValue(car);
-          const mult = persona.priceMult[0] + Math.random() * (persona.priceMult[1] - persona.priceMult[0]);
-          car.askPrice = Math.max(45000, Math.round((mVal * mult) / 500) * 500);
-          car.adDesc = `${car.year} model, ${car.city}/${car.district}. ${car.partsSummary}. ${persona.notes}`;
-          list.push(car);
-        }
-        this.state.sariListings = list;
-      }
-
-      submitBuyerHaggle(uid, rawOffer) {
-        if (this.state.isBankrupt) return;
-        const car = this.state.sariListings.find(c => c.uid === uid);
-        if (!car) return;
-        const hs = car.haggleState;
-        if (hs.closed) { sound.error(); ui.toast('Satıcı pazarlığı kapattı.', 'error'); return; }
-
-        let offer = Math.round(Number(rawOffer) || 0);
-        if (offer > car.askPrice) { offer = car.askPrice; ui.toast('Teklif ilan fiyatıyla sınırlandırıldı.', 'info'); }
-        if (offer < 25000) { sound.error(); ui.toast('Geçerli bir teklif gir!', 'error'); return; }
-
-        const mVal = this.getCarMarketValue(car);
-        const ratio = car.floorRatio || 0.84;
-        const floor = Math.min(car.askPrice, Math.max(mVal * ratio, car.askPrice * (ratio - 0.04)));
-        hs.attempts += 1;
-
-        if (offer >= floor) {
-          hs.agreedPrice = Math.min(car.askPrice, offer);
-          hs.sellerCounterPrice = null;
-          hs.mood = 'Anlaşıldı';
-          hs.lastMessage = `"${formatTL(hs.agreedPrice)} tamam, el sıkışalım!"`;
-          sound.cash();
-        } else if (car.sellerStyle === 'Sert' && offer < floor * 0.90) {
-          hs.closed = true;
-          hs.sellerCounterPrice = null;
-          hs.mood = 'Sinirlendi';
-          hs.lastMessage = `"Bu kadar düşük teklifle vakit kaybetmeyelim, pazarlık bitti!"`;
-          sound.error();
-        } else if (hs.attempts < hs.maxAttempts) {
-          const counter = Math.min(car.askPrice, Math.max(floor, Math.round(((offer + floor) * 0.52) / 500) * 500));
-          hs.sellerCounterPrice = counter;
-          hs.patience = Math.max(15, hs.patience - 28);
-          hs.mood = car.sellerStyle === 'Aceleci' ? 'Aceleci' : 'Pazarlıkta';
-          hs.lastMessage = `"${formatTL(offer)} az geldi (${car.sellerStyle} tavır). En son ${formatTL(counter)} olur."`;
-          sound.bid();
-        } else {
-          hs.closed = true;
-          hs.sellerCounterPrice = null;
-          hs.patience = 0;
-          hs.mood = 'Kapandı';
-          hs.lastMessage = `"Bu fiyata inemiyorum, pazarlık kapandı."`;
-          sound.error();
-        }
-        this.save();
-        ui.openListingDetail(uid);
-      }
-
-      acceptSellerCounter(uid) {
-        const car = this.state.sariListings.find(c => c.uid === uid);
-        if (!car || !car.haggleState || !car.haggleState.sellerCounterPrice) return;
-        car.haggleState.agreedPrice = Math.min(car.askPrice, car.haggleState.sellerCounterPrice);
-        car.haggleState.sellerCounterPrice = null;
-        car.haggleState.mood = 'Anlaşıldı';
-        sound.cash();
-        this.save();
-        ui.openListingDetail(uid);
-      }
-
-      performInspection(uid) {
-        if (this.state.isBankrupt) return;
-        const car = this.state.sariListings.find(c => c.uid === uid);
-        if (!car || car.inspected) return;
-        this.state.money -= 2500;
-        car.inspected = true;
-        this.unlockBadge('inspector_eye');
-        if (car.hasHiddenDefect && car.hiddenDefectInfo) {
-          car.condition = Math.max(20, car.condition - car.hiddenDefectInfo.condPenalty);
-          sound.error();
-          ui.toast(`🔍 Ekspertiz Sürprizi: ${car.hiddenDefectInfo.report}!`, 'error');
-        } else {
-          sound.scan();
-          ui.toast(`🔍 Ekspertiz Temiz: Lastik (${car.tireCondition}), Jant (${car.rimCondition}) ve parçalar incelendi.`, 'success');
-        }
-        this.checkBankruptcy();
-        this.save();
-        ui.renderAll();
-        ui.openListingDetail(uid);
-      }
-
-      buyFromSariSite(uid, useAgreedPrice = false) {
-        if (this.state.isBankrupt) return;
-        if (this.state.tradedToday) { sound.error(); ui.toast('Günde en fazla 1 kez araba alınabilir veya satılabilir!', 'error'); return; }
-        const tier = this.getCurrentTier();
-        if (this.state.ownedCars.length >= tier.capacity) { sound.error(); ui.toast(`Galeri kapasiten (${tier.capacity} araç) dolu!`, 'error'); return; }
-
-        const idx = this.state.sariListings.findIndex(c => c.uid === uid);
-        if (idx === -1) return;
-        const car = this.state.sariListings[idx];
-        const agreed = car.haggleState && car.haggleState.agreedPrice;
-        const baseBuy = (useAgreedPrice && agreed) ? Math.min(car.askPrice, agreed) : car.askPrice;
-        const travelFee = calcTravelCost(this.state.city, car.city);
-        const totalCost = baseBuy + travelFee;
-
-        if (this.state.money < totalCost) { sound.error(); ui.toast(`Yetersiz kasa! Araç + yol: ${formatTL(totalCost)}`, 'error'); return; }
-
-        if (useAgreedPrice && agreed) this.unlockBadge('haggle_pro');
-
-        if (!car.inspected && car.hasHiddenDefect && car.hiddenDefectInfo) {
-          car.inspected = true;
-          car.condition = Math.max(20, car.condition - car.hiddenDefectInfo.condPenalty);
-          ui.toast(`⚠️ Sürpriz Kusur: ${car.hiddenDefectInfo.report}`, 'error');
-        }
-
-        this.state.money -= totalCost;
-        this.state.sariListings.splice(idx, 1);
-        car.boughtFor = totalCost;
-        car.listedOnSari = false;
-        this.state.ownedCars.push(car);
-        this.state.tradedToday = true;
-
-        sound.engine();
-        document.getElementById('listingDetailModal').classList.add('hidden');
-        ui.toast(`${car.name} (+${formatTL(travelFee)} yol) alındı! Gün otomatik ilerliyor...`, 'success');
-        this.save();
-        this.advanceDay(true);
-      }
-
-      applyCareOption(uid, type) {
-        if (this.state.isBankrupt) return;
-        const car = this.state.ownedCars.find(c => c.uid === uid);
-        if (!car) return;
-        const cost = CARE_COSTS[type];
-        if (!cost) return;
-        if (this.state.money < cost) { sound.error(); ui.toast(`Bu işlem için ${formatTL(cost)} gerekiyor.`, 'error'); return; }
-
-        const careBonusAdd = (type === 'wash' || type === 'polish') ? Math.round(cost * 1.5) : 0;
-        this.state.money -= cost;
-        car.careValueBonus = (Number(car.careValueBonus) || 0) + careBonusAdd;
-
-        if (type === 'wash') {
-          car.isDirty = false;
-          car.condition = Math.min(100, car.condition + 2);
-          sound.wash();
-          ui.toast(`🧼 Yıkama yapıldı! Piyasa değerine +${formatTL(careBonusAdd)} eklendi.`, 'success');
-        } else if (type === 'polish') {
-          car.isDirty = false;
-          car.polished = true;
-          car.condition = Math.min(100, car.condition + 6);
-          sound.wash();
-          ui.toast(`💎 Pasta-cila yapıldı! Piyasa değerine +${formatTL(careBonusAdd)} eklendi.`, 'success');
-        } else if (type === 'tires') {
-          car.tireCondition = 'Yeni';
-          car.condition = Math.min(100, car.condition + 4);
-          sound.wrench();
-          ui.toast(`🛞 Lastikler yenilendi!`, 'success');
-        } else if (type === 'rims') {
-          car.rimCondition = 'Özel Jant';
-          car.rimColor = '#facc15';
-          car.condition = Math.min(100, car.condition + 4);
-          sound.wrench();
-          ui.toast(`⚙️ Yeni jant takımı takıldı!`, 'success');
-        }
-        this.checkBankruptcy();
-        this.save();
-        ui.renderAll();
-      }
-
-      publishCarAd(uid, title, desc, askPrice, hiddenDefects = []) {
-        if (this.state.isBankrupt) return;
-        const car = this.state.ownedCars.find(c => c.uid === uid);
-        if (!car) return;
-        car.listedOnSari = true;
-        car.sellerType = this.state.galleryName || 'Benim Galerim';
-        car.adTitle = (title || `${car.year} ${car.name}`).trim();
-        car.adDesc = (desc || `${car.year} model ${car.name}.`).trim();
-        car.askPrice = Math.max(30000, Number(askPrice) || this.getCarMarketValue(car));
-        car.hiddenDefectsSelected = hiddenDefects;
-        document.getElementById('postAdModal').classList.add('hidden');
-        sound.cash();
-        ui.toast(`${car.name} Sarı Site'de satışa çıkarıldı!`, 'success');
-        this.save();
-        ui.renderAll();
-      }
-
-      spawnBuyerOffer() {
-        if (this.state.isBankrupt) return;
-        const listedCars = this.state.ownedCars.filter(c => c.listedOnSari);
-        if (listedCars.length === 0 || this.state.offers.length >= 4) return;
-        const phase = this.getMarketPhase();
-        const car = listedCars[Math.floor(Math.random() * listedCars.length)];
-        if (this.state.offers.some(o => o.carUid === car.uid)) return;
-
-        const marketVal = this.getCarMarketValue(car);
-        const askPrice = car.askPrice || marketVal;
-        const ratio = askPrice / Math.max(1, marketVal);
-
-        let chance = 0.75 * phase.demandMult;
-        if (ratio > 1.25) chance *= 0.25;
-        else if (ratio > 1.08) chance *= 0.55;
-        else if (ratio < 0.92) chance *= 1.45;
-        if (Math.random() > Math.min(0.95, chance)) return;
-
-        const rawOffer = marketVal * (0.90 + Math.random() * 0.14) * phase.priceMult;
-        const offeredAmount = Math.min(askPrice, Math.max(25000, Math.round(rawOffer / 500) * 500));
-        const buyerName = NPC_BUYERS[Math.floor(Math.random() * NPC_BUYERS.length)];
-
-        this.state.offers.push({
-          id: 'off_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-          carUid: car.uid, carName: car.name, buyerName, offeredAmount, askPrice, marketVal, haggled: false
-        });
-        ui.toast(`🟡 Yeni Teklif: ${buyerName}, ${car.name} için ${formatTL(offeredAmount)} önerdi!`, 'info');
-        ui.updateHUD();
-        if (ui.activeTab === 'offers') ui.renderTabContent();
-      }
-
-      acceptOffer(offerId) {
-        if (this.state.isBankrupt) return;
-        if (this.state.tradedToday) { sound.error(); ui.toast('Günde en fazla 1 kez araba alınabilir veya satılabilir!', 'error'); return; }
-        const idx = this.state.offers.findIndex(o => o.id === offerId);
-        if (idx === -1) return;
-        const offer = this.state.offers[idx];
-        const carIdx = this.state.ownedCars.findIndex(c => c.uid === offer.carUid);
-        this.state.offers.splice(idx, 1);
-        if (carIdx === -1) { ui.renderAll(); return; }
-
-        const car = this.state.ownedCars[carIdx];
-        if (car.hiddenDefectsSelected && car.hiddenDefectsSelected.length > 0 && Math.random() < 0.5) {
-          const lostPrestige = Math.max(1, Math.round(this.state.prestige * 0.5));
-          this.state.prestige = Math.max(0, this.state.prestige - lostPrestige);
-          this.adjustCreditScore(-80, 'Gizli kusur fark edildi');
-          ui.toast(`⚠️ Gizli kusur fark edildi! Prestijin %50 düştü (-${lostPrestige}).`, 'error');
-        } else {
-          this.adjustPrestige(3, 'Başarılı satış');
-        }
-
-        const gross = offer.offeredAmount;
-        const tax = Math.round(gross * 0.05);
-        const net = gross - tax;
-        const profit = net - (Number(car.boughtFor) || 0);
-        if (profit > (Number(this.state.bestProfit) || 0)) this.state.bestProfit = profit;
-        this.state.totalSalesCount = (Number(this.state.totalSalesCount) || 0) + 1;
-        this.state.money += net;
-        this.state.ownedCars.splice(carIdx, 1);
-        this.state.tradedToday = true;
-
-        this.checkAchievements();
-        sound.cash();
-        ui.toast(`Satış tamamlandı! Net: +${formatTL(net)} (%5 Vergi: -${formatTL(tax)}). Gün ilerliyor...`, 'success');
-        this.save();
-        this.advanceDay(true);
-      }
-
-      haggleOffer(offerId) {
-        const offer = this.state.offers.find(o => o.id === offerId);
-        if (!offer || offer.haggled) return;
-        offer.haggled = true;
-        if (Math.random() < 0.65) {
-          offer.offeredAmount = Math.min(offer.askPrice, Math.round((offer.offeredAmount * 1.05) / 500) * 500);
-          sound.wash();
-          ui.toast(`Alıcı teklifi ${formatTL(offer.offeredAmount)} yaptı!`, 'success');
-        } else {
-          this.state.offers = this.state.offers.filter(o => o.id !== offerId);
-          sound.error();
-          ui.toast(`${offer.buyerName} vazgeçti.`, 'error');
-        }
-        this.save();
-        ui.renderAll();
-      }
-
-      rejectOffer(offerId) {
-        this.state.offers = this.state.offers.filter(o => o.id !== offerId);
-        this.save();
-        ui.renderAll();
-      }
-
-      generateNewAuction() {
-        const tpl = TURKEY_CARS[Math.floor(Math.random() * TURKEY_CARS.length)];
-        const car = this.buildCarFromTemplate(tpl, { condition: Math.floor(75 + Math.random() * 20), isDirty: false });
-        const marketVal = this.getCarMarketValue(car);
-        this.state.auction = {
-          car, marketVal,
-          currentBid: Math.round((marketVal * 0.65) / 1000) * 1000,
-          highestBidder: 'Açılış', isPlayerHighest: false, timeLeft: 25, ended: false
-        };
-      }
-
-      placeAuctionBid(inc) {
-        if (this.state.isBankrupt) return;
-        if (this.state.tradedToday) { sound.error(); ui.toast('Günde 1 kez işlem yapabilirsin!', 'error'); return; }
-        const auc = this.state.auction;
-        if (!auc || auc.ended) return;
-        const tier = this.getCurrentTier();
-        if (this.state.ownedCars.length >= tier.capacity) { sound.error(); ui.toast('Galeri kapasiten dolu!', 'error'); return; }
-        const nextBid = auc.currentBid + inc;
-        if (this.state.money < nextBid) { sound.error(); ui.toast('Kasa yetersiz!', 'error'); return; }
-        auc.currentBid = nextBid;
-        auc.highestBidder = this.state.galleryName || 'Sen';
-        auc.isPlayerHighest = true;
-        if (auc.timeLeft < 7) auc.timeLeft = 7;
-        sound.bid();
-        ui.renderTabContent();
-      }
-
-      finishAuction() {
-        const auc = this.state.auction;
-        if (!auc || auc.ended) return;
-        auc.ended = true;
-        if (auc.isPlayerHighest && this.state.money >= auc.currentBid && !this.state.tradedToday) {
-          const travelFee = calcTravelCost(this.state.city, auc.car.city);
-          this.state.money -= (auc.currentBid + travelFee);
-          auc.car.boughtFor = auc.currentBid + travelFee;
-          this.state.ownedCars.push(auc.car);
-          this.state.tradedToday = true;
-          sound.cash();
-          ui.toast(`🔨 İhale alındı! (+${formatTL(travelFee)} yol). Gün ilerliyor...`, 'success');
-          this.save();
-          this.advanceDay(true);
-          return;
-        }
-        this.save();
-        ui.renderAll();
-      }
-
-      takeLoan(amount, days, interestRate, bankName) {
-        if (this.state.isBankrupt) return;
-        const maxLimit = this.getMaxLoanLimit();
-        if (maxLimit <= 0) { sound.error(); ui.toast('Kredi puanın 700 altında olduğu için banka kredi vermiyor!', 'error'); return; }
-        const activeTotal = this.state.loans.reduce((s, l) => s + l.remainingDebt, 0);
-        if (activeTotal + amount > maxLimit) { sound.error(); ui.toast(`Mevcut kredi puanınla maksimum limitin ${formatTL(maxLimit)}!`, 'error'); return; }
-        if (this.state.loans.length >= 2) { sound.error(); ui.toast('En fazla 2 aktif kredin olabilir!', 'error'); return; }
-        const totalPayback = Math.round(amount * (1 + interestRate));
-        const dailyInstallment = Math.round(totalPayback / days);
-        const ratePct = Math.round(interestRate * 100);
-        this.state.money += amount;
-        this.state.loans.push({ id: 'loan_' + Date.now(), bankName, interestRate: ratePct, remainingDebt: totalPayback, dailyInstallment, daysLeft: days });
-        sound.cash();
-        ui.toast(`${bankName}: %${ratePct} faizle ${formatTL(amount)} kredi verildi!`, 'success');
-        this.save();
-        ui.renderAll();
-      }
-
-      payOffLoan(loanId) {
-        const idx = this.state.loans.findIndex(l => l.id === loanId);
-        if (idx === -1) return;
-        const loan = this.state.loans[idx];
-        if (this.state.money < loan.remainingDebt) { sound.error(); ui.toast('Yeterli bakiye yok.', 'error'); return; }
-        this.state.money -= loan.remainingDebt;
-        this.state.loans.splice(idx, 1);
-        this.adjustCreditScore(75, 'Kredi borcu ödendi');
-        sound.cash();
-        this.save();
-        ui.renderAll();
-      }
-
-      buyGalleryTier(tierId) {
-        if (this.state.isBankrupt) return;
-        const current = this.getCurrentTier();
-        const target = GALLERY_TIERS.find(t => t.id === tierId);
-        if (!target || target.id <= current.id) return;
-        if (this.state.money < target.upgradeCost) { sound.error(); ui.toast(`${formatTL(target.upgradeCost)} gerekiyor.`, 'error'); return; }
-        this.state.money -= target.upgradeCost;
-        this.state.galleryTierId = target.id;
-        this.adjustPrestige(6, `${target.name} alındı`);
-        this.checkAchievements();
-        sound.cash();
-        ui.toast(`🏢 ${target.name} aktif! (${target.capacity} araç, 30 gün kira ${formatTL(target.rent30)})`, 'success');
-        this.save();
-        ui.renderAll();
-      }
-
-      advanceDay(fromTrade = false) {
-        if (this.state.isBankrupt) return;
-        this.state.day += 1;
-        this.state.tradedToday = false;
-        this.generateSariListings();
-        this.generateNewAuction();
-
-        const newsEl = document.getElementById('marketNewsText');
-        if (newsEl) newsEl.textContent = MARKET_BULLETINS[(this.state.day - 1) % MARKET_BULLETINS.length];
-
-        this.state.loans.forEach(loan => {
-          const pay = Math.min(loan.remainingDebt, loan.dailyInstallment);
-          if (this.state.money < pay) this.adjustCreditScore(-60, 'Taksit ödenemedi, kasa eksiye düştü');
-          else this.adjustCreditScore(15, 'Taksit ödendi');
-          this.state.money -= pay;
-          loan.remainingDebt -= pay;
-          loan.daysLeft = Math.max(0, loan.daysLeft - 1);
-        });
-        this.state.loans = this.state.loans.filter(l => l.remainingDebt > 0);
-
-        const tier = this.getCurrentTier();
-        if ((this.state.day - 1) % 30 === 0 && this.state.day > 1) {
-          this.state.money -= tier.rent30;
-          if (this.state.money < 0) this.adjustCreditScore(-50, '30 günlük kira kasayı eksiye düşürdü');
-          ui.toast(`🏠 30 günlük galeri kirası: -${formatTL(tier.rent30)}`, 'error');
-        } else if (!fromTrade) {
-          ui.toast(`Gün ${this.state.day} başladı! (${this.getMarketPhase().name})`, 'info');
-        }
-
-        this.checkAchievements();
-        this.checkBankruptcy();
-        this.save();
-        ui.renderAll();
-      }
-
-      update(dt) {
-        try {
-          if (this.state.isBankrupt) return;
-          this.offerTimer += dt;
-          if (this.offerTimer >= 6.0) { this.offerTimer = 0; this.spawnBuyerOffer(); }
-
-          const auc = this.state.auction;
-          if (auc && !auc.ended) {
-            auc.timeLeft -= dt;
-            if (!auc.isPlayerHighest && Math.random() < dt * 0.35 && auc.currentBid < auc.marketVal * 0.85) {
-              auc.currentBid += 5000;
-              auc.highestBidder = RIVAL_GALLERIES[Math.floor(Math.random() * RIVAL_GALLERIES.length)];
-            } else if (auc.isPlayerHighest && Math.random() < dt * 0.4 && auc.currentBid < auc.marketVal * 0.88) {
-              auc.currentBid += 5000;
-              auc.highestBidder = RIVAL_GALLERIES[Math.floor(Math.random() * RIVAL_GALLERIES.length)];
-              auc.isPlayerHighest = false;
-              if (ui.activeTab === 'auction') ui.renderTabContent();
-            }
-            if (auc.timeLeft <= 0) { auc.timeLeft = 0; this.finishAuction(); }
-            else if (ui.activeTab === 'auction') {
-              const tEl = document.getElementById('auctionTimerText');
-              const bEl = document.getElementById('auctionCurrentBid');
-              const wEl = document.getElementById('auctionBidderName');
-              if (tEl) tEl.textContent = `${Math.ceil(auc.timeLeft)} sn`;
-              if (bEl) bEl.textContent = formatTL(auc.currentBid);
-              if (wEl) wEl.textContent = auc.highestBidder;
-            }
-          }
-
-          const tier = this.getCurrentTier();
-          const maxTraffic = Math.min(12, tier.trafficDensity + 1);
-          if (Math.random() < dt * (0.4 + tier.trafficDensity * 0.18) && this.roadCars.length < maxTraffic) {
-            const dir = Math.random() < 0.5 ? 1 : -1;
-            this.roadCars.push({
-              x: dir === 1 ? -80 : 1400, dir, speed: (140 + Math.random() * 110) * dir,
-              color: ['#facc15', '#ef4444', '#3b82f6', '#f8fafc', '#10b981'][Math.floor(Math.random() * 5)]
-            });
-          }
-          this.roadCars.forEach(rc => { rc.x += rc.speed * dt; });
-          this.roadCars = this.roadCars.filter(rc => rc.x > -140 && rc.x < 1550);
-        } catch (e) {}
-      }
+      return `
+        <svg viewBox="0 0 300 130" class="w-full h-full object-cover bg-gradient-to-b from-slate-900 via-slate-950 to-black">
+          <rect x="0" y="96" width="300" height="34" fill="#111827" />
+          <line x1="0" y1="96" x2="300" y2="96" stroke="#334155" stroke-width="2" />
+          <ellipse cx="150" cy="103" rx="92" ry="7" fill="rgba(0,0,0,0.65)" />
+          <path d="${cabinPath}" fill="#1e293b" stroke="#475569" stroke-width="2" />
+          <path d="M46 76 L254 76 Q262 76 262 84 L262 96 Q262 101 255 101 L45 101 Q38 101 38 96 L38 84 Q38 76 46 76 Z" fill="${col}" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+          <rect x="246" y="81" width="12" height="6" rx="2" fill="#fef08a" />
+          <rect x="42" y="81" width="10" height="6" rx="2" fill="#ef4444" />
+          <circle cx="88" cy="100" r="16" fill="#090d16" stroke="#475569" stroke-width="2.5" />
+          <circle cx="88" cy="100" r="8" fill="#cbd5e1" />
+          <circle cx="212" cy="100" r="16" fill="#090d16" stroke="#475569" stroke-width="2.5" />
+          <circle cx="212" cy="100" r="8" fill="#cbd5e1" />
+        </svg>
+      `;
     }
+
+    const GALLERY_TIERS = [
+      { id: 1, name: 'Ara Sokak Eski Galeri', streetType: 'Ara Sokak', capacity: 2, rent30: 20000, upgradeCost: 0, trafficDensity: 1, desc: 'Küçük ara sokak galerisi. 2 araç sınır, 30 günde ₺20.000 kira.' },
+      { id: 2, name: 'Ara Cadde 3 Araçlık Galeri', streetType: 'Ara Cadde', capacity: 3, rent30: 50000, upgradeCost: 120000, trafficDensity: 2, desc: 'Ara caddede 3 araç kapasiteli galeri. 30 günde ₺50.000 kira.' },
+      { id: 3, name: 'Ara Cadde 4 Araçlık Galeri', streetType: 'Ara Cadde', capacity: 4, rent30: 70000, upgradeCost: 220000, trafficDensity: 3, desc: 'Ara caddede 4 araç kapasiteli galeri. 30 günde ₺70.000 kira.' },
+      { id: 4, name: 'Cadde Başı 4 Araçlık Galeri', streetType: 'Cadde Başı', capacity: 4, rent30: 110000, upgradeCost: 350000, trafficDensity: 4, desc: 'Cadde başında 4 araç kapasiteli galeri. 30 günde ₺110.000 kira.' },
+      { id: 5, name: 'İşlek Cadde 5 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 5, rent30: 200000, upgradeCost: 650000, trafficDensity: 6, desc: 'İşlek caddede 5 araç kapasiteli galeri. 30 günde ₺200.000 kira.' },
+      { id: 6, name: 'İşlek Cadde 7 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 7, rent30: 280000, upgradeCost: 1100000, trafficDensity: 7, desc: 'İşlek caddede 7 araç kapasiteli galeri. 30 günde ₺280.000 kira.' },
+      { id: 7, name: 'İşlek Cadde 10 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 10, rent30: 400000, upgradeCost: 1850000, trafficDensity: 8, desc: 'İşlek caddede 10 araç kapasiteli galeri. 30 günde ₺400.000 kira.' },
+      { id: 8, name: 'İşlek Cadde 13 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 13, rent30: 600000, upgradeCost: 3100000, trafficDensity: 9, desc: 'İşlek caddede 13 araç kapasiteli galeri. 30 günde ₺600.000 kira.' },
+      { id: 9, name: 'İşlek Cadde 16 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 16, rent30: 800000, upgradeCost: 4800000, trafficDensity: 10, desc: 'İşlek caddede 16 araç kapasiteli galeri. 30 günde ₺800.000 kira.' },
+      { id: 10, name: 'İşlek Cadde 20 Araçlık Galeri', streetType: 'İşlek Cadde', capacity: 20, rent30: 1000000, upgradeCost: 7500000, trafficDensity: 12, desc: 'İşlek caddede 20 araç kapasiteli galeri. 30 günde ₺1.000.000 kira.' }
+    ];
     class GalleryCanvas {
       constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
@@ -1329,7 +905,79 @@
         document.getElementById('bankruptDays').textContent = s.day;
         document.getElementById('bankruptPrestige').textContent = s.prestige;
         document.getElementById('bankruptMoney').textContent = formatTL(s.money);
+        const reasonEl = document.getElementById('bankruptReasonText');
+        if (reasonEl && s.bankruptReason) reasonEl.textContent = s.bankruptReason;
         document.getElementById('bankruptcyModal').classList.remove('hidden');
+      }
+      openInspectionAnimModal() {
+        const job = game.inspectionJob;
+        if (!job) return;
+        const car = game.state.sariListings.find(c => c.uid === job.uid);
+        const rem = Math.max(0, Math.ceil(job.remainingSec));
+        const pct = Math.max(2, Math.min(100, Math.round(((job.totalSec - job.remainingSec) / job.totalSec) * 100)));
+        const mins = String(Math.floor(rem / 60)).padStart(2, '0');
+        const secs = String(rem % 60).padStart(2, '0');
+
+        document.getElementById('inspectionAnimBody').innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[11px] font-black uppercase tracking-wider text-sky-400">2 Dakikalık Ekspertiz Süreci</span>
+              <h3 class="text-base font-black text-white">${car ? car.year + ' ' + car.name : 'Araç İnceleniyor'}</h3>
+            </div>
+            <span id="inspClockText" class="bg-slate-950 border border-sky-500/40 px-3 py-1 rounded-xl text-sm font-black text-sky-300">${mins}:${secs}</span>
+          </div>
+          <div class="relative h-28 rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+            ${car ? renderCarSvgPhoto(car) : ''}
+            <div class="absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-sky-400/35 to-transparent scan-beam pointer-events-none"></div>
+          </div>
+          <div class="space-y-1.5 text-xs">
+            <div class="flex justify-between text-slate-300"><span>Boya, kaporta, şasi ve tramer taraması yapılıyor...</span><b id="inspPctText" class="text-sky-300">%${pct}</b></div>
+            <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+              <div id="inspBarEl" class="h-full bg-sky-400 transition-all duration-200" style="width:${pct}%"></div>
+            </div>
+          </div>
+          <button type="button" onclick="game.openAdForInspection()" class="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg">
+            📺 Reklam İzle ve Süreyi Geç (Anında Bitir)
+          </button>
+        `;
+        document.getElementById('inspectionAnimModal').classList.remove('hidden');
+      }
+      updateInspectionAnimModal() {
+        const job = game.inspectionJob;
+        if (!job) return;
+        const modal = document.getElementById('inspectionAnimModal');
+        if (!modal || modal.classList.contains('hidden')) return;
+        const rem = Math.max(0, Math.ceil(job.remainingSec));
+        const pct = Math.max(2, Math.min(100, Math.round(((job.totalSec - job.remainingSec) / job.totalSec) * 100)));
+        const mins = String(Math.floor(rem / 60)).padStart(2, '0');
+        const secs = String(rem % 60).padStart(2, '0');
+        const clk = document.getElementById('inspClockText');
+        const pEl = document.getElementById('inspPctText');
+        const bEl = document.getElementById('inspBarEl');
+        if (clk) clk.textContent = `${mins}:${secs}`;
+        if (pEl) pEl.textContent = `%${pct}`;
+        if (bEl) bEl.style.width = `${pct}%`;
+      }
+      renderAdModal() {
+        const sec = Math.ceil(game.adTimerSec);
+        const done = sec <= 0;
+        document.getElementById('adModalBody').innerHTML = `
+          <span class="text-[11px] font-black uppercase tracking-wider text-amber-400">Sponsorlu Reklam</span>
+          <h3 class="text-lg font-black text-white">Ege Oto Ekspertiz & Çekici</h3>
+          <p class="text-xs text-slate-300">2 dakikalık ekspertiz süresini atlamak için kısa reklam tamamlanıyor...</p>
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-sm font-black text-amber-300">
+            ${done ? '✅ Reklam Tamamlandı!' : `⏳ Kalan Süre: ${sec} sn`}
+          </div>
+          <button type="button" ${!done ? 'disabled' : ''} onclick="document.getElementById('adModal').classList.add('hidden'); if (game.adCallback) { const cb = game.adCallback; game.adCallback = null; cb(); }"
+            class="w-full py-3 rounded-xl font-black text-xs sm:text-sm ${done ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}">
+            ${done ? 'Ekspertiz Raporunu Aç' : `Lütfen Bekle (${sec} sn)`}
+          </button>
+        `;
+      }
+      updateAdModal() {
+        const modal = document.getElementById('adModal');
+        if (!modal || modal.classList.contains('hidden')) return;
+        this.renderAdModal();
       }
       populateLocationSelects(selectedCity, selectedDistrict) {
         const citySel = document.getElementById('modalCitySelect');
@@ -1387,7 +1035,9 @@
         const warnPill = document.getElementById('bankruptcyWarningPill');
         if (s.money < 0) warnPill.classList.remove('hidden'); else warnPill.classList.add('hidden');
 
-        const totalDebt = s.loans.reduce((sum, l) => sum + l.remainingDebt, 0);
+        const bankDebt = s.loans.reduce((sum, l) => sum + l.remainingDebt, 0);
+        const tfcDebt = (s.tefeciLoans || []).reduce((sum, t) => sum + t.payback, 0);
+        const totalDebt = bankDebt + tfcDebt;
         const debtPill = document.getElementById('debtPill');
         if (totalDebt > 0) { debtPill.classList.remove('hidden'); document.getElementById('debtText').textContent = formatTL(totalDebt); }
         else debtPill.classList.add('hidden');
@@ -1417,7 +1067,15 @@
         const filtered = game.state.sariListings.filter(c => c.name.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || c.district.toLowerCase().includes(q) || String(c.year).includes(q));
         let html = `
           <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div><h2 class="text-base sm:text-lg font-black text-yellow-400">🟡 Sarı Site — Türkiye İlanları</h2><p class="text-xs text-slate-400">Gerçek üretim yılları, 81 il/ilçe, satıcı tavırları ve yol masrafı (₺1.000 - ₺20.000).</p></div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="text-base sm:text-lg font-black text-yellow-400">🟡 Sarı Site — Türkiye İlanları</h2>
+                <button type="button" onclick="game.advanceDay(false, 'Sayfa yenilendi')" class="px-3 py-1.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs shadow flex items-center gap-1">
+                  🔄 Sayfayı Yenile (+1 Gün)
+                </button>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">Yenile tuşuna basıldığında veya sayfa yenilendiğinde yeni güne geçilir (Şu an: <b>Gün ${game.state.day}</b>).</p>
+            </div>
             <input type="text" value="${this.filterText}" oninput="ui.filterText=this.value; ui.renderTabContent();" placeholder="Model, yıl, il veya ilçe ara..." class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none" />
           </div>
           <div class="space-y-2.5">
@@ -1427,16 +1085,19 @@
           const travelCost = calcTravelCost(game.state.city, car.city);
           html += `
             <div onclick="ui.openListingDetail('${car.uid}')" class="cursor-pointer bg-slate-950 hover:bg-slate-900/90 border border-slate-800 hover:border-yellow-400/70 rounded-2xl p-3.5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <div class="flex flex-wrap items-center gap-1.5 mb-1">
-                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-yellow-400/15 text-yellow-300 border border-yellow-400/30">${car.year} Model</span>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30">📍 ${car.city} / ${car.district}</span>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30">Tavır: ${car.sellerStyle}</span>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300">🚚 Yol: ${formatTL(travelCost)}</span>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div class="w-full sm:w-32 h-20 rounded-xl overflow-hidden border border-slate-800 shrink-0">${renderCarSvgPhoto(car)}</div>
+                <div>
+                  <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-yellow-400/15 text-yellow-300 border border-yellow-400/30">${car.year} Model</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30">📍 ${car.city} / ${car.district}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30">Tavır: ${car.sellerStyle}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300">🚚 Yol: ${formatTL(travelCost)}</span>
+                  </div>
+                  <h3 class="font-extrabold text-sm text-white">${car.adTitle}</h3>
+                  <div class="text-xs text-slate-300 font-semibold mt-0.5">${car.name} • ${(car.km || 0).toLocaleString('tr-TR')} KM • Kondisyon: %${car.condition}</div>
+                  <div class="text-[11px] text-amber-300/90 mt-0.5">${car.partsSummary}</div>
                 </div>
-                <h3 class="font-extrabold text-sm text-white">${car.adTitle}</h3>
-                <div class="text-xs text-slate-300 font-semibold mt-0.5">${car.name} • ${(car.km || 0).toLocaleString('tr-TR')} KM • Kondisyon: %${car.condition}</div>
-                <div class="text-[11px] text-amber-300/90 mt-0.5">${car.partsSummary}</div>
               </div>
               <div class="text-left sm:text-right shrink-0">
                 <span class="block font-black text-base text-yellow-400">${formatTL(car.askPrice)}</span>
@@ -1458,6 +1119,7 @@
             <div><span class="text-[11px] font-bold text-yellow-400">${car.year} Model • ${car.city} / ${car.district} • Tavır: ${car.sellerStyle}</span><h3 class="text-base font-black text-white">${car.adTitle}</h3></div>
             <button type="button" onclick="document.getElementById('listingDetailModal').classList.add('hidden')" class="bg-slate-800 text-slate-300 w-8 h-8 rounded-xl font-bold">✕</button>
           </div>
+          <div class="w-full h-32 rounded-xl overflow-hidden border border-slate-800 mb-3">${renderCarSvgPhoto(car)}</div>
           <div class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-xl text-xs mb-3 border border-slate-800">
             <div><span class="text-slate-400 block">Araç & Yıl</span><b class="text-white">${car.name} (${car.year})</b></div>
             <div><span class="text-slate-400 block">Konum</span><b class="text-sky-300">${car.city} / ${car.district}</b></div>
@@ -1466,7 +1128,7 @@
             <div class="col-span-2 pt-1 border-t border-slate-800"><span class="text-slate-400 block">Boya / Lokal Boya / Değişen:</span><b class="text-amber-300">${car.partsSummary}</b></div>
             ${car.inspected ? `<div class="col-span-2 pt-1 border-t border-slate-800 text-sky-300">Ekspertiz: Lastik <b>${car.tireCondition}</b> • Jant <b>${car.rimCondition}</b>${car.hasHiddenDefect && car.hiddenDefectInfo ? `<br><span class="text-rose-400 font-bold">Gizli Sürpriz: ${car.hiddenDefectInfo.report}</span>` : ''}</div>` : ''}
           </div>
-          ${!car.inspected ? `<div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 mb-3 flex items-center justify-between gap-2"><div class="text-xs"><b class="text-sky-300 block">🔍 Ekspertiz (₺2.500)</b><span class="text-slate-400">Tramer sürprizi, lastik ve jant durumunu gör.</span></div><button type="button" onclick="game.performInspection('${car.uid}')" class="px-3 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold">Ekspertiz (₺2.500)</button></div>` : ''}
+          ${!car.inspected ? `<div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 mb-3 flex items-center justify-between gap-2"><div class="text-xs"><b class="text-sky-300 block">🔍 Ekspertiz (₺2.500 • 2 Dakika)</b><span class="text-slate-400">2 dk sürer; reklam izleyerek anında bitirebilirsin.</span></div><button type="button" onclick="game.startInspection('${car.uid}')" class="px-3 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold shrink-0">Ekspertiz Başlat</button></div>` : ''}
           <div class="bg-slate-950 border border-yellow-500/40 rounded-2xl p-3.5 mb-3 space-y-2">
             <div class="flex justify-between text-xs"><b class="text-yellow-400">🤝 Pazarlık (${car.sellerStyle} Satıcı)</b><span class="text-slate-400">${hs.attempts}/${hs.maxAttempts} Hak</span></div>
             <p class="text-xs text-slate-200 italic">${hs.lastMessage}</p>
@@ -1495,6 +1157,7 @@
           html += `
             <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between gap-3">
               <div>
+                <div class="w-full h-24 rounded-xl overflow-hidden border border-slate-800 mb-2.5">${renderCarSvgPhoto(car)}</div>
                 <div class="flex items-center justify-between mb-1"><h3 class="font-extrabold text-sm text-white">${car.year} ${car.name}</h3><span class="text-[11px] px-2 py-0.5 rounded-full ${car.listedOnSari ? 'bg-yellow-400 text-slate-950 font-black' : 'bg-slate-800 text-slate-300'}">${car.listedOnSari ? 'İlanda' : 'Galeride'}</span></div>
                 <div class="text-[11px] text-slate-400 mb-2">Kondisyon: <b class="text-emerald-400">%${car.condition}</b> • Lastik: <b>${car.tireCondition}</b> • Jant: <b>${car.rimCondition}</b></div>
                 <div class="text-[11px] text-amber-300/90 mb-3">${car.partsSummary}</div>
@@ -1564,6 +1227,7 @@
         if (!auc) return '';
         return `
           <div class="max-w-xl mx-auto bg-slate-950 border border-yellow-500/40 rounded-2xl p-5 space-y-4">
+            <div class="w-full h-28 rounded-xl overflow-hidden border border-slate-800">${renderCarSvgPhoto(auc.car)}</div>
             <div class="flex justify-between items-start"><div><span class="text-xs font-bold text-yellow-400">${auc.car.year} • ${auc.car.city}/${auc.car.district}</span><h3 class="text-lg font-black text-white">${auc.car.name}</h3><p class="text-xs text-slate-400">Piyasa: ${formatTL(auc.marketVal)} • ${auc.car.partsSummary}</p></div><span id="auctionTimerText" class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl text-sm font-black text-rose-400">${Math.ceil(auc.timeLeft)} sn</span></div>
             <div class="bg-slate-900 p-3.5 rounded-xl flex justify-between items-center"><div><span class="text-xs text-slate-400 block">Güncel Pey</span><span id="auctionCurrentBid" class="text-2xl font-black text-yellow-400">${formatTL(auc.currentBid)}</span></div><div class="text-right"><span class="text-xs text-slate-400 block">Teklif Sahibi</span><span id="auctionBidderName" class="text-sm font-bold text-emerald-400">${auc.highestBidder}</span></div></div>
             <div class="grid grid-cols-3 gap-2">
@@ -1593,26 +1257,63 @@
           { bank: 'Yatırım Bankası', amount: Math.min(maxLimit, 1000000), days: 12, rate: 0.20 }
         ].filter(p => p.amount >= 50000);
 
+        const tefeciOffers = [
+          { label: 'Hızlı Nakit (3 Gün)', amount: 400000, days: 3, rate: 0.35 },
+          { label: 'Büyük Vurgun (5 Gün)', amount: 1200000, days: 5, rate: 0.45 }
+        ];
+
         let html = `
           <div class="mb-4">
             <h2 class="text-base sm:text-lg font-extrabold text-white">🏦 Banka & Kredi Puanı (${score} / 1900)</h2>
-            <p class="text-xs text-slate-400">Maksimum limitin: <b class="text-yellow-400">${formatTL(maxLimit)}</b>. 700 puan altında kredi verilmez; her pakette <b>faiz oranı</b> ve toplam geri ödeme aşağıda yazılıdır.</p>
+            <p class="text-xs text-slate-400">Maksimum banka limitin: <b class="text-yellow-400">${formatTL(maxLimit)}</b>. Her pakette <b>faiz oranı</b> ve toplam geri ödeme yazar.</p>
           </div>
           <div class="grid grid-cols-3 sm:grid-cols-9 gap-1.5 mb-4 text-[10px]">
             ${brackets.map(b => `<div class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-center"><span class="text-slate-400 block">${b.range}</span><b class="text-yellow-300">${b.limit}</b></div>`).join('')}
           </div>
         `;
         if (maxLimit <= 0 || packages.length === 0) {
-          html += `<div class="bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 text-xs text-rose-200 font-bold mb-4">⚠️ Kredi puanın (${score}) kredi kullanmak için yetersiz. Kredi puanını 700 ve üzerine çıkarman gerekiyor.</div>`;
+          html += `<div class="bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 text-xs text-rose-200 font-bold mb-4">⚠️ Kredi puanın (${score}) banka kredisi için yetersiz. Kredi puanını 700 ve üzerine çıkarman gerekiyor.</div>`;
         } else {
-          html += `<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">` + packages.map(p => {
+          html += `<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">` + packages.map(p => {
             const total = Math.round(p.amount * (1 + p.rate)), daily = Math.round(total / p.days), ratePct = Math.round(p.rate * 100);
             return `<div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2"><div class="flex items-center justify-between text-xs"><b class="text-blue-400">${p.bank}</b><span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-black">Faiz: %${ratePct}</span></div><div class="text-xl font-black text-white">${formatTL(p.amount)}</div><div class="text-xs text-slate-400">${p.days} Gün • Günlük: <b class="text-rose-400">${formatTL(daily)}</b><br>Toplam Geri Ödeme: <b class="text-slate-200">${formatTL(total)}</b></div><button type="button" onclick="game.takeLoan(${p.amount}, ${p.days}, ${p.rate}, '${p.bank}')" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold">Kredi Çek (%${ratePct} Faiz)</button></div>`;
           }).join('') + `</div>`;
         }
+
         if (s.loans.length > 0) {
-          html += `<div class="space-y-2">${s.loans.map(l => `<div class="bg-slate-950 border border-rose-500/30 rounded-xl p-3 flex items-center justify-between text-xs"><span><b>${l.bankName}</b> (Faiz: %${l.interestRate || 12}) • Kalan: <b class="text-rose-400">${formatTL(l.remainingDebt)}</b> • Taksit: <b>${formatTL(l.dailyInstallment)}</b></span><button type="button" onclick="game.payOffLoan('${l.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold">Kapat</button></div>`).join('')}</div>`;
+          html += `<div class="space-y-2 mb-5">${s.loans.map(l => `<div class="bg-slate-950 border border-rose-500/30 rounded-xl p-3 flex items-center justify-between text-xs"><span><b>${l.bankName}</b> (Faiz: %${l.interestRate || 12}) • Kalan: <b class="text-rose-400">${formatTL(l.remainingDebt)}</b> • Taksit: <b>${formatTL(l.dailyInstallment)}</b></span><button type="button" onclick="game.payOffLoan('${l.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold">Kapat</button></div>`).join('')}</div>`;
         }
+
+        html += `
+          <div class="border-t border-rose-500/30 pt-4 mt-4">
+            <div class="mb-3">
+              <h3 class="text-base font-black text-rose-400">🕶️ Tefeci — Yüksek Nakit, Ağır Risk!</h3>
+              <p class="text-xs text-slate-400">Kredi puanı bakmaksızın yüksek nakit verir; <b>vade gününe kadar ödenmezse galerine el koyar!</b></p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              ${tefeciOffers.map(t => {
+                const payback = Math.round(t.amount * (1 + t.rate));
+                return `
+                  <div class="bg-rose-950/25 border border-rose-500/40 rounded-2xl p-4 space-y-2 text-xs">
+                    <div class="flex justify-between items-center"><b class="text-rose-300">${t.label}</b><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-black">Faiz: %${Math.round(t.rate * 100)}</span></div>
+                    <div class="text-xl font-black text-white">${formatTL(t.amount)}</div>
+                    <div class="text-slate-300">Vade: <b>${t.days} Gün</b> (Gün ${s.day + t.days}) • Geri Ödeme: <b class="text-rose-400">${formatTL(payback)}</b></div>
+                    <button type="button" onclick="game.takeTefeciLoan(${t.amount}, ${t.days}, ${t.rate})" class="w-full py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black">Tefeciden Al (${formatTL(t.amount)})</button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+        `;
+
+        if ((s.tefeciLoans || []).length > 0) {
+          html += `<div class="space-y-2">` + s.tefeciLoans.map(tfc => `
+            <div class="bg-rose-950/60 border border-rose-500 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <span class="text-rose-100">⚠️ <b>Tefeci Borcu:</b> <b class="text-rose-300">${formatTL(tfc.payback)}</b> • Son Gün: <b class="text-yellow-300">Gün ${tfc.dueDay}</b> (Ödenmezse dükkana el konulur!)</span>
+              <button type="button" onclick="game.payOffTefeciLoan('${tfc.id}')" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black">Borcu Kapat (${formatTL(tfc.payback)})</button>
+            </div>
+          `).join('') + `</div>`;
+        }
+        html += `</div>`;
         return html;
       }
       renderGalleriesTab() {
@@ -1662,6 +1363,14 @@
     const game = new SariGaleriGame();
     const galleryCanvas = new GalleryCanvas('galleryCanvas');
     const ui = new UIManager();
+
+    window.addEventListener('beforeunload', function () {
+      try {
+        if (!game.state.isBankrupt && game.state.hasNamedGallery) {
+          game.advanceDay(false, 'Sayfa yenilendi');
+        }
+      } catch (e) {}
+    });
 
     let lastTimestamp = 0;
     function gameLoop(timestamp) {
